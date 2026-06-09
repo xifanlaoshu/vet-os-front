@@ -24,11 +24,24 @@ export function useTableForm(payload: UseTableFormPayload) {
     return {
       showAdvancedButton: true,
       layout: 'horizontal',
-      labelWidth: 100,
+      labelWidth: 92,
       schemas: unref(formSchemas),
       ...formProps,
       submitButtonOptions: { loading: unref(loadingRef), ...submitButtonOptions },
       compact: true,
+      rowProps: {
+        gutter: [16, 0],
+        ...(formProps?.rowProps || {}),
+      },
+      baseColProps: {
+        xxl: 6,
+        xl: 8,
+        lg: 12,
+        md: 12,
+        sm: 24,
+        xs: 24,
+        ...(formProps?.baseColProps || {}),
+      },
     }
   })
 
@@ -47,7 +60,12 @@ export function useTableForm(payload: UseTableFormPayload) {
           component: 'Input',
           label: n.title as string,
           colProps: {
-            span: 8,
+            xxl: 6,
+            xl: 8,
+            lg: 12,
+            md: 12,
+            sm: 24,
+            xs: 24,
           },
           ...n.formItemProps,
         } as FormSchema

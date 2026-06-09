@@ -23,6 +23,7 @@
   import { hasPermission } from '@/permission';
   import { Icon } from '@/components/basic/icon';
   import { isPromise } from '@/utils/is';
+  import { useI18n } from '@/hooks/useI18n';
 
   const ActionItemRender: FunctionalComponent<{ action: ActionItem }> = ({ action }, { slots }) => {
     const { popConfirm, tooltip } = action;
@@ -41,7 +42,6 @@
 
   const props = defineProps({
     actions: {
-      // 表格行动作
       type: Array as PropType<ActionItem[]>,
       default: () => [],
     },
@@ -58,6 +58,7 @@
 
   const clickFnFlag = '__TABLE_ACTION';
   const loadingMap = ref(new Map<string, boolean>());
+  const { t } = useI18n();
 
   const getActions = computed(() => {
     return props.actions
@@ -71,7 +72,7 @@
           const isValid = hasPermission(auth);
           item.disabled ??= !isValid;
           if (item.disabled && !isValid) {
-            item.title = '对不起，您没有该操作权限！';
+            item.title = t('component.table.noPermission');
           }
           return isValid;
         }
@@ -80,10 +81,11 @@
           const isDisable = auth.effect !== 'delete';
           item.disabled ??= !isValid && isDisable;
           if (item.disabled && !isValid) {
-            item.title = '对不起，您没有该操作权限！';
+            item.title = t('component.table.noPermission');
           }
           return isValid || isDisable;
         }
+        return true;
       })
       .map((item, index) => {
         const onClick = item.onClick;

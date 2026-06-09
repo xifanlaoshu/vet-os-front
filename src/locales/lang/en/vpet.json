@@ -1,0 +1,961 @@
+{
+  "common": {
+    "unknown": "Unknown",
+    "none": "None",
+    "all": "All",
+    "search": "Search",
+    "searchText": "Search",
+    "reset": "Reset",
+    "resetText": "Reset",
+    "create": "Create",
+    "edit": "Edit",
+    "detail": "Detail",
+    "save": "Save",
+    "clear": "Clear",
+    "delete": "Delete",
+    "confirmDelete": "Confirm deletion?",
+    "action": "Action",
+    "queryText": "Search",
+    "inputText": "Please enter",
+    "chooseText": "Please choose",
+    "viewMedicalRecord": "View record",
+    "visitHistory": "Visit history",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at",
+    "amountUnit": "CNY"
+  },
+  "component": {
+    "form": {
+      "putAway": "Put away",
+      "unfold": "Unfold"
+    },
+    "table": {
+      "total": "total of {total}"
+    }
+  },
+  "options": {
+    "species": {
+      "dog": "Dog",
+      "cat": "Cat",
+      "other": "Other"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "neutered": {
+      "0": "Not neutered",
+      "1": "Neutered"
+    },
+    "livingEnvironment": {
+      "1": "Indoor",
+      "2": "Outdoor",
+      "3": "Mixed"
+    },
+    "reproductiveStatus": {
+      "1": "Not bred",
+      "2": "Breeding",
+      "4": "Pregnant",
+      "5": "Lactating"
+    },
+    "lifeStage": {
+      "1": "Juvenile",
+      "2": "Adult",
+      "3": "Senior"
+    }
+  },
+  "status": {
+    "appointment": {
+      "1": "Booked",
+      "2": "Checked in",
+      "3": "Completed",
+      "4": "Cancelled"
+    },
+    "visit": {
+      "1": "Waiting",
+      "2": "Called",
+      "3": "In consultation",
+      "4": "Finished",
+      "6": "Missed"
+    },
+    "paymentMethod": {
+      "1": "WeChat",
+      "2": "Alipay",
+      "3": "Cash",
+      "4": "Member card",
+      "5": "Combined"
+    },
+    "payment": {
+      "1": "Pending",
+      "2": "Partial",
+      "3": "Paid",
+      "4": "Refunded",
+      "5": "Partially refunded"
+    },
+    "prescription": {
+      "1": "Draft",
+      "2": "Pending review",
+      "3": "Reviewed",
+      "4": "Dispensed",
+      "5": "Voided"
+    },
+    "doctor": {
+      "0": "Inactive",
+      "1": "Active"
+    },
+    "pet": {
+      "1": "Normal",
+      "2": "Hospitalized",
+      "3": "Euthanasia",
+      "4": "Deceased"
+    },
+    "pharmacy": {
+      "0": "Disabled",
+      "1": "Active"
+    },
+    "queueEvent": {
+      "1": "Checked into queue",
+      "2": "Called by doctor",
+      "3": "Consultation started",
+      "4": "Consultation ended",
+      "5": "Missed"
+    },
+    "lab": {
+      "1": "Requested",
+      "2": "Sampled",
+      "4": "Reported"
+    },
+    "hospitalization": {
+      "1": "Hospitalized",
+      "2": "Discharged"
+    },
+    "reminder": {
+      "1": "Pending",
+      "2": "Reminded",
+      "3": "Completed",
+      "4": "Cancelled"
+    },
+    "insurance": {
+      "1": "Draft",
+      "2": "Submitted",
+      "3": "Settled"
+    },
+    "transfer": {
+      "1": "Pending approval",
+      "2": "Approved",
+      "3": "Completed"
+    }
+  },
+  "page": {
+    "dashboard": {
+      "title": "Workbench",
+      "stats": {
+        "appointments": "Today's appointments",
+        "waiting": "Waiting",
+        "hospitalized": "Hospitalized",
+        "revenue": "Today's revenue"
+      },
+      "todayVisits": "Today's visits",
+      "columns": {
+        "visitNo": "Visit No.",
+        "status": "Status",
+        "createdAt": "Created at"
+      }
+    },
+    "customer": {
+      "title": "Customers",
+      "add": "New customer",
+      "edit": "Edit customer",
+      "detailTitle": "Customer Detail",
+      "customerInfo": "Customer Info",
+      "pets": "Pets",
+      "addPet": "Add pet",
+      "visitHistory": "Visit history",
+      "filterByPet": "Filter by pet",
+      "petCountUnit": "pets",
+      "visitCountUnit": "visits",
+      "emptyPets": "No pets",
+      "emptyVisits": "No visit records",
+      "fields": {
+        "name": "Name",
+        "phone": "Phone",
+        "address": "Address",
+        "registeredAt": "Registered at",
+        "remark": "Remark"
+      },
+      "messages": {
+        "created": "Customer created",
+        "updated": "Customer updated",
+        "petCreated": "Pet created",
+        "petUpdated": "Pet updated"
+      }
+    },
+    "pet": {
+      "title": "Pets",
+      "add": "New pet",
+      "edit": "Edit pet",
+      "detailTitle": "Pet Detail",
+      "baseInfo": "Basic Info",
+      "extraInfo": "Additional Info",
+      "visitHistory": "Visit history",
+      "emptyVisits": "No visit records",
+      "ageYears": "{count} year(s)",
+      "ageMonths": "{count} month(s)",
+      "fields": {
+        "name": "Pet name",
+        "species": "Species",
+        "breed": "Breed",
+        "gender": "Gender",
+        "weight": "Weight",
+        "weightUnit": "kg",
+        "status": "Status",
+        "color": "Color",
+        "birthday": "Birthday",
+        "neutered": "Neutered",
+        "microchipId": "Microchip ID",
+        "allergy": "Allergy",
+        "behaviorTag": "Behavior tag",
+        "livingEnvironment": "Living environment",
+        "dietBrand": "Diet brand",
+        "recentTravel": "Recent travel",
+        "reproductiveStatus": "Reproductive status",
+        "lifeStage": "Life stage",
+        "medicalHistory": "Medical history"
+      },
+      "messages": {
+        "selectCustomer": "Please select a customer master record",
+        "fillBasicInfo": "Please complete the basic pet information",
+        "created": "Pet created",
+        "updated": "Pet updated"
+      }
+    },
+    "petForm": {
+      "fields": {
+        "name": "Pet name",
+        "species": "Species",
+        "gender": "Gender",
+        "breed": "Breed",
+        "birthday": "Birthday",
+        "color": "Color",
+        "weight": "Weight (kg)",
+        "neutered": "Neutered",
+        "microchipId": "Microchip ID",
+        "allergy": "Allergy history",
+        "behaviorTag": "Behavior tag",
+        "livingEnvironment": "Living environment",
+        "otherPetsCount": "Other pets at home",
+        "reproductiveStatus": "Reproductive status",
+        "dietBrand": "Diet brand",
+        "recentTravel": "Recent travel / boarding",
+        "medicalHistory": "Medical history"
+      },
+      "more": "More information (optional)",
+      "breedPlaceholder": "Enter breed manually"
+    },
+    "doctor": {
+      "title": "Medical Staff",
+      "add": "Add staff",
+      "edit": "Edit staff",
+      "fields": {
+        "user": "Linked system user",
+        "userId": "User ID",
+        "name": "Name",
+        "phone": "Phone",
+        "title": "Title",
+        "position": "Position",
+        "department": "Department",
+        "status": "Status",
+        "introduction": "Introduction"
+      },
+      "placeholders": {
+        "user": "Select a system user",
+        "name": "Enter staff name",
+        "title": "For example: Attending veterinarian",
+        "position": "Select position",
+        "department": "Prefer dictionary master data"
+      },
+      "positions": {
+        "doctor": "Doctor",
+        "assistant": "Assistant",
+        "reception": "Reception",
+        "groomer": "Groomer"
+      },
+      "departments": {
+        "internal": "Internal medicine",
+        "surgery": "Surgery",
+        "dermatology": "Dermatology",
+        "ophthalmology": "Ophthalmology",
+        "emergency": "Emergency",
+        "checkup": "Check-up"
+      },
+      "messages": {
+        "nameRequired": "Please enter the staff name",
+        "positionRequired": "Please select a position",
+        "created": "Staff created",
+        "updated": "Staff updated",
+        "deleted": "Staff deleted"
+      }
+    },
+    "appointment": {
+      "title": "Appointments",
+      "list": "Appointment List",
+      "create": "New appointment",
+      "edit": "Edit appointment",
+      "keywordPlaceholder": "Customer / pet / reason",
+      "doctorPlaceholder": "All doctors",
+      "statusPlaceholder": "All statuses",
+      "fields": {
+        "date": "Appointment date",
+        "doctor": "Doctor",
+        "status": "Status",
+        "keyword": "Keyword",
+        "customer": "Customer",
+        "visit": "Visit",
+        "pet": "Pet",
+        "appointmentTime": "Appointment time",
+        "visitType": "Visit type",
+        "reason": "Reason",
+        "remark": "Remark"
+      },
+      "placeholders": {
+        "customer": "Select customer",
+        "pet": "Select pet",
+        "doctor": "Select doctor",
+        "visitType": "Select visit type",
+        "selectCustomerFirst": "Please select customer first"
+      },
+      "visitTypes": {
+        "first": "First visit",
+        "followup": "Follow-up"
+      },
+      "table": {
+        "doctor": "Doctor",
+        "action": "Action",
+        "checkIn": "Check in",
+        "openRecord": "Open record",
+        "cancel": "Cancel appointment"
+      },
+      "messages": {
+        "created": "Appointment created",
+        "updated": "Appointment updated",
+        "checkedIn": "Checked in. Queue No. {queueNumber}",
+        "notFoundVisit": "Related visit record not found",
+        "cancelled": "Appointment cancelled"
+      }
+    },
+    "consultation": {
+      "title": "Consultation Workbench",
+      "todayAppointments": "Today's appointments",
+      "historyVisits": "Visit history",
+      "keywordPlaceholder": "Pet / customer / visit no.",
+      "stats": {
+        "total": "Appointments",
+        "booked": "Pending check-in",
+        "checkedIn": "Pending consult",
+        "completed": "Completed"
+      },
+      "fields": {
+        "date": "Appointment date",
+        "doctor": "Doctor",
+        "status": "Status",
+        "visitStatus": "Visit status",
+        "visitNo": "Visit No.",
+        "keyword": "Keyword",
+        "reason": "Reason",
+        "chiefComplaint": "Chief complaint",
+        "diagnosis": "Diagnosis",
+        "endTime": "End time"
+      },
+      "table": {
+        "appointmentPet": "Appointment pet",
+        "visitPet": "Visit pet",
+        "action": "Action",
+        "edit": "Edit",
+        "enterRecord": "Open record",
+        "checkInAndConsult": "Check in & consult"
+      },
+      "detail": {
+        "titleFallback": "Medical Record",
+        "syncBilling": "Sync billing",
+        "saveRecord": "Save record",
+        "endVisit": "End consultation",
+        "lockEmr": "Lock record",
+        "signEmr": "Sign & lock",
+        "requestUnlock": "Request unlock",
+        "queueNumber": "Queue No.",
+        "startTime": "Start time",
+        "receivable": "Receivable",
+        "due": "Amount due",
+        "soap": "SOAP Record",
+        "subjective": "Subjective (S)",
+        "objective": "Objective (O)",
+        "assessment": "Assessment (A)",
+        "plan": "Plan (P)",
+        "statusSummary": "Status summary",
+        "planSummary": "Plan summary",
+        "progressTimeline": "Progress timeline",
+        "planTimeline": "Plan timeline",
+        "emptyProgressBatches": "No progress batches",
+        "emptyPlanBatches": "No plan batches",
+        "diagnosisPlaceholder": "Search diagnosis master data",
+        "prescription": "Prescriptions",
+        "prescriptionSummary": "{count} prescription(s), {dispensed} dispensed",
+        "diagnosisSummaryPlaceholder": "Diagnosis summary",
+        "drugPlaceholder": "Select a drug or service item",
+        "drugFallback": "Charge item",
+        "dosage": "Dosage",
+        "frequency": "Frequency",
+        "addDrug": "Add charge item",
+        "submitPrescription": "Submit prescription",
+        "dispense": "Dispense",
+        "transactionList": "Dispensing transactions",
+        "prescriptionAndDispense": "Prescriptions & Dispensing",
+        "emptyPrescription": "No prescriptions",
+        "emptyTransactions": "No dispensing transactions",
+        "visitInfo": "Visit Info",
+        "memberBalance": "Member balance",
+        "queueTrace": "Queue timeline",
+        "emptyQueueEvents": "No queue events",
+        "billingAndPayments": "Billing & Payments",
+        "emptyBills": "No bills",
+        "emptyPayments": "No payments",
+        "pay": "Collect payment",
+        "confirmPayment": "Confirm payment",
+        "doctor": "Doctor",
+        "queueEventFallback": "Queue event",
+        "emrCompliance": "EMR compliance",
+        "emrLockStatus": "Lock status",
+        "locked": "Locked",
+        "unlocked": "Unlocked",
+        "signatureCount": "Signature count",
+        "auditLogs": "Audit logs",
+        "emptyAuditLogs": "No audit logs",
+        "auditLock": "Locked EMR",
+        "auditSigned": "E-signature",
+        "auditUnlockRequested": "Unlock requested",
+        "auditUnlockApproved": "Unlock approved",
+        "auditUnlockRejected": "Unlock rejected",
+        "unlockReasonPrompt": "Please enter the unlock reason",
+        "unlockReason": "Unlock reason"
+      },
+      "messages": {
+        "visitNotFound": "Related visit record not found",
+        "redirectToAppointmentEdit": "Please edit the appointment for {name} from the appointment page",
+        "saved": "Medical record saved",
+        "ended": "Consultation ended",
+        "dispensed": "Prescription dispensed",
+        "billingSynced": "Billing items synced",
+        "emrLocked": "Medical record locked",
+        "emrSigned": "Medical record signed and locked",
+        "unlockRequested": "Unlock request submitted"
+      }
+    },
+    "billing": {
+      "title": "Billing",
+      "list": "Bill List",
+      "create": "Create bill",
+      "confirmPayment": "Confirm payment",
+      "refund": "Refund",
+      "detail": "Bill detail",
+      "chargeItems": "Charge items",
+      "paymentRecords": "Payment records",
+      "memberNotOpened": "No member card",
+      "defaultItemName": "Outpatient registration fee",
+      "emptyDetails": "No charge items",
+      "emptyPayments": "No payment records",
+      "placeholders": {
+        "visit": "All visits"
+      },
+      "fields": {
+        "visit": "Visit",
+        "paymentStatus": "Payment status",
+        "itemName": "Charge item",
+        "amount": "Amount",
+        "discount": "Discount",
+        "paymentMethod": "Payment method",
+        "paidAmount": "Paid amount",
+        "paidAt": "Paid at",
+        "customer": "Customer",
+        "pet": "Pet",
+        "memberBalance": "Member balance",
+        "billNo": "Bill No.",
+        "receivable": "Receivable",
+        "due": "Amount due",
+        "refundableAmount": "Refundable amount",
+        "refundAmount": "Refund amount",
+        "refundReason": "Refund reason"
+      },
+      "messages": {
+        "created": "Bill created",
+        "paid": "Payment collected",
+        "refunded": "Refund completed",
+        "invalidVisit": "Please select a valid visit record",
+        "itemNameRequired": "Please enter a charge item name",
+        "amountPositive": "Paid amount must be greater than 0",
+        "cleared": "This bill has already been fully paid",
+        "noRefundableAmount": "No refundable amount",
+        "refundExceedsPaid": "Refund amount cannot exceed the paid amount",
+        "refundReasonRequired": "Please enter the refund reason"
+      }
+    },
+    "member": {
+      "title": "Member Management",
+      "list": "Member Card List",
+      "openCard": "Open card",
+      "recharge": "Recharge",
+      "deduct": "Deduct",
+      "logs": "Card Logs",
+      "placeholders": {
+        "customer": "Search customer",
+        "keyword": "Card No. / customer / phone",
+        "level": "All levels",
+        "status": "All statuses"
+      },
+      "fields": {
+        "customer": "Customer",
+        "keyword": "Keyword",
+        "cardNo": "Card No.",
+        "level": "Level",
+        "status": "Status",
+        "balance": "Balance",
+        "giftBalance": "Gift balance",
+        "initialBalance": "Initial balance",
+        "currentBalance": "Current balance",
+        "totalRecharge": "Total recharge",
+        "totalSpend": "Total spend",
+        "amount": "Amount",
+        "remark": "Remark",
+        "logType": "Log type",
+        "direction": "Direction",
+        "balanceBefore": "Before",
+        "balanceAfter": "After"
+      },
+      "messages": {
+        "customerRequired": "Please select a customer",
+        "amountRequired": "Amount must be greater than 0",
+        "cardOpened": "Member card opened",
+        "recharged": "Recharge completed",
+        "deducted": "Deduction completed"
+      }
+    },
+    "pharmacy": {
+      "title": "Pharmacy",
+      "addDrug": "Add drug",
+      "editDrug": "Edit drug",
+      "servicePricing": "Service Items",
+      "addServiceItem": "Add service item",
+      "editServiceItem": "Edit service item",
+      "stockAlert": "Stock alerts",
+      "alertTitle": "Stock / expiry alerts",
+      "lowStockPanel": "Low stock alerts",
+      "expiringPanel": "Batches expiring within 30 days",
+      "batchDetail": "Batch detail",
+      "stockIn": "Stock in",
+      "emptyLowStock": "No low-stock drugs",
+      "emptyExpiring": "No batches nearing expiry",
+      "placeholders": {
+        "specification": "For example: 100mg*10",
+        "expireDate": "YYYY-MM-DD"
+      },
+      "batchStatus": {
+        "1": "Active",
+        "2": "Expired",
+        "3": "Exhausted"
+      },
+      "fields": {
+        "drugCode": "Drug code",
+        "drugName": "Drug name",
+        "specification": "Specification",
+        "currentStock": "Stock",
+        "retailPrice": "Retail price",
+        "minStock": "Minimum stock",
+        "status": "Status",
+        "unit": "Unit",
+        "supplier": "Supplier",
+        "itemCode": "Item code",
+        "itemName": "Item name",
+        "category": "Category",
+        "description": "Description",
+        "batchNo": "Batch No.",
+        "expireDate": "Expiry date",
+        "quantity": "Quantity",
+        "purchasePrice": "Purchase price (CNY)",
+        "packageUnit": "Package unit",
+        "dosageUnit": "Dosage unit",
+        "packageContentQuantity": "Content per package",
+        "packageConversion": "Package conversion",
+        "packageRetailPrice": "Package retail price",
+        "dosageUnitPrice": "Dosage unit price",
+        "packageUnitPrice": "Package unit price",
+        "minPackageStock": "Minimum package stock",
+        "currentPackageStock": "Package stock",
+        "stockInPackageQuantity": "Stock-in package quantity"
+      },
+      "messages": {
+        "created": "Drug created",
+        "updated": "Drug updated",
+        "stockInSuccess": "Stock-in completed: {drugName}",
+        "serviceItemRequired": "Please fill item code and item name",
+        "serviceItemCreated": "Service item created",
+        "serviceItemUpdated": "Service item updated",
+        "serviceItemDeleted": "Service item deleted",
+        "stockInConversion": "This stock-in records {packageQuantity} {packageUnit}; the system will store {dosageQuantity} {dosageUnit} for prescription deduction."
+      }
+    },
+    "serviceItem": {
+      "title": "Service Items",
+      "add": "Add service item",
+      "edit": "Edit service item",
+      "fields": {
+        "itemCode": "Item code",
+        "itemName": "Item name",
+        "category": "Category",
+        "specification": "Specification",
+        "unit": "Unit",
+        "retailPrice": "Retail price",
+        "status": "Status",
+        "description": "Description"
+      },
+      "messages": {
+        "required": "Please fill item code and item name",
+        "created": "Service item created",
+        "updated": "Service item updated",
+        "deleted": "Service item deleted"
+      }
+    },
+    "prescription": {
+      "title": "Prescriptions",
+      "add": "New prescription",
+      "detail": "Prescription details",
+      "detailItems": "Prescription items",
+      "addDrug": "Add charge item",
+      "templateManager": "Prescription templates",
+      "templateItems": "Template items",
+      "doctorPlaceholder": "Filled automatically from the visit master data",
+      "placeholders": {
+        "diagnosisSummary": "Defaults to the current visit diagnosis and can be adjusted",
+        "drug": "Select a drug or service item",
+        "template": "Select a prescription template to fill prescription items",
+        "formula": "Example: weight*0.2 or 1-2=1;2-5=2;>5=3"
+      },
+      "fields": {
+        "rxNo": "Prescription No.",
+        "visit": "Visit",
+        "doctor": "Doctor",
+        "customer": "Customer",
+        "pet": "Pet",
+        "template": "Prescription template",
+        "templateCode": "Template code",
+        "templateName": "Template name",
+        "templateCategory": "Template category",
+        "templateDescription": "Template description",
+        "diagnosisSummary": "Clinical diagnosis",
+        "item": "Item",
+        "specification": "Specification",
+        "dosage": "Dosage",
+        "frequency": "Frequency",
+        "quantity": "Quantity",
+        "unitPrice": "Unit price",
+        "dosageUnit": "Dosage unit",
+        "dosageFormula": "Dosage formula",
+        "quantityFormula": "Quantity formula"
+      },
+      "messages": {
+        "selectVisit": "Please select a visit record",
+        "doctorRequired": "The current visit is not linked to a doctor",
+        "selectDrug": "Please select at least one drug or service item",
+        "created": "Prescription created",
+        "templateRequired": "Please fill template code and template name",
+        "templateCreated": "Prescription template created",
+        "templateDeleted": "Prescription template deleted"
+      },
+      "formulaHelp": "Formulas support the variable weight (pet weight in kg) and arithmetic, such as weight*0.2. Range rules are also supported, such as 1-2=1;2-5=2;>5=3. When applying a template, the system calculates suggested dosage and quantity from the current visit pet weight, and the prescription can still be adjusted manually."
+    },
+    "queue": {
+      "title": "Queue Board",
+      "waiting": "Waiting",
+      "active": "Called / In consultation",
+      "emptyWaiting": "No waiting visits",
+      "emptyActive": "No active visits"
+    },
+    "lab": {
+      "title": "Lab Orders",
+      "create": "Create lab order",
+      "templateManager": "Template definitions",
+      "createTemplate": "Create lab template",
+      "report": "Report",
+      "reportTitle": "Lab Report",
+      "reportItems": "Result items",
+      "resultSchema": "Result template schema",
+      "addSchemaRow": "Add result row",
+      "submitLis": "Submit LIS",
+      "addItem": "Add item",
+      "fields": {
+        "orderNo": "Lab No.",
+        "visit": "Visit",
+        "doctor": "Doctor",
+        "customer": "Customer",
+        "pet": "Pet",
+        "testName": "Test name",
+        "sampleType": "Sample type",
+        "abnormalCount": "Abnormal count",
+        "requestedAt": "Requested at",
+        "status": "Status",
+        "keyword": "Keyword",
+        "itemName": "Item name",
+        "resultValue": "Result value",
+        "unit": "Unit",
+        "refMin": "Ref min",
+        "refMax": "Ref max",
+        "flag": "Flag",
+        "reportSummary": "Report summary",
+        "templateCode": "Template code",
+        "templateName": "Template name",
+        "templateDescription": "Template description",
+        "defaultChargeAmount": "Default charge",
+        "metricKey": "Result code"
+      },
+      "messages": {
+        "created": "Lab order created",
+        "reportSaved": "Lab report saved",
+        "lisSubmitted": "LIS task submitted",
+        "templateRequired": "Please fill template code and template name",
+        "templateCreated": "Lab template created"
+      }
+    },
+    "hospitalization": {
+      "title": "Hospitalization",
+      "create": "Create hospitalization",
+      "nursing": "Nursing",
+      "nursingTitle": "Nursing execution",
+      "addPlan": "Add plan",
+      "execute": "Execute",
+      "discharge": "Discharge",
+      "pending": "Pending",
+      "executed": "Executed",
+      "fields": {
+        "hospNo": "Hospitalization No.",
+        "visit": "Visit",
+        "doctor": "Doctor",
+        "customer": "Customer",
+        "pet": "Pet",
+        "status": "Status",
+        "keyword": "Keyword",
+        "cageCode": "Cage",
+        "nursingLevel": "Nursing level",
+        "dailyFee": "Daily fee",
+        "depositAmount": "Deposit",
+        "admissionAt": "Admission at",
+        "admissionDiagnosis": "Admission diagnosis",
+        "planType": "Plan type",
+        "planName": "Plan name",
+        "instruction": "Instruction",
+        "frequency": "Frequency",
+        "scheduledTime": "Scheduled time",
+        "latestExecutionAt": "Latest execution",
+        "executorName": "Executor",
+        "resultNote": "Execution note",
+        "dischargeSummary": "Discharge summary"
+      },
+      "messages": {
+        "created": "Hospitalization created",
+        "planCreated": "Nursing plan created",
+        "executed": "Nursing plan executed",
+        "discharged": "Discharged successfully"
+      }
+    },
+    "reminder": {
+      "title": "Reminder",
+      "create": "Create reminder",
+      "complete": "Complete",
+      "cancel": "Cancel",
+      "fields": {
+        "visit": "Linked visit",
+        "customer": "Customer",
+        "pet": "Pet",
+        "reminderName": "Reminder name",
+        "type": "Type",
+        "channel": "Channel",
+        "dueDate": "Due date",
+        "status": "Status",
+        "keyword": "Keyword",
+        "remark": "Remark"
+      },
+      "messages": {
+        "created": "Reminder created",
+        "completed": "Reminder completed",
+        "cancelled": "Reminder cancelled"
+      }
+    },
+    "chronic": {
+      "title": "Chronic Care",
+      "create": "Create chronic case",
+      "caseList": "Chronic case list",
+      "carePlan": "Long-term care plan",
+      "trackingSchema": "Tracking metric template",
+      "addFollowup": "Add follow-up",
+      "addCarePlanRow": "Add plan row",
+      "addMetricRow": "Add metric row",
+      "openVisit": "Open linked visit",
+      "metricValues": "Structured tracking data",
+      "emptyCases": "No chronic cases",
+      "emptyFollowups": "No follow-up records",
+      "emptyMetricSeries": "No tracking data",
+      "selectCase": "Select a chronic case on the left to view details",
+      "cards": {
+        "activeCases": "Active cases",
+        "pendingReviews": "Pending reviews",
+        "recentFollowups": "Recent follow-ups"
+      },
+      "tabs": {
+        "summary": "Overview",
+        "followups": "Follow-up track",
+        "report": "Tracking report"
+      },
+      "defaults": {
+        "weight": "Weight"
+      },
+      "placeholders": {
+        "diseaseTags": "Separate multiple tags with commas"
+      },
+      "fields": {
+        "caseNo": "Case No.",
+        "customer": "Customer",
+        "pet": "Pet",
+        "visit": "Linked visit",
+        "keyword": "Keyword",
+        "diseaseName": "Disease name",
+        "diseaseTags": "Disease tags",
+        "initialSummary": "Initial summary",
+        "managementGoal": "Management goal",
+        "nextReviewDate": "Next review date",
+        "lastReviewDate": "Latest review date",
+        "planStage": "Stage",
+        "planGoal": "Goal",
+        "planAction": "Action",
+        "metricKey": "Metric key",
+        "metricLabel": "Metric label",
+        "metricUnit": "Unit",
+        "reviewDate": "Review time",
+        "symptomSummary": "Symptom change",
+        "statusSummary": "Status change",
+        "planAdjustment": "Plan adjustment"
+      },
+      "report": {
+        "followupCount": "Follow-up count",
+        "lastReviewDate": "Latest review",
+        "nextReviewDate": "Next review",
+        "metricTrend": "Metric trend",
+        "latestValue": "Latest value",
+        "history": "History",
+        "timeline": "Follow-up detail"
+      },
+      "messages": {
+        "caseRequired": "Please fill customer, pet and disease name",
+        "caseCreated": "Chronic case created",
+        "followupCreated": "Follow-up created",
+        "visitMissing": "No linked visit for this chronic case"
+      }
+    },
+    "report": {
+      "title": "Daily Report",
+      "doctorRanking": "Doctor ranking",
+      "lowStock": "Low stock",
+      "chronicFollowups": "Recent chronic follow-ups",
+      "cards": {
+        "appointments": "Appointments",
+        "visits": "Visits",
+        "revenue": "Revenue",
+        "hospitalized": "Hospitalized",
+        "activeChronic": "Active chronic cases",
+        "pendingChronic": "Pending chronic reviews"
+      },
+      "fields": {
+        "date": "Date",
+        "doctorId": "Doctor ID",
+        "visitCount": "Visit count",
+        "drugName": "Drug",
+        "currentStock": "Current stock",
+        "caseNo": "Case No.",
+        "diseaseName": "Disease name",
+        "reviewDate": "Review time",
+        "statusSummary": "Status summary"
+      }
+    },
+    "insurance": {
+      "title": "Insurance Claims",
+      "create": "Create claim",
+      "submit": "Submit",
+      "settle": "Settle",
+      "fields": {
+        "claimNo": "Claim No.",
+        "visit": "Visit",
+        "customer": "Customer",
+        "pet": "Pet",
+        "providerName": "Provider",
+        "policyNo": "Policy No.",
+        "claimAmount": "Claim amount",
+        "approvedAmount": "Approved amount",
+        "status": "Status",
+        "keyword": "Keyword",
+        "remark": "Remark"
+      },
+      "messages": {
+        "created": "Insurance claim created",
+        "submitted": "Insurance claim submitted",
+        "settled": "Insurance claim settled"
+      }
+    },
+    "store": {
+      "title": "Stores",
+      "stores": "Stores",
+      "stock": "Store stock",
+      "transfer": "Transfers",
+      "createStore": "Create store",
+      "setStock": "Set stock",
+      "createTransfer": "Create transfer",
+      "approve": "Approve",
+      "complete": "Complete",
+      "fields": {
+        "storeCode": "Store code",
+        "storeName": "Store name",
+        "contactName": "Contact",
+        "contactPhone": "Phone",
+        "drugName": "Drug",
+        "quantity": "Quantity",
+        "safetyStock": "Safety stock",
+        "transferNo": "Transfer No.",
+        "sourceStore": "Source store",
+        "targetStore": "Target store",
+        "status": "Status",
+        "reason": "Reason"
+      },
+      "messages": {
+        "storeCreated": "Store created",
+        "stockSaved": "Store stock saved",
+        "transferCreated": "Transfer created",
+        "transferApproved": "Transfer approved",
+        "transferCompleted": "Transfer completed"
+      }
+    },
+    "ai": {
+      "title": "AI Copilot",
+      "soapDraft": "SOAP Draft",
+      "labInterpret": "Lab Interpretation",
+      "prescriptionReview": "Prescription Review",
+      "review": "Review",
+      "generate": "Generate",
+      "logs": "Logs",
+      "fields": {
+        "visit": "Visit",
+        "petName": "Pet name",
+        "chiefComplaint": "Chief complaint",
+        "objectiveFindings": "Objective findings",
+        "draftNotes": "Draft notes",
+        "taskType": "Task type",
+        "bizType": "Business type",
+        "riskLevel": "Risk level"
+      }
+    }
+  }
+}

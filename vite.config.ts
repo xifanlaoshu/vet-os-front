@@ -126,13 +126,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
           secure: false,
           agent: new https.Agent(),
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, ''),
         },
         '^/upload': {
           // target: 'https://nest-admin.buqiyuan.top/upload',
           target: 'http://127.0.0.1:7001/upload',
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/upload/, ''),
         },
       },
       // 提前转换和缓存文件以进行预热。可以在服务器启动时提高初始页面加载速度，并防止转换瀑布。

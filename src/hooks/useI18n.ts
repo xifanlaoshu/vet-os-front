@@ -20,7 +20,11 @@ export function useI18n(namespace?: string): {
   const i18n = locales.i18n;
   const normalFn = {
     t: (key: string) => {
-      return getKey(namespace, key);
+      const scopedKey = getKey(namespace, key);
+      if (namespace && scopedKey !== key) {
+        return key;
+      }
+      return scopedKey;
     },
   };
 
@@ -33,9 +37,19 @@ export function useI18n(namespace?: string): {
   const tFn: I18nGlobalTranslation = (key: string, ...arg: any[]) => {
     if (!key) return '';
     if (!key.includes('.') && !namespace) return key;
-    return t(getKey(namespace, key), ...(arg as I18nTranslationRestParameters));
+    const scopedKey = getKey(namespace, key);
+    const scopedText = t(scopedKey, ...(arg as I18nTranslationRestParameters));
+
+    // Namespace-first lookup with graceful fallback to the global key.
+    // This prevents shared component text like `common.*` / `component.*`
+    // from being incorrectly rendered as `vpet.common.*` when used inside VPet pages.
+    if (namespace && scopedKey !== key && scopedText === scopedKey) {
+      return t(key, ...(arg as I18nTranslationRestParameters));
+    }
+
+    return scopedText;
   };
-  return Object.assign(i18n.global, { t: tFn });
+  return { t: tFn };
 }
 
 /**

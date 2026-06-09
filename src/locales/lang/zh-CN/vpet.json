@@ -1,0 +1,961 @@
+{
+  "common": {
+    "unknown": "未知",
+    "none": "无",
+    "all": "全部",
+    "search": "查询",
+    "searchText": "查询",
+    "reset": "重置",
+    "resetText": "重置",
+    "create": "新增",
+    "edit": "编辑",
+    "detail": "详情",
+    "save": "保存",
+    "clear": "清空",
+    "delete": "删除",
+    "confirmDelete": "确认删除？",
+    "action": "操作",
+    "queryText": "查询",
+    "inputText": "请输入",
+    "chooseText": "请选择",
+    "viewMedicalRecord": "查看病历",
+    "visitHistory": "看诊历史",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "amountUnit": "元"
+  },
+  "component": {
+    "form": {
+      "putAway": "收起",
+      "unfold": "展开"
+    },
+    "table": {
+      "total": "共 {total} 条"
+    }
+  },
+  "options": {
+    "species": {
+      "dog": "犬",
+      "cat": "猫",
+      "other": "其他"
+    },
+    "gender": {
+      "male": "公",
+      "female": "母"
+    },
+    "neutered": {
+      "0": "未绝育",
+      "1": "已绝育"
+    },
+    "livingEnvironment": {
+      "1": "室内",
+      "2": "室外",
+      "3": "混合"
+    },
+    "reproductiveStatus": {
+      "1": "未繁殖",
+      "2": "种用",
+      "4": "孕期",
+      "5": "哺乳期"
+    },
+    "lifeStage": {
+      "1": "幼年",
+      "2": "成年",
+      "3": "老年"
+    }
+  },
+  "status": {
+    "appointment": {
+      "1": "待预约",
+      "2": "已签到",
+      "3": "已完成",
+      "4": "已取消"
+    },
+    "visit": {
+      "1": "待叫号",
+      "2": "已叫号",
+      "3": "接诊中",
+      "4": "已结束",
+      "6": "已过号"
+    },
+    "paymentMethod": {
+      "1": "微信",
+      "2": "支付宝",
+      "3": "现金",
+      "4": "会员卡",
+      "5": "组合支付"
+    },
+    "payment": {
+      "1": "待支付",
+      "2": "部分支付",
+      "3": "已支付",
+      "4": "已退款",
+      "5": "部分退款"
+    },
+    "prescription": {
+      "1": "草稿",
+      "2": "待审核",
+      "3": "已审核",
+      "4": "已发药",
+      "5": "已作废"
+    },
+    "doctor": {
+      "0": "离职",
+      "1": "在职"
+    },
+    "pet": {
+      "1": "正常",
+      "2": "住院",
+      "3": "安乐",
+      "4": "死亡"
+    },
+    "pharmacy": {
+      "0": "停用",
+      "1": "正常"
+    },
+    "queueEvent": {
+      "1": "签到入队",
+      "2": "医生叫号",
+      "3": "开始接诊",
+      "4": "结束就诊",
+      "5": "过号"
+    },
+    "lab": {
+      "1": "已开单",
+      "2": "已采样",
+      "4": "已出报告"
+    },
+    "hospitalization": {
+      "1": "住院中",
+      "2": "已出院"
+    },
+    "reminder": {
+      "1": "待提醒",
+      "2": "已提醒",
+      "3": "已完成",
+      "4": "已取消"
+    },
+    "insurance": {
+      "1": "草稿",
+      "2": "已提交",
+      "3": "已结算"
+    },
+    "transfer": {
+      "1": "待审批",
+      "2": "已审批",
+      "3": "已完成"
+    }
+  },
+  "page": {
+    "dashboard": {
+      "title": "工作台",
+      "stats": {
+        "appointments": "今日预约",
+        "waiting": "候诊中",
+        "hospitalized": "住院中",
+        "revenue": "今日营收"
+      },
+      "todayVisits": "今日就诊列表",
+      "columns": {
+        "visitNo": "就诊编号",
+        "status": "状态",
+        "createdAt": "创建时间"
+      }
+    },
+    "customer": {
+      "title": "客户管理",
+      "add": "新增客户",
+      "edit": "编辑客户",
+      "detailTitle": "客户详情",
+      "customerInfo": "客户信息",
+      "pets": "名下宠物",
+      "addPet": "新增宠物",
+      "visitHistory": "看诊历史",
+      "filterByPet": "按宠物筛选",
+      "petCountUnit": "只宠物",
+      "visitCountUnit": "次就诊",
+      "emptyPets": "暂无宠物",
+      "emptyVisits": "暂无就诊记录",
+      "fields": {
+        "name": "姓名",
+        "phone": "手机号",
+        "address": "地址",
+        "registeredAt": "注册时间",
+        "remark": "备注"
+      },
+      "messages": {
+        "created": "客户已创建",
+        "updated": "客户已更新",
+        "petCreated": "宠物已创建",
+        "petUpdated": "宠物已更新"
+      }
+    },
+    "pet": {
+      "title": "宠物管理",
+      "add": "新增宠物",
+      "edit": "编辑宠物",
+      "detailTitle": "宠物详情",
+      "baseInfo": "基础信息",
+      "extraInfo": "扩展信息",
+      "visitHistory": "看诊历史",
+      "emptyVisits": "暂无就诊记录",
+      "ageYears": "{count} 岁",
+      "ageMonths": "{count} 个月",
+      "fields": {
+        "name": "宠物名",
+        "species": "物种",
+        "breed": "品种",
+        "gender": "性别",
+        "weight": "体重",
+        "weightUnit": "kg",
+        "status": "状态",
+        "color": "毛色",
+        "birthday": "生日",
+        "neutered": "绝育",
+        "microchipId": "芯片号",
+        "allergy": "过敏",
+        "behaviorTag": "行为标签",
+        "livingEnvironment": "生活环境",
+        "dietBrand": "饮食品牌",
+        "recentTravel": "近期旅行",
+        "reproductiveStatus": "繁殖状态",
+        "lifeStage": "生命阶段",
+        "medicalHistory": "既往病史"
+      },
+      "messages": {
+        "selectCustomer": "请选择客户主数据",
+        "fillBasicInfo": "请补全宠物基础信息",
+        "created": "宠物已创建",
+        "updated": "宠物已更新"
+      }
+    },
+    "petForm": {
+      "fields": {
+        "name": "宠物名称",
+        "species": "物种",
+        "gender": "性别",
+        "breed": "品种",
+        "birthday": "生日",
+        "color": "毛色",
+        "weight": "体重(kg)",
+        "neutered": "绝育",
+        "microchipId": "芯片号",
+        "allergy": "过敏史",
+        "behaviorTag": "行为标签",
+        "livingEnvironment": "生活环境",
+        "otherPetsCount": "家中宠物数",
+        "reproductiveStatus": "繁殖状态",
+        "dietBrand": "主粮品牌",
+        "recentTravel": "近期旅行/寄养",
+        "medicalHistory": "既往病史"
+      },
+      "more": "更多信息（选填）",
+      "breedPlaceholder": "手动输入品种"
+    },
+    "doctor": {
+      "title": "医护人员管理",
+      "add": "新增医护人员",
+      "edit": "编辑医护人员",
+      "fields": {
+        "user": "关联系统用户",
+        "userId": "用户ID",
+        "name": "姓名",
+        "phone": "手机号",
+        "title": "职称",
+        "position": "岗位",
+        "department": "科室",
+        "status": "状态",
+        "introduction": "简介"
+      },
+      "placeholders": {
+        "user": "选择系统用户",
+        "name": "请输入医护人员姓名",
+        "title": "例如：主治兽医师",
+        "position": "请选择岗位",
+        "department": "优先使用字典主数据"
+      },
+      "positions": {
+        "doctor": "医生",
+        "assistant": "医助",
+        "reception": "前台",
+        "groomer": "美容师"
+      },
+      "departments": {
+        "internal": "内科",
+        "surgery": "外科",
+        "dermatology": "皮肤科",
+        "ophthalmology": "眼科",
+        "emergency": "急诊",
+        "checkup": "体检"
+      },
+      "messages": {
+        "nameRequired": "请输入医护人员姓名",
+        "positionRequired": "请选择岗位",
+        "created": "医护人员已创建",
+        "updated": "医护人员已更新",
+        "deleted": "医护人员已删除"
+      }
+    },
+    "appointment": {
+      "title": "预约挂号",
+      "list": "预约列表",
+      "create": "新增预约",
+      "edit": "编辑预约",
+      "keywordPlaceholder": "客户/宠物/预约事项",
+      "doctorPlaceholder": "全部医生",
+      "statusPlaceholder": "全部状态",
+      "fields": {
+        "date": "预约日期",
+        "doctor": "医生",
+        "status": "状态",
+        "keyword": "关键词",
+        "customer": "客户",
+        "visit": "就诊记录",
+        "pet": "宠物",
+        "appointmentTime": "预约时间",
+        "visitType": "预约类型",
+        "reason": "预约事项",
+        "remark": "备注"
+      },
+      "placeholders": {
+        "customer": "选择客户",
+        "pet": "选择宠物",
+        "doctor": "选择医生",
+        "visitType": "选择预约类型",
+        "selectCustomerFirst": "请先选择客户"
+      },
+      "visitTypes": {
+        "first": "初诊",
+        "followup": "复诊"
+      },
+      "table": {
+        "doctor": "医生",
+        "action": "操作",
+        "checkIn": "签到",
+        "openRecord": "打开病历",
+        "cancel": "取消预约"
+      },
+      "messages": {
+        "created": "预约已创建",
+        "updated": "预约已更新",
+        "checkedIn": "已签到，队号 {queueNumber}",
+        "notFoundVisit": "未找到对应就诊记录",
+        "cancelled": "预约已取消"
+      }
+    },
+    "consultation": {
+      "title": "门诊工作台",
+      "todayAppointments": "当日预约",
+      "historyVisits": "历史就诊",
+      "keywordPlaceholder": "宠物/客户/就诊号",
+      "stats": {
+        "total": "当日预约",
+        "booked": "待签到",
+        "checkedIn": "待接诊",
+        "completed": "已完成"
+      },
+      "fields": {
+        "date": "预约日期",
+        "doctor": "医生",
+        "status": "状态",
+        "visitStatus": "就诊状态",
+        "visitNo": "就诊号",
+        "keyword": "关键词",
+        "reason": "预约事项",
+        "chiefComplaint": "主诉",
+        "diagnosis": "诊断",
+        "endTime": "结束时间"
+      },
+      "table": {
+        "appointmentPet": "预约动物",
+        "visitPet": "就诊动物",
+        "action": "操作",
+        "edit": "编辑",
+        "enterRecord": "进入病历",
+        "checkInAndConsult": "签到并接诊"
+      },
+      "detail": {
+        "titleFallback": "病历",
+        "syncBilling": "同步收费",
+        "saveRecord": "保存病历",
+        "endVisit": "结束看诊",
+        "lockEmr": "锁定病历",
+        "signEmr": "签署锁定",
+        "requestUnlock": "申请解锁",
+        "queueNumber": "队列号",
+        "startTime": "开始时间",
+        "receivable": "应收合计",
+        "due": "待收金额",
+        "soap": "SOAP 病历",
+        "subjective": "主观描述 (S)",
+        "objective": "客观检查 (O)",
+        "assessment": "评估诊断 (A)",
+        "plan": "治疗计划 (P)",
+        "statusSummary": "状态摘要",
+        "planSummary": "计划摘要",
+        "progressTimeline": "病情演进时间线",
+        "planTimeline": "诊疗计划时间线",
+        "emptyProgressBatches": "暂无病情批次记录",
+        "emptyPlanBatches": "暂无计划批次记录",
+        "diagnosisPlaceholder": "搜索诊断主数据",
+        "prescription": "开立处方",
+        "prescriptionSummary": "已开处方 {count} 张，已发药 {dispensed} 张",
+        "diagnosisSummaryPlaceholder": "诊断摘要",
+        "drugPlaceholder": "选择药品或服务项目",
+        "drugFallback": "收费项目",
+        "dosage": "剂量",
+        "frequency": "频次",
+        "addDrug": "添加收费项目",
+        "submitPrescription": "提交处方",
+        "dispense": "发药",
+        "transactionList": "发药流水",
+        "prescriptionAndDispense": "处方与发药",
+        "emptyPrescription": "暂无处方",
+        "emptyTransactions": "暂无发药流水",
+        "visitInfo": "就诊信息",
+        "memberBalance": "会员余额",
+        "queueTrace": "队列轨迹",
+        "emptyQueueEvents": "暂无轨迹",
+        "billingAndPayments": "账单与支付",
+        "emptyBills": "暂无账单",
+        "emptyPayments": "暂无支付记录",
+        "pay": "收款",
+        "confirmPayment": "确认收款",
+        "doctor": "医生",
+        "queueEventFallback": "队列事件",
+        "emrCompliance": "病历合规",
+        "emrLockStatus": "锁定状态",
+        "locked": "已锁定",
+        "unlocked": "未锁定",
+        "signatureCount": "签名次数",
+        "auditLogs": "审计记录",
+        "emptyAuditLogs": "暂无审计记录",
+        "auditLock": "锁定病历",
+        "auditSigned": "电子签署",
+        "auditUnlockRequested": "申请解锁",
+        "auditUnlockApproved": "解锁通过",
+        "auditUnlockRejected": "解锁驳回",
+        "unlockReasonPrompt": "请输入申请解锁原因",
+        "unlockReason": "解锁原因"
+      },
+      "messages": {
+        "visitNotFound": "未找到对应就诊记录",
+        "redirectToAppointmentEdit": "请在预约挂号页面编辑 {name} 的预约记录",
+        "saved": "病历已保存",
+        "ended": "看诊已结束",
+        "dispensed": "处方已发药",
+        "billingSynced": "收费项目已同步",
+        "emrLocked": "病历已锁定",
+        "emrSigned": "病历已签署并锁定",
+        "unlockRequested": "解锁申请已提交"
+      }
+    },
+    "billing": {
+      "title": "收费结算",
+      "list": "账单列表",
+      "create": "创建账单",
+      "confirmPayment": "确认收款",
+      "refund": "退款",
+      "detail": "账单明细",
+      "chargeItems": "收费项目",
+      "paymentRecords": "支付记录",
+      "memberNotOpened": "未开卡",
+      "defaultItemName": "门诊挂号费",
+      "emptyDetails": "暂无收费项目",
+      "emptyPayments": "暂无支付记录",
+      "placeholders": {
+        "visit": "全部就诊"
+      },
+      "fields": {
+        "visit": "就诊",
+        "paymentStatus": "支付状态",
+        "itemName": "收费项目",
+        "amount": "金额",
+        "discount": "优惠金额",
+        "paymentMethod": "支付方式",
+        "paidAmount": "支付金额",
+        "paidAt": "支付时间",
+        "customer": "客户",
+        "pet": "宠物",
+        "memberBalance": "会员余额",
+        "billNo": "账单号",
+        "receivable": "应收金额",
+        "due": "待收金额",
+        "refundableAmount": "可退金额",
+        "refundAmount": "退款金额",
+        "refundReason": "退款原因"
+      },
+      "messages": {
+        "created": "账单已创建",
+        "paid": "收款成功",
+        "refunded": "退款成功",
+        "invalidVisit": "请选择有效的就诊记录",
+        "itemNameRequired": "请输入收费项目名称",
+        "amountPositive": "支付金额必须大于 0",
+        "cleared": "该账单已收清",
+        "noRefundableAmount": "暂无可退金额",
+        "refundExceedsPaid": "退款金额不能超过已收金额",
+        "refundReasonRequired": "请输入退款原因"
+      }
+    },
+    "member": {
+      "title": "会员管理",
+      "list": "会员卡列表",
+      "openCard": "开卡",
+      "recharge": "充值",
+      "deduct": "扣款",
+      "logs": "会员流水",
+      "placeholders": {
+        "customer": "搜索客户",
+        "keyword": "卡号/客户/手机号",
+        "level": "全部等级",
+        "status": "全部状态"
+      },
+      "fields": {
+        "customer": "客户",
+        "keyword": "关键字",
+        "cardNo": "会员卡号",
+        "level": "会员等级",
+        "status": "状态",
+        "balance": "储值余额",
+        "giftBalance": "赠送余额",
+        "initialBalance": "初始储值",
+        "currentBalance": "当前余额",
+        "totalRecharge": "累计充值",
+        "totalSpend": "累计消费",
+        "amount": "金额",
+        "remark": "备注",
+        "logType": "流水类型",
+        "direction": "收支方向",
+        "balanceBefore": "变动前余额",
+        "balanceAfter": "变动后余额"
+      },
+      "messages": {
+        "customerRequired": "请选择客户",
+        "amountRequired": "金额必须大于 0",
+        "cardOpened": "会员卡已开通",
+        "recharged": "充值成功",
+        "deducted": "扣款成功"
+      }
+    },
+    "pharmacy": {
+      "title": "药房管理",
+      "addDrug": "新增药品",
+      "editDrug": "编辑药品",
+      "servicePricing": "服务项目",
+      "addServiceItem": "新增服务项目",
+      "editServiceItem": "编辑服务项目",
+      "stockAlert": "库存预警",
+      "alertTitle": "库存/效期预警",
+      "lowStockPanel": "低库存预警",
+      "expiringPanel": "30天内近效期批次",
+      "batchDetail": "批次明细",
+      "stockIn": "入库",
+      "emptyLowStock": "暂无低库存药品",
+      "emptyExpiring": "暂无近效期批次",
+      "placeholders": {
+        "specification": "例如：100mg*10",
+        "expireDate": "YYYY-MM-DD"
+      },
+      "batchStatus": {
+        "1": "正常",
+        "2": "已过期",
+        "3": "已用完"
+      },
+      "fields": {
+        "drugCode": "药品编码",
+        "drugName": "药品名称",
+        "specification": "规格",
+        "currentStock": "库存",
+        "retailPrice": "零售价",
+        "minStock": "库存下限",
+        "status": "状态",
+        "unit": "单位",
+        "supplier": "供应商",
+        "itemCode": "项目编码",
+        "itemName": "项目名称",
+        "category": "项目分类",
+        "description": "项目说明",
+        "batchNo": "批号",
+        "expireDate": "有效期至",
+        "quantity": "数量",
+        "purchasePrice": "进价(元)",
+        "packageUnit": "包装单位",
+        "dosageUnit": "用量单位",
+        "packageContentQuantity": "每包装含量",
+        "packageConversion": "包装换算",
+        "packageRetailPrice": "包装零售价",
+        "dosageUnitPrice": "用量单价",
+        "packageUnitPrice": "包装单价",
+        "minPackageStock": "最低库存(包装)",
+        "currentPackageStock": "包装库存",
+        "stockInPackageQuantity": "入库包装数量"
+      },
+      "messages": {
+        "created": "药品已创建",
+        "updated": "药品已更新",
+        "stockInSuccess": "入库成功：{drugName}",
+        "serviceItemRequired": "请填写项目编码和项目名称",
+        "serviceItemCreated": "服务项目已创建",
+        "serviceItemUpdated": "服务项目已更新",
+        "serviceItemDeleted": "服务项目已删除",
+        "stockInConversion": "本次入库 {packageQuantity} {packageUnit}，系统将按 {dosageQuantity} {dosageUnit} 计入库存并用于处方扣减。"
+      }
+    },
+    "serviceItem": {
+      "title": "服务项目",
+      "add": "新增服务项目",
+      "edit": "编辑服务项目",
+      "fields": {
+        "itemCode": "项目编码",
+        "itemName": "项目名称",
+        "category": "项目分类",
+        "specification": "规格",
+        "unit": "单位",
+        "retailPrice": "零售价",
+        "status": "状态",
+        "description": "项目说明"
+      },
+      "messages": {
+        "required": "请填写项目编码和项目名称",
+        "created": "服务项目已创建",
+        "updated": "服务项目已更新",
+        "deleted": "服务项目已删除"
+      }
+    },
+    "prescription": {
+      "title": "处方管理",
+      "add": "新增处方",
+      "detail": "处方明细",
+      "detailItems": "处方明细",
+      "addDrug": "添加收费项目",
+      "templateManager": "处方模板",
+      "templateItems": "模板明细",
+      "doctorPlaceholder": "将根据就诊主数据自动带出",
+      "placeholders": {
+        "diagnosisSummary": "默认取当前就诊诊断，可继续补充",
+        "drug": "选择药品或服务项目",
+        "template": "选择处方模板，自动带出处方明细",
+        "formula": "例：weight*0.2 或 1-2=1;2-5=2;>5=3"
+      },
+      "fields": {
+        "rxNo": "处方编号",
+        "visit": "就诊",
+        "doctor": "医生",
+        "customer": "客户",
+        "pet": "宠物",
+        "template": "处方模板",
+        "templateCode": "模板编码",
+        "templateName": "模板名称",
+        "templateCategory": "模板分类",
+        "templateDescription": "模板说明",
+        "diagnosisSummary": "临床诊断",
+        "item": "项目",
+        "specification": "规格",
+        "dosage": "剂量",
+        "frequency": "频次",
+        "quantity": "数量",
+        "unitPrice": "单价",
+        "dosageUnit": "用量单位",
+        "dosageFormula": "剂量公式",
+        "quantityFormula": "数量公式"
+      },
+      "messages": {
+        "selectVisit": "请选择就诊记录",
+        "doctorRequired": "当前就诊未关联医生，无法开方",
+        "selectDrug": "请至少选择一条药品或服务项目",
+        "created": "处方已创建",
+        "templateRequired": "请填写模板编码和模板名称",
+        "templateCreated": "处方模板已创建",
+        "templateDeleted": "处方模板已删除"
+      },
+      "formulaHelp": "公式支持变量 weight（宠物体重kg）和四则运算，如 weight*0.2；也支持范围规则，如 1-2=1;2-5=2;>5=3。套用模板时会按当前就诊宠物体重自动计算建议剂量和数量，处方单上仍可手工调整。"
+    },
+    "queue": {
+      "title": "门诊叫号屏",
+      "waiting": "候诊中",
+      "active": "已叫号 / 接诊中",
+      "emptyWaiting": "暂无候诊记录",
+      "emptyActive": "暂无接诊记录"
+    },
+    "lab": {
+      "title": "化验检查",
+      "create": "新建化验申请",
+      "templateManager": "模板定义",
+      "createTemplate": "新建检查模板",
+      "report": "录入报告",
+      "reportTitle": "化验报告",
+      "reportItems": "结果明细",
+      "resultSchema": "结果模板结构",
+      "addSchemaRow": "新增结果项",
+      "submitLis": "提交 LIS",
+      "addItem": "添加项目",
+      "fields": {
+        "orderNo": "化验单号",
+        "visit": "就诊",
+        "doctor": "医生",
+        "customer": "客户",
+        "pet": "宠物",
+        "testName": "化验项目",
+        "sampleType": "样本类型",
+        "abnormalCount": "异常项数",
+        "requestedAt": "申请时间",
+        "status": "状态",
+        "keyword": "关键词",
+        "itemName": "检验项",
+        "resultValue": "结果值",
+        "unit": "单位",
+        "refMin": "下限",
+        "refMax": "上限",
+        "flag": "标记",
+        "reportSummary": "报告总结",
+        "templateCode": "模板编码",
+        "templateName": "模板名称",
+        "templateDescription": "模板说明",
+        "defaultChargeAmount": "默认收费",
+        "metricKey": "结果编码"
+      },
+      "messages": {
+        "created": "化验申请已创建",
+        "reportSaved": "化验报告已保存",
+        "lisSubmitted": "LIS 任务已提交",
+        "templateRequired": "请完整填写模板编码和模板名称",
+        "templateCreated": "检查模板已创建"
+      }
+    },
+    "hospitalization": {
+      "title": "住院管理",
+      "create": "新建住院",
+      "nursing": "护理执行",
+      "nursingTitle": "护理执行",
+      "addPlan": "新增护理计划",
+      "execute": "执行",
+      "discharge": "出院",
+      "pending": "待执行",
+      "executed": "已执行",
+      "fields": {
+        "hospNo": "住院单号",
+        "visit": "就诊",
+        "doctor": "医生",
+        "customer": "客户",
+        "pet": "宠物",
+        "status": "状态",
+        "keyword": "关键词",
+        "cageCode": "笼位",
+        "nursingLevel": "护理等级",
+        "dailyFee": "日住院费",
+        "depositAmount": "押金",
+        "admissionAt": "入院时间",
+        "admissionDiagnosis": "入院诊断",
+        "planType": "计划类型",
+        "planName": "计划名称",
+        "instruction": "执行内容",
+        "frequency": "频次",
+        "scheduledTime": "计划时间",
+        "latestExecutionAt": "最新执行",
+        "executorName": "执行人",
+        "resultNote": "执行备注",
+        "dischargeSummary": "出院小结"
+      },
+      "messages": {
+        "created": "住院记录已创建",
+        "planCreated": "护理计划已创建",
+        "executed": "护理计划已执行",
+        "discharged": "已办理出院"
+      }
+    },
+    "reminder": {
+      "title": "提醒随访",
+      "create": "新建提醒",
+      "complete": "完成",
+      "cancel": "取消",
+      "fields": {
+        "visit": "关联就诊",
+        "customer": "客户",
+        "pet": "宠物",
+        "reminderName": "提醒名称",
+        "type": "类型",
+        "channel": "触达渠道",
+        "dueDate": "到期日",
+        "status": "状态",
+        "keyword": "关键词",
+        "remark": "备注"
+      },
+      "messages": {
+        "created": "提醒记录已创建",
+        "completed": "提醒已完成",
+        "cancelled": "提醒已取消"
+      }
+    },
+    "chronic": {
+      "title": "慢病管理",
+      "create": "新建慢病档案",
+      "caseList": "慢病档案列表",
+      "carePlan": "长期诊疗计划",
+      "trackingSchema": "追踪指标模板",
+      "addFollowup": "新增复查记录",
+      "addCarePlanRow": "新增计划项",
+      "addMetricRow": "新增指标项",
+      "openVisit": "打开关联病历",
+      "metricValues": "结构化追踪数据",
+      "emptyCases": "暂无慢病档案",
+      "emptyFollowups": "暂无复查记录",
+      "emptyMetricSeries": "暂无追踪数据",
+      "selectCase": "请选择左侧慢病档案查看详情",
+      "cards": {
+        "activeCases": "在管病例",
+        "pendingReviews": "待复查",
+        "recentFollowups": "近期复查"
+      },
+      "tabs": {
+        "summary": "档案总览",
+        "followups": "复查轨迹",
+        "report": "追踪报告"
+      },
+      "defaults": {
+        "weight": "体重"
+      },
+      "placeholders": {
+        "diseaseTags": "多个标签用英文逗号分隔"
+      },
+      "fields": {
+        "caseNo": "档案编号",
+        "customer": "客户",
+        "pet": "宠物",
+        "visit": "关联病历",
+        "keyword": "关键词",
+        "diseaseName": "疾病名称",
+        "diseaseTags": "疾病标签",
+        "initialSummary": "初始病情摘要",
+        "managementGoal": "长期管理目标",
+        "nextReviewDate": "下次复查日期",
+        "lastReviewDate": "最近复查日期",
+        "planStage": "阶段",
+        "planGoal": "目标",
+        "planAction": "计划动作",
+        "metricKey": "指标编码",
+        "metricLabel": "指标名称",
+        "metricUnit": "单位",
+        "reviewDate": "复查时间",
+        "symptomSummary": "症状变化",
+        "statusSummary": "状态变化",
+        "planAdjustment": "方案调整"
+      },
+      "report": {
+        "followupCount": "复查次数",
+        "lastReviewDate": "最近复查",
+        "nextReviewDate": "下次复查",
+        "metricTrend": "指标趋势",
+        "latestValue": "最新值",
+        "history": "历史轨迹",
+        "timeline": "复查明细"
+      },
+      "messages": {
+        "caseRequired": "请完整填写客户、宠物和疾病名称",
+        "caseCreated": "慢病档案已创建",
+        "followupCreated": "复查记录已创建",
+        "visitMissing": "该慢病档案暂无关联病历"
+      }
+    },
+    "report": {
+      "title": "经营日报",
+      "doctorRanking": "医生排行",
+      "lowStock": "低库存预警",
+      "chronicFollowups": "近期慢病复查",
+      "cards": {
+        "appointments": "预约数",
+        "visits": "就诊数",
+        "revenue": "营收",
+        "hospitalized": "住院中",
+        "activeChronic": "在管慢病",
+        "pendingChronic": "待复查慢病"
+      },
+      "fields": {
+        "date": "日期",
+        "doctorId": "医生 ID",
+        "visitCount": "就诊次数",
+        "drugName": "药品",
+        "currentStock": "当前库存",
+        "caseNo": "档案编号",
+        "diseaseName": "疾病名称",
+        "reviewDate": "复查时间",
+        "statusSummary": "状态摘要"
+      }
+    },
+    "insurance": {
+      "title": "保险理赔",
+      "create": "新建理赔",
+      "submit": "提交",
+      "settle": "结算",
+      "fields": {
+        "claimNo": "理赔单号",
+        "visit": "就诊",
+        "customer": "客户",
+        "pet": "宠物",
+        "providerName": "保险方",
+        "policyNo": "保单号",
+        "claimAmount": "申请金额",
+        "approvedAmount": "核定金额",
+        "status": "状态",
+        "keyword": "关键词",
+        "remark": "备注"
+      },
+      "messages": {
+        "created": "理赔记录已创建",
+        "submitted": "理赔已提交",
+        "settled": "理赔已结算"
+      }
+    },
+    "store": {
+      "title": "门店调拨",
+      "stores": "门店主数据",
+      "stock": "门店库存",
+      "transfer": "调拨单",
+      "createStore": "新建门店",
+      "setStock": "设置库存",
+      "createTransfer": "新建调拨",
+      "approve": "审批",
+      "complete": "完成",
+      "fields": {
+        "storeCode": "门店编码",
+        "storeName": "门店名称",
+        "contactName": "联系人",
+        "contactPhone": "联系电话",
+        "drugName": "药品",
+        "quantity": "数量",
+        "safetyStock": "安全库存",
+        "transferNo": "调拨单号",
+        "sourceStore": "调出门店",
+        "targetStore": "调入门店",
+        "status": "状态",
+        "reason": "原因"
+      },
+      "messages": {
+        "storeCreated": "门店已创建",
+        "stockSaved": "门店库存已保存",
+        "transferCreated": "调拨单已创建",
+        "transferApproved": "调拨单已审批",
+        "transferCompleted": "调拨单已完成"
+      }
+    },
+    "ai": {
+      "title": "AI 辅助",
+      "soapDraft": "SOAP 草稿",
+      "labInterpret": "化验解读",
+      "prescriptionReview": "处方审方",
+      "review": "开始审方",
+      "generate": "生成",
+      "logs": "AI 日志",
+      "fields": {
+        "visit": "就诊记录",
+        "petName": "宠物名称",
+        "chiefComplaint": "主诉",
+        "objectiveFindings": "客观所见",
+        "draftNotes": "速记",
+        "taskType": "任务类型",
+        "bizType": "业务单据",
+        "riskLevel": "风险级别"
+      }
+    }
+  }
+}

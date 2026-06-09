@@ -17,7 +17,7 @@
 
         <span v-if="exportFileName" @click="exportData2Excel">
           <slot name="export-button">
-            <a-button type="primary">导出</a-button>
+            <a-button type="primary">{{ t('component.excel.exportModalTitle') }}</a-button>
           </slot>
         </span>
       </Space>
@@ -33,6 +33,7 @@
   import TableSetting from '../table-settings/index.vue';
   import BasicHelp from '@/components/basic/basic-help/index.vue';
   import { useTableContext } from '@/components/core/dynamic-table/src/hooks';
+  import { useI18n } from '@/hooks/useI18n';
 
   defineOptions({
     name: 'ToolBar',
@@ -57,6 +58,7 @@
     },
   });
 
+  const { t } = useI18n();
   const { exportData2Excel } = useTableContext();
 </script>
 

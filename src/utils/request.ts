@@ -4,6 +4,7 @@ import qs from 'qs';
 import { message as $message, Modal } from 'ant-design-vue';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ResultEnum } from '@/enums/httpEnum';
+import { useLocaleStore } from '@/store/modules/locale';
 import { useUserStore } from '@/store/modules/user';
 import { useSSEStore } from '@/store/modules/sse';
 
@@ -22,6 +23,47 @@ export interface RequestOptions extends AxiosRequestConfig {
 }
 
 const UNKNOWN_ERROR = '未知错误，请重试';
+
+function stringifyMessage(input: unknown): string {
+  if (typeof input === 'string' && input.trim()) return input;
+  if (Array.isArray(input)) {
+    return input.map(item => stringifyMessage(item)).filter(Boolean).join('; ');
+  }
+  if (input && typeof input === 'object') {
+    const candidate = (input as any).message ?? (input as any).msg ?? (input as any).error;
+    if (candidate !== undefined) {
+      return stringifyMessage(candidate);
+    }
+    try {
+      return JSON.stringify(input);
+    } catch {
+      return UNKNOWN_ERROR;
+    }
+  }
+  if (input === undefined || input === null || input === '') return UNKNOWN_ERROR;
+  return String(input);
+}
+
+function buildErrorContext(error: any) {
+  const responseData = error?.response?.data;
+  const config = error?.config || {};
+  return {
+    code: responseData?.code ?? error?.code ?? '',
+    status: error?.response?.status ?? '',
+    method: String(config.method || 'GET').toUpperCase(),
+    url: config.url || '',
+  };
+}
+
+function logRequestError(error: any, messageText: string) {
+  const context = buildErrorContext(error);
+  const routeText = [context.method, context.url].filter(Boolean).join(' ');
+  const statusText = context.status || context.code || 'ERR';
+  console.error(`[request error] ${routeText} [${statusText}] ${messageText}`, {
+    ...context,
+    raw: error,
+  });
+}
 
 /** 真实请求的路径前缀 */
 export const baseApiUrl = import.meta.env.VITE_BASE_API_URL;
@@ -42,11 +84,15 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     const userStore = useUserStore();
+    const localeStore = useLocaleStore();
     const token = userStore.token;
-    if (token && config.headers) {
+    const headers = (config.headers || {}) as Record<string, any>;
+    headers['Accept-Language'] = localeStore.getLocale;
+    if (token) {
       // 请求头token信息，请根据实际情况进行修改
-      config.headers['Authorization'] = `Bearer ${token}`;
+      headers.Authorization = `Bearer ${token}`;
     }
+    config.headers = headers as any;
     return config;
   },
   (error) => {
@@ -57,16 +103,18 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
     const res = response.data;
+    const responseMessage = stringifyMessage(res.message);
 
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== ResultEnum.SUCCESS) {
-      $message.error(res.message || UNKNOWN_ERROR);
+      $message.error(responseMessage);
+      logRequestError({ response, config: response.config, code: res.code }, responseMessage);
       // Illegal token
       if ([1101, 1105].includes(res.code)) {
         // to re-login
         Modal.confirm({
           title: '警告',
-          content: res.message || '账号异常，您可以取消停留在该页上，或重新登录',
+          content: responseMessage || '账号异常，您可以取消停留在该页上，或重新登录',
           okText: '重新登录',
           cancelText: '取消',
           onOk: () => {
@@ -77,7 +125,7 @@ service.interceptors.response.use(
       }
 
       // throw other
-      const error = new Error(res.message || UNKNOWN_ERROR) as Error & { code: any };
+      const error = new Error(responseMessage || UNKNOWN_ERROR) as Error & { code: any };
       error.code = res.code;
       return Promise.reject(error);
     } else {
@@ -90,8 +138,10 @@ service.interceptors.response.use(
     if (!(error instanceof CanceledError)) {
       // 处理 422 或者 500 的错误异常提示
       const errMsg = error?.response?.data?.message ?? UNKNOWN_ERROR;
-      $message.error({ content: errMsg, key: errMsg });
-      error.message = errMsg;
+      const normalizedMessage = stringifyMessage(errMsg);
+      $message.error({ content: normalizedMessage, key: normalizedMessage });
+      logRequestError(error, normalizedMessage);
+      error.message = normalizedMessage;
     }
     return Promise.reject(error);
   },

@@ -115,7 +115,8 @@
       }
       emitChange();
     } catch (error) {
-      console.warn(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`[ApiSelect] options load failed: ${errorMessage}`, error);
     } finally {
       loading.value = false;
     }

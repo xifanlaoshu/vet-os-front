@@ -2,11 +2,13 @@
   import { ref, getCurrentInstance } from 'vue';
   import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue';
   import { useTableContext } from '../../hooks/useTableContext';
+  import { useI18n } from '@/hooks/useI18n';
 
   const table = useTableContext();
   const isFullscreen = table.isFullscreen;
   const currentInstance = getCurrentInstance();
   const open = ref(false);
+  const { t } = useI18n();
 
   const updateAppContainerStyle = () => {
     const appEl: HTMLDivElement =
@@ -27,7 +29,7 @@
 <template>
   <a-tooltip v-model:open="open" placement="top">
     <template #title>
-      {{ isFullscreen ? '取消全屏' : '全屏' }}
+      {{ isFullscreen ? t('component.table.exitFullScreen') : t('component.table.settingFullScreen') }}
     </template>
     <component
       :is="isFullscreen ? FullscreenExitOutlined : FullscreenOutlined"

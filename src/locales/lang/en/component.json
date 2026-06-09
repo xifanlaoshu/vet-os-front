@@ -21,7 +21,12 @@
     "settingFixedLeft": "Fixed Left",
     "settingFixedRight": "Fixed Right",
     "settingFullScreen": "Full Screen",
+    "exitFullScreen": "Exit Full Screen",
     "settingBordered": "Bordered",
+    "showSearch": "Show Search",
+    "hideSearch": "Hide Search",
+    "noPermission": "Sorry, you do not have permission to perform this action",
+    "onlyOneLineEditor": "Only one row can be edited at a time",
     "index": "Index",
     "total": "total of {total}"
   }

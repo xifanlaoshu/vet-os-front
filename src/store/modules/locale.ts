@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { LocaleType } from '@/locales/config';
+import { localeSetting, type LocaleType } from '@/locales/config';
 import { store } from '@/store';
 import { LOCALE_KEY } from '@/enums/cacheEnum';
 import { Storage } from '@/utils/Storage';
@@ -8,13 +8,18 @@ interface LocaleState {
   locale: LocaleType;
 }
 
-export const useLocaleStore = defineStore('locale',{
+function resolveStoredLocale() {
+  const locale = Storage.get(LOCALE_KEY, localeSetting.defaultLocale) as LocaleType;
+  return localeSetting.supportedLocales.includes(locale) ? locale : localeSetting.defaultLocale;
+}
+
+export const useLocaleStore = defineStore('locale', {
   state: (): LocaleState => ({
-    locale: Storage.get(LOCALE_KEY, 'zh_CN'),
+    locale: resolveStoredLocale(),
   }),
   getters: {
     getLocale(): LocaleType {
-      return this.locale ?? 'zh_CN';
+      return this.locale ?? localeSetting.defaultLocale;
     },
   },
   actions: {
@@ -25,7 +30,6 @@ export const useLocaleStore = defineStore('locale',{
   },
 });
 
-// Need to be used outside the setup
 export function useLocaleStoreWithOut() {
   return useLocaleStore(store);
 }

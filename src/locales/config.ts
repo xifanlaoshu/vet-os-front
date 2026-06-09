@@ -5,17 +5,36 @@ export const localeMap = {
   en: 'en',
 } as const;
 
+export const localeSetting = {
+  defaultLocale: localeMap.zh_CN,
+  supportedLocales: [localeMap.zh_CN, localeMap.en],
+  reloadPageOnChange: true,
+  showPicker: true,
+} as const;
+
 export const localeList = [
   {
-    lang: localeMap.en,
-    label: 'English',
-    icon: '🇺🇸',
-    title: 'Language',
+    lang: localeMap.zh_CN,
+    label: {
+      zh_CN: '简体中文',
+      en: 'Simplified Chinese',
+    },
+    icon: '🇨🇳',
+    title: {
+      zh_CN: '语言',
+      en: 'Language',
+    },
   },
   {
-    lang: localeMap.zh_CN,
-    label: '简体中文',
-    icon: '🇨🇳',
-    title: '语言',
+    lang: localeMap.en,
+    label: {
+      zh_CN: '英语',
+      en: 'English',
+    },
+    icon: '🇺🇸',
+    title: {
+      zh_CN: '语言',
+      en: 'Language',
+    },
   },
 ] as const;

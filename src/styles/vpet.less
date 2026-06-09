@@ -1,0 +1,430 @@
+.vpet-page {
+  --vpet-line: #dde7f0;
+  --vpet-line-strong: #c7d7e6;
+  --vpet-text: #1f2a37;
+  --vpet-text-soft: #5f7287;
+  --vpet-accent: #0f766e;
+  --vpet-accent-soft: rgba(15, 118, 110, 0.1);
+
+  width: 100%;
+  max-width: 100%;
+  padding-bottom: 24px;
+  background: transparent;
+
+  .ant-card {
+    border: 1px solid var(--vpet-line);
+    border-radius: 20px;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    background-clip: padding-box;
+    isolation: isolate;
+  }
+
+  .ant-card-head {
+    min-height: 60px;
+    padding: 0 22px;
+    border-bottom: 1px solid rgba(199, 215, 230, 0.75);
+    border-radius: inherit;
+    background-clip: padding-box;
+    overflow: hidden;
+  }
+
+  .ant-card-head-title {
+    color: var(--vpet-text);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .ant-card-body {
+    padding: 20px 22px;
+    border-radius: inherit;
+    background-clip: padding-box;
+    overflow: hidden;
+  }
+
+  .ant-table-wrapper {
+    width: 100% !important;
+  }
+
+  .ant-table {
+    width: 100% !important;
+  }
+
+  .ant-table-container {
+    border-radius: 16px;
+    overflow: hidden;
+    background-clip: padding-box;
+  }
+
+  .ant-table-content,
+  .ant-table-header,
+  .ant-table-body {
+    border-radius: inherit;
+    background-clip: padding-box;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #f6fafc;
+    color: #415466;
+    font-weight: 700;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #f8fcff !important;
+  }
+
+  .ant-tabs-nav {
+    margin-bottom: 18px;
+  }
+
+  .ant-tabs-tab {
+    padding: 10px 16px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+  }
+
+  .ant-tabs-tab-active {
+    background: rgba(14, 165, 233, 0.08);
+  }
+
+  .ant-page-header {
+    padding: 24px 28px;
+    background:
+      linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(15, 118, 110, 0.08)),
+      #fff;
+    border: 1px solid var(--vpet-line);
+    border-radius: 24px;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.06);
+  }
+
+  .ant-page-header-heading-title {
+    color: var(--vpet-text);
+    font-size: 28px;
+    font-weight: 800;
+  }
+
+  .ant-page-header-heading-sub-title {
+    color: var(--vpet-text-soft);
+  }
+
+  .ant-statistic {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ant-statistic-content {
+    color: var(--vpet-text);
+    font-weight: 800;
+  }
+
+  .ant-statistic-content-suffix {
+    color: var(--vpet-text-soft);
+    font-weight: 600;
+  }
+
+  .vpet-query-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 251, 255, 0.94)),
+      #fff;
+    overflow: hidden;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .vpet-query-card .ant-card-body {
+    padding: 20px 22px;
+  }
+
+  .vpet-query-form {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px 16px;
+    align-items: stretch;
+  }
+
+  .vpet-query-form .ant-form-item {
+    margin-bottom: 0;
+    grid-column: span 3;
+  }
+
+  .vpet-query-form .ant-form-item-row {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 12px;
+  }
+
+  .vpet-query-form .ant-form-item-label {
+    padding: 0;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .vpet-query-form .ant-form-item-label > label {
+    color: #516476;
+    font-size: 13px;
+    font-weight: 600;
+    height: 36px;
+    justify-content: flex-end;
+  }
+
+  .vpet-query-form .ant-picker,
+  .vpet-query-form .ant-select,
+  .vpet-query-form .ant-input,
+  .vpet-query-form .ant-input-number {
+    width: 100%;
+  }
+
+  .vpet-query-form .ant-form-item-control {
+    min-width: 0;
+  }
+
+  .vpet-query-form .ant-form-item-control-input {
+    min-height: 36px;
+  }
+
+  .vpet-query-form .vpet-query-item-wide {
+    grid-column: span 4;
+  }
+
+  .vpet-query-form .vpet-query-item-wider {
+    grid-column: span 5;
+  }
+
+  .vpet-query-form .vpet-query-item-narrow {
+    grid-column: span 2;
+  }
+
+  .vpet-query-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    grid-column: 1 / -1;
+    padding-top: 4px;
+  }
+
+  .vpet-stat-card {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(243, 250, 255, 0.98)),
+      #fff;
+  }
+
+  .vpet-stat-card::after {
+    content: '';
+    position: absolute;
+    top: -32px;
+    right: -32px;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(15, 118, 110, 0.08));
+  }
+
+  .vpet-stat-card .ant-card-body {
+    padding: 18px 20px;
+  }
+
+  .vpet-panel-card,
+  .vpet-detail-card {
+    background: rgba(255, 255, 255, 0.96);
+    overflow: hidden;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .vpet-list-card {
+    margin-top: 15px;
+  }
+
+  &.vpet-stack,
+  .vpet-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .vpet-grid-row {
+    margin-top: 15px;
+  }
+
+  .vpet-inline-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .vpet-inline-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--vpet-line);
+  }
+
+  .vpet-inline-row:last-child {
+    border-bottom: none;
+  }
+
+  .vpet-muted {
+    color: var(--vpet-text-soft);
+  }
+
+  .vpet-pre-wrap {
+    white-space: pre-wrap;
+  }
+
+  .vpet-inline-note {
+    margin-top: 4px;
+  }
+
+  .vpet-inline-note-spaced {
+    margin-top: 6px;
+  }
+
+  .vpet-block-spaced {
+    margin-top: 12px;
+  }
+
+  .vpet-section-spaced {
+    margin-top: 15px;
+  }
+
+  .vpet-block-bottom {
+    margin-bottom: 12px;
+  }
+
+  .vpet-subtitle {
+    font-weight: 600;
+  }
+
+  .vpet-subtitle-spaced {
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .vpet-flex-between {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .vpet-flex-between-spaced {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .vpet-action-bar {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .vpet-action-bar-right {
+    justify-content: flex-end;
+  }
+
+  .vpet-action-bar-between {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .vpet-list-row {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .vpet-result-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .vpet-detail-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .vpet-form-grid {
+    display: grid;
+    grid-template-columns: 260px 140px 110px 110px 90px 90px 70px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 1200px) {
+    .vpet-query-form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vpet-query-form .ant-form-item-row {
+      grid-template-columns: 84px minmax(0, 1fr);
+    }
+
+    .vpet-query-form .ant-form-item,
+    .vpet-query-form .vpet-query-item-wide,
+    .vpet-query-form .vpet-query-item-wider,
+    .vpet-query-form .vpet-query-item-narrow {
+      grid-column: span 1;
+    }
+
+    .vpet-form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ant-page-header {
+      padding: 18px 18px 20px;
+      border-radius: 18px;
+    }
+
+    .ant-page-header-heading {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .ant-page-header-heading-left,
+    .ant-page-header-heading-extra {
+      width: 100%;
+    }
+
+    .ant-page-header-heading-extra {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .vpet-query-form {
+      grid-template-columns: 1fr;
+    }
+
+    .vpet-query-form .ant-form-item-row {
+      grid-template-columns: 76px minmax(0, 1fr);
+      column-gap: 10px;
+    }
+
+    .vpet-query-actions {
+      justify-content: stretch;
+    }
+
+    .vpet-query-actions .ant-space {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .vpet-query-actions .ant-space-item,
+    .vpet-query-actions .ant-btn {
+      width: 100%;
+    }
+
+    .vpet-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

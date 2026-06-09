@@ -31,9 +31,10 @@
               @before-leave="overflow = 'hidden'"
               @after-leave="overflow = 'auto'"
             >
-              <keep-alive :include="keepAliveComponents">
-                <component :is="Component" :key="route.fullPath" />
+              <keep-alive v-if="route.meta?.keepAlive" :include="keepAliveComponents">
+                <component :is="Component" :key="routeViewKey" />
               </keep-alive>
+              <component v-else :is="Component" :key="routeViewKey" />
             </Transition>
             <template #fallback> 正在加载... </template>
           </Suspense>
@@ -58,6 +59,7 @@
   const keepAliveStore = useKeepAliveStore();
 
   const itemRefs: Recordable<TabsOperatorInstance | null> = {};
+  const routeViewKey = computed(() => `${String(route.name || '')}:${route.fullPath}`);
 
   // 解决路由切换动画出现滚动条闪烁问题
   const overflow = ref('auto');
