@@ -707,6 +707,10 @@
       "reportTitle": "化验报告",
       "reportItems": "结果明细",
       "resultSchema": "结果模板结构",
+      "fieldDefinitions": "模板字段详细定义",
+      "printSettings": "打印设置",
+      "printPreview": "打印预览",
+      "print": "打印",
       "addSchemaRow": "新增结果项",
       "submitLis": "提交 LIS",
       "addItem": "添加项目",
@@ -735,7 +739,37 @@
         "templateHeader": "模板头",
         "templateFooter": "模板尾",
         "defaultChargeAmount": "默认收费",
-        "metricKey": "结果编码"
+        "metricKey": "结果编码",
+        "englishAbbr": "英文缩写",
+        "valueType": "取值类型",
+        "required": "是否必填",
+        "referenceText": "参考范围文本",
+        "referenceRange": "参考范围",
+        "defaultValue": "默认值",
+        "displayOrder": "显示顺序",
+        "method": "检测方法",
+        "specimenRequirement": "样本要求",
+        "resultOptions": "结果选项",
+        "fieldExplanation": "字段说明解释",
+        "clinicalSignificance": "临床意义",
+        "printTitle": "打印标题",
+        "paperSize": "纸张规格",
+        "fontSize": "字号",
+        "showReferenceRange": "显示参考范围",
+        "showExplanation": "显示说明解释"
+      },
+      "valueTypes": {
+        "number": "数值",
+        "text": "文本",
+        "enum": "枚举",
+        "boolean": "是否"
+      },
+      "boolean": {
+        "yes": "是",
+        "no": "否"
+      },
+      "paperSizes": {
+        "thermal": "热敏小票"
       },
       "messages": {
         "created": "化验申请已创建",

@@ -707,6 +707,10 @@
       "reportTitle": "Lab Report",
       "reportItems": "Result items",
       "resultSchema": "Result template schema",
+      "fieldDefinitions": "Detailed field definitions",
+      "printSettings": "Print settings",
+      "printPreview": "Print preview",
+      "print": "Print",
       "addSchemaRow": "Add result row",
       "submitLis": "Submit LIS",
       "addItem": "Add item",
@@ -735,7 +739,37 @@
         "templateHeader": "Template header",
         "templateFooter": "Template footer",
         "defaultChargeAmount": "Default charge",
-        "metricKey": "Result code"
+        "metricKey": "Result code",
+        "englishAbbr": "English abbr.",
+        "valueType": "Value type",
+        "required": "Required",
+        "referenceText": "Reference text",
+        "referenceRange": "Reference range",
+        "defaultValue": "Default value",
+        "displayOrder": "Display order",
+        "method": "Method",
+        "specimenRequirement": "Specimen requirement",
+        "resultOptions": "Result options",
+        "fieldExplanation": "Field explanation",
+        "clinicalSignificance": "Clinical significance",
+        "printTitle": "Print title",
+        "paperSize": "Paper size",
+        "fontSize": "Font size",
+        "showReferenceRange": "Show reference range",
+        "showExplanation": "Show explanations"
+      },
+      "valueTypes": {
+        "number": "Number",
+        "text": "Text",
+        "enum": "Enum",
+        "boolean": "Boolean"
+      },
+      "boolean": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "paperSizes": {
+        "thermal": "Thermal receipt"
       },
       "messages": {
         "created": "Lab order created",

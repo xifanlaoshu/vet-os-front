@@ -49,7 +49,7 @@
     <a-modal
       v-model:open="templateVisible"
       :title="t('page.lab.createTemplate')"
-      width="900px"
+      width="1180px"
       destroy-on-close
       @ok="submitTemplate"
     >
@@ -98,17 +98,165 @@
           </a-col>
         </a-row>
 
-        <div class="vpet-section-title">{{ t('page.lab.resultSchema') }}</div>
-        <div v-for="(item, index) in templateForm.schemaItems" :key="`schema-${index}`" class="vpet-form-grid">
-          <a-input v-model:value="item.itemCode" :placeholder="t('page.lab.fields.metricKey')" />
-          <a-input v-model:value="item.itemName" :placeholder="t('page.lab.fields.itemName')" />
-          <a-input v-model:value="item.unit" :placeholder="t('page.lab.fields.unit')" />
-          <a-input-number v-model:value="item.refMin" :placeholder="t('page.lab.fields.refMin')" />
-          <a-input-number v-model:value="item.refMax" :placeholder="t('page.lab.fields.refMax')" />
-          <a-input v-model:value="item.flag" :placeholder="t('page.lab.fields.flag')" />
-          <a-button danger @click="removeSchemaRow(index)">{{ t('common.delete') }}</a-button>
+        <div class="vpet-section-title">{{ t('page.lab.fieldDefinitions') }}</div>
+        <div
+          v-for="(item, index) in templateForm.schemaItems"
+          :key="`schema-${index}`"
+          class="vpet-panel-card vpet-block-bottom"
+          style="padding: 15px"
+        >
+          <a-row :gutter="15">
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.metricKey')">
+                <a-input v-model:value="item.itemCode" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.itemName')">
+                <a-input v-model:value="item.itemName" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.englishAbbr')">
+                <a-input v-model:value="item.englishAbbr" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.unit')">
+                <a-input v-model:value="item.unit" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.valueType')">
+                <a-select v-model:value="item.valueType" :options="valueTypeOptions" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.required')">
+                <a-select v-model:value="item.required" :options="yesNoOptions" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.refMin')">
+                <a-input-number v-model:value="item.refMin" style="width: 100%" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.refMax')">
+                <a-input-number v-model:value="item.refMax" style="width: 100%" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.referenceText')">
+                <a-input v-model:value="item.referenceText" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.defaultValue')">
+                <a-input v-model:value="item.defaultValue" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('page.lab.fields.displayOrder')">
+                <a-input-number v-model:value="item.displayOrder" style="width: 100%" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="4">
+              <a-form-item :label="t('common.action')">
+                <a-button danger @click="removeSchemaRow(index)">{{ t('common.delete') }}</a-button>
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item :label="t('page.lab.fields.method')">
+                <a-input v-model:value="item.method" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item :label="t('page.lab.fields.specimenRequirement')">
+                <a-input v-model:value="item.specimenRequirement" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item :label="t('page.lab.fields.resultOptions')">
+                <a-input v-model:value="item.resultOptions" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item :label="t('page.lab.fields.fieldExplanation')">
+                <a-textarea v-model:value="item.explanation" :rows="2" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item :label="t('page.lab.fields.clinicalSignificance')">
+                <a-textarea v-model:value="item.clinicalSignificance" :rows="2" />
+              </a-form-item>
+            </a-col>
+          </a-row>
         </div>
         <a-button @click="addSchemaRow">{{ t('page.lab.addSchemaRow') }}</a-button>
+
+        <div class="vpet-section-title vpet-section-spaced">{{ t('page.lab.printSettings') }}</div>
+        <a-row :gutter="15">
+          <a-col :span="6">
+            <a-form-item :label="t('page.lab.fields.printTitle')">
+              <a-input v-model:value="templateForm.printConfig.title" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item :label="t('page.lab.fields.paperSize')">
+              <a-select v-model:value="templateForm.printConfig.paperSize" :options="paperSizeOptions" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item :label="t('page.lab.fields.fontSize')">
+              <a-input-number v-model:value="templateForm.printConfig.fontSize" :min="10" :max="18" style="width: 100%" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="5">
+            <a-form-item :label="t('page.lab.fields.showReferenceRange')">
+              <a-select v-model:value="templateForm.printConfig.showReferenceRange" :options="yesNoOptions" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="5">
+            <a-form-item :label="t('page.lab.fields.showExplanation')">
+              <a-select v-model:value="templateForm.printConfig.showExplanation" :options="yesNoOptions" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-card class="vpet-block-spaced" :title="t('page.lab.printPreview')" :bordered="false">
+          <div class="vpet-lab-print-preview" :style="{ fontSize: `${templateForm.printConfig.fontSize || 12}px` }">
+            <h2>{{ templateForm.printConfig.title || templateForm.name || t('page.lab.reportTitle') }}</h2>
+            <div v-if="templateForm.templateHeader" class="vpet-pre-wrap">{{ templateForm.templateHeader }}</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ t('page.lab.fields.itemName') }}</th>
+                  <th>{{ t('page.lab.fields.englishAbbr') }}</th>
+                  <th>{{ t('page.lab.fields.resultValue') }}</th>
+                  <th>{{ t('page.lab.fields.unit') }}</th>
+                  <th v-if="templateForm.printConfig.showReferenceRange">{{ t('page.lab.fields.referenceRange') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in previewSchemaItems" :key="item.itemCode || item.itemName">
+                  <td>{{ item.itemName }}</td>
+                  <td>{{ item.englishAbbr || '-' }}</td>
+                  <td>{{ item.defaultValue || '-' }}</td>
+                  <td>{{ item.unit || '-' }}</td>
+                  <td v-if="templateForm.printConfig.showReferenceRange">{{ formatReferenceRange(item) }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-if="templateForm.printConfig.showExplanation" class="vpet-block-top">
+              <div v-for="item in previewSchemaItems.filter(row => row.explanation || row.clinicalSignificance)" :key="`explain-${item.itemCode || item.itemName}`">
+                <strong>{{ item.itemName }}&#65306;</strong>
+                {{ [item.explanation, item.clinicalSignificance].filter(Boolean).join(' / ') }}
+              </div>
+            </div>
+            <div v-if="templateForm.templateFooter" class="vpet-pre-wrap vpet-block-top">{{ templateForm.templateFooter }}</div>
+          </div>
+        </a-card>
 
         <a-table
           class="vpet-block-spaced"
@@ -218,6 +366,63 @@ const templateColumns = [
   { title: t('common.action'), key: 'action', width: 140, fixed: 'right' as const },
 ];
 
+const valueTypeOptions = [
+  { value: 'number', label: t('page.lab.valueTypes.number') },
+  { value: 'text', label: t('page.lab.valueTypes.text') },
+  { value: 'enum', label: t('page.lab.valueTypes.enum') },
+  { value: 'boolean', label: t('page.lab.valueTypes.boolean') },
+];
+
+const yesNoOptions = [
+  { value: true, label: t('page.lab.boolean.yes') },
+  { value: false, label: t('page.lab.boolean.no') },
+];
+
+const paperSizeOptions = [
+  { value: 'A4', label: 'A4' },
+  { value: 'A5', label: 'A5' },
+  { value: 'thermal', label: t('page.lab.paperSizes.thermal') },
+];
+
+const previewSchemaItems = computed(() =>
+  templateForm.value.schemaItems
+    .filter(item => item.itemName)
+    .slice()
+    .sort((a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0)),
+);
+
+function createEmptySchemaItem() {
+  return {
+    itemCode: '',
+    itemName: '',
+    englishAbbr: '',
+    unit: '',
+    valueType: 'number',
+    required: true,
+    refMin: undefined as number | undefined,
+    refMax: undefined as number | undefined,
+    referenceText: '',
+    defaultValue: '',
+    displayOrder: undefined as number | undefined,
+    method: '',
+    specimenRequirement: '',
+    resultOptions: '',
+    explanation: '',
+    clinicalSignificance: '',
+    flag: '',
+  };
+}
+
+function createDefaultPrintConfig() {
+  return {
+    title: '',
+    paperSize: 'A4',
+    fontSize: 12,
+    showReferenceRange: true,
+    showExplanation: true,
+  };
+}
+
 function createEmptyTemplateForm() {
   return {
     id: undefined as number | undefined,
@@ -228,9 +433,8 @@ function createEmptyTemplateForm() {
     description: '',
     templateHeader: '',
     templateFooter: '',
-    schemaItems: [
-      { itemCode: '', itemName: '', unit: '', refMin: undefined, refMax: undefined, flag: '' },
-    ],
+    printConfig: createDefaultPrintConfig(),
+    schemaItems: [createEmptySchemaItem()],
   };
 }
 
@@ -368,12 +572,8 @@ function openTemplateModal() {
 
 function addSchemaRow() {
   templateForm.value.schemaItems.push({
-    itemCode: '',
-    itemName: '',
-    unit: '',
-    refMin: undefined,
-    refMax: undefined,
-    flag: '',
+    ...createEmptySchemaItem(),
+    displayOrder: templateForm.value.schemaItems.length + 1,
   });
 }
 
@@ -395,8 +595,15 @@ async function submitTemplate() {
     description: templateForm.value.description || undefined,
     templateHeader: templateForm.value.templateHeader || undefined,
     templateFooter: templateForm.value.templateFooter || undefined,
+    printConfig: templateForm.value.printConfig,
     resultSchema: {
-      items: templateForm.value.schemaItems.filter(item => item.itemName),
+      items: templateForm.value.schemaItems
+        .filter(item => item.itemName)
+        .map((item, index) => ({
+          ...item,
+          displayOrder: item.displayOrder ?? index + 1,
+          resultOptions: parseOptionsText(item.resultOptions),
+        })),
     },
   };
 
@@ -424,17 +631,53 @@ function editTemplate(record: any) {
     ...record,
     templateHeader: record.templateHeader || '',
     templateFooter: record.templateFooter || '',
+    printConfig: {
+      ...createDefaultPrintConfig(),
+      ...(record.printConfig || {}),
+    },
     schemaItems: schemaItems.length
       ? schemaItems.map((item: any) => ({
           itemCode: item.itemCode || item.code || '',
           itemName: item.itemName || item.name || '',
+          englishAbbr: item.englishAbbr || item.abbr || '',
           unit: item.unit || '',
+          valueType: item.valueType || 'number',
+          required: item.required !== undefined ? item.required : true,
           refMin: item.refMin,
           refMax: item.refMax,
+          referenceText: item.referenceText || '',
+          defaultValue: item.defaultValue ?? item.resultValue ?? '',
+          displayOrder: item.displayOrder,
+          method: item.method || '',
+          specimenRequirement: item.specimenRequirement || '',
+          resultOptions: Array.isArray(item.resultOptions) ? item.resultOptions.join(',') : (item.resultOptions || ''),
+          explanation: item.explanation || '',
+          clinicalSignificance: item.clinicalSignificance || '',
           flag: item.flag || '',
         }))
       : createEmptyTemplateForm().schemaItems,
   };
+}
+
+function parseOptionsText(value?: string | string[]) {
+  if (Array.isArray(value))
+    return value
+  return String(value || '')
+    .split(/[,，]/)
+    .map(item => item.trim())
+    .filter(Boolean)
+}
+
+function formatReferenceRange(item: any) {
+  if (item.referenceText)
+    return item.referenceText
+  if (item.refMin !== undefined && item.refMax !== undefined)
+    return `${item.refMin} - ${item.refMax}`
+  if (item.refMin !== undefined)
+    return `>= ${item.refMin}`
+  if (item.refMax !== undefined)
+    return `<= ${item.refMax}`
+  return '-'
 }
 
 async function deleteTemplate(record: any) {
@@ -450,3 +693,32 @@ onMounted(async () => {
   await loadData();
 });
 </script>
+
+<style scoped>
+.vpet-lab-print-preview {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  color: #1f2933;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.vpet-lab-print-preview h2 {
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.vpet-lab-print-preview table {
+  border-collapse: collapse;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.vpet-lab-print-preview th,
+.vpet-lab-print-preview td {
+  border: 1px solid #d9d9d9;
+  padding: 8px;
+  text-align: left;
+}
+</style>
