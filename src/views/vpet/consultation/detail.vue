@@ -95,39 +95,133 @@
             <a-form-item :label="t('page.consultation.detail.plan')">
               <a-textarea v-model:value="soap.P" :rows="4" :disabled="!canEditVisit" />
             </a-form-item>
-            <a-form-item :label="t('page.consultation.detail.statusSummary')">
-              <a-textarea v-model:value="soap.statusSummary" :rows="2" :disabled="!canEditVisit" />
-            </a-form-item>
-            <a-form-item :label="t('page.consultation.detail.planSummary')">
-              <a-textarea v-model:value="soap.planSummary" :rows="2" :disabled="!canEditVisit" />
-            </a-form-item>
           </a-form>
         </a-card>
 
-        <a-card class="vpet-detail-card" :title="t('page.consultation.detail.progressTimeline')">
-          <a-empty v-if="!(currentVisit?.progressBatches || []).length" :description="t('page.consultation.detail.emptyProgressBatches')" />
-          <a-timeline v-else>
-            <a-timeline-item
-              v-for="batch in currentVisit?.progressBatches || []"
-              :key="`progress-${batch.id}`"
-            >
-              <div class="vpet-subtitle">{{ batch.batchNo }} / {{ formatToDateTime(batch.createdAt) }}</div>
-              <div class="vpet-inline-note">{{ batch.symptomSummary || '-' }}</div>
-              <div class="vpet-muted vpet-inline-note">{{ batch.statusSummary || '-' }}</div>
-            </a-timeline-item>
-          </a-timeline>
-        </a-card>
+        <a-card class="vpet-detail-card" :title="t('page.consultation.detail.continuousCare')">
+          <template #extra>
+            <a-tag color="blue">{{ careFollowups.length }}</a-tag>
+          </template>
+          <a-alert
+            type="info"
+            show-icon
+            class="vpet-block-bottom"
+            :message="t('page.consultation.detail.continuousCareHint')"
+          />
+          <a-form layout="vertical">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.symptomObservation')">
+                  <a-textarea v-model:value="careFollowupForm.symptomSummary" :rows="3" :disabled="!canEditVisit" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.statusObservation')">
+                  <a-textarea v-model:value="careFollowupForm.statusSummary" :rows="3" :disabled="!canEditVisit" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="16">
+              <a-col :span="6">
+                <a-form-item :label="t('page.consultation.detail.temperature')">
+                  <a-input-number v-model:value="careFollowupForm.temperature" :min="0" :precision="1" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('page.consultation.detail.heartRate')">
+                  <a-input-number v-model:value="careFollowupForm.heartRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('page.consultation.detail.respiratoryRate')">
+                  <a-input-number v-model:value="careFollowupForm.respiratoryRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('page.consultation.detail.weight')">
+                  <a-input-number v-model:value="careFollowupForm.weight" :min="0" :precision="2" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item :label="t('page.consultation.detail.objectiveObservation')">
+              <a-textarea v-model:value="careFollowupForm.objectiveNote" :rows="2" :disabled="!canEditVisit" />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.followupAssessment')">
+                  <a-textarea v-model:value="careFollowupForm.assessmentText" :rows="3" :disabled="!canEditVisit" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.planAdjustment')">
+                  <a-textarea v-model:value="careFollowupForm.planAdjustment" :rows="3" :disabled="!canEditVisit" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-form-item :label="t('page.consultation.detail.medicationAdjustment')">
+              <a-textarea v-model:value="careFollowupForm.medicationAdjustment" :rows="2" :disabled="!canEditVisit" />
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.linkedLabs')">
+                  <a-select
+                    v-model:value="careFollowupForm.labOrderIds"
+                    mode="multiple"
+                    allow-clear
+                    :disabled="!canEditVisit"
+                    :options="careLabOptions"
+                    :placeholder="t('page.consultation.detail.linkedLabsPlaceholder')"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item :label="t('page.consultation.detail.linkedPrescriptions')">
+                  <a-select
+                    v-model:value="careFollowupForm.prescriptionIds"
+                    mode="multiple"
+                    allow-clear
+                    :disabled="!canEditVisit"
+                    :options="carePrescriptionOptions"
+                    :placeholder="t('page.consultation.detail.linkedPrescriptionsPlaceholder')"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-button type="primary" :disabled="!canEditVisit" @click="submitCareFollowup">
+              {{ t('page.consultation.detail.addCareFollowup') }}
+            </a-button>
+          </a-form>
 
-        <a-card class="vpet-detail-card" :title="t('page.consultation.detail.planTimeline')">
-          <a-empty v-if="!(currentVisit?.planBatches || []).length" :description="t('page.consultation.detail.emptyPlanBatches')" />
+          <a-divider />
+          <a-empty v-if="careFollowups.length === 0" :description="t('page.consultation.detail.emptyCareFollowups')" />
           <a-timeline v-else>
-            <a-timeline-item
-              v-for="batch in currentVisit?.planBatches || []"
-              :key="`plan-${batch.id}`"
-            >
-              <div class="vpet-subtitle">{{ batch.batchNo }} / {{ formatToDateTime(batch.createdAt) }}</div>
-              <div class="vpet-inline-note">{{ batch.planSummary || '-' }}</div>
-              <div class="vpet-muted vpet-inline-note">{{ batch.doctorAdvice || '-' }}</div>
+            <a-timeline-item v-for="item in careFollowups" :key="item.id">
+              <div class="vpet-subtitle">{{ item.batchNo }} / {{ formatToDateTime(item.occurredAt) }}</div>
+              <div class="vpet-inline-note">{{ item.symptomSummary || '-' }}</div>
+              <div class="vpet-muted vpet-inline-note">{{ item.statusSummary || '-' }}</div>
+              <div v-if="vitalSignText(item.vitalSigns)" class="vpet-inline-note">
+                {{ vitalSignText(item.vitalSigns) }}
+              </div>
+              <div v-if="item.objectiveNote" class="vpet-muted vpet-inline-note">{{ item.objectiveNote }}</div>
+              <div v-if="item.assessmentText" class="vpet-inline-note">{{ t('page.consultation.detail.followupAssessment') }}：{{ item.assessmentText }}</div>
+              <div v-if="item.planAdjustment" class="vpet-inline-note">{{ t('page.consultation.detail.planAdjustment') }}：{{ item.planAdjustment }}</div>
+              <div v-if="item.medicationAdjustment" class="vpet-inline-note">{{ t('page.consultation.detail.medicationAdjustment') }}：{{ item.medicationAdjustment }}</div>
+              <div v-if="(item.linkedLabs || []).length" class="vpet-block-top">
+                <div class="vpet-subtitle-spaced">{{ t('page.consultation.detail.linkedLabs') }}</div>
+                <div v-for="lab in item.linkedLabs || []" :key="lab.id" class="vpet-list-row">
+                  <a-button type="link" style="padding: 0" @click="openLabReport(lab.id)">
+                    {{ lab.orderNo }} / {{ lab.testName }}
+                  </a-button>
+                  <div class="vpet-muted">{{ labResultSummary(lab) }}</div>
+                </div>
+              </div>
+              <div v-if="(item.linkedPrescriptions || []).length" class="vpet-block-top">
+                <div class="vpet-subtitle-spaced">{{ t('page.consultation.detail.linkedPrescriptions') }}</div>
+                <div v-for="rx in item.linkedPrescriptions || []" :key="rx.id" class="vpet-list-row">
+                  <div class="vpet-subtitle">{{ rx.rxNo }}{{ rx.batchNo ? ` / ${rx.batchNo}` : '' }}</div>
+                  <div class="vpet-muted">{{ prescriptionBrief(rx) }}</div>
+                </div>
+              </div>
             </a-timeline-item>
           </a-timeline>
         </a-card>
@@ -590,6 +684,8 @@ import {
   vpetVisitEnd,
   vpetVisitGet,
   vpetVisitAuditLogs,
+  vpetVisitCareFollowupCreate,
+  vpetVisitCareFollowups,
   vpetVisitLockEmr,
   vpetVisitRequestUnlock,
   vpetVisitSignEmr,
@@ -662,6 +758,7 @@ const prescriptions = ref<any[]>([]);
 const billings = ref<any[]>([]);
 const labs = ref<any[]>([]);
 const chronicCases = ref<any[]>([]);
+const careFollowups = ref<any[]>([]);
 const emrAuditLogs = ref<any[]>([]);
 const emrSignatures = ref<any[]>([]);
 const prescriptionTxnsMap = ref<Record<number, any[]>>({});
@@ -683,8 +780,21 @@ const soap = ref({
   diagnosisCode: undefined as string | undefined,
   diagnosisName: '',
   P: '',
+});
+
+const careFollowupForm = ref({
+  symptomSummary: '',
   statusSummary: '',
-  planSummary: '',
+  temperature: undefined as number | undefined,
+  heartRate: undefined as number | undefined,
+  respiratoryRate: undefined as number | undefined,
+  weight: undefined as number | undefined,
+  objectiveNote: '',
+  assessmentText: '',
+  planAdjustment: '',
+  medicationAdjustment: '',
+  labOrderIds: [] as number[],
+  prescriptionIds: [] as number[],
 });
 
 const rxForm = ref({
@@ -725,6 +835,16 @@ const prescriptionTemplateOptions = computed(() => {
       label: `${item.templateName} / ${item.templateCode}`,
     }));
 });
+
+const careLabOptions = computed(() => labs.value.map((item: any) => ({
+  value: Number(item.id),
+  label: `${item.orderNo} / ${item.testName || '-'} / ${labStatusText(item.status)}`,
+})));
+
+const carePrescriptionOptions = computed(() => prescriptions.value.map((item: any) => ({
+  value: Number(item.id),
+  label: `${item.rxNo}${item.batchNo ? ` / ${item.batchNo}` : ''} / ${prescriptionStatusText(item.status)}`,
+})));
 
 const defaultPaymentMethod = computed<number | undefined>(() => {
   const cashOption = paymentMethodOptions.value.find(item => Number(item.value) === 3);
@@ -860,8 +980,6 @@ async function loadVisit(startIfNeeded = false) {
   soap.value.S = detail?.chiefComplaint || '';
   soap.value.P = detail?.treatmentPlan || '';
   soap.value.O = detail?.physicalExam?.note || detail?.physicalExam?.summary || '';
-  soap.value.statusSummary = detail?.progressBatches?.at?.(-1)?.statusSummary || '';
-  soap.value.planSummary = detail?.planBatches?.at?.(-1)?.planSummary || '';
 
   const diagnosis = parseDiagnosis(detail);
   soap.value.diagnosisCode = diagnosis.code;
@@ -933,6 +1051,12 @@ async function loadChronicCases() {
   chronicCases.value = await vpetChronicCaseList({ petId }) as any[];
 }
 
+async function loadCareFollowups() {
+  const visitId = Number(route.params.id);
+  if (!visitId) return;
+  careFollowups.value = await vpetVisitCareFollowups(visitId) as any[];
+}
+
 async function loadMemberBalance() {
   const customerId = Number(currentVisit.value?.customerId || 0);
   if (!customerId) {
@@ -947,7 +1071,7 @@ async function loadMemberBalance() {
 }
 
 async function refreshLinkedData() {
-  await Promise.all([loadPrescriptions(), loadBillings(), loadLabs(), loadMemberBalance(), loadChronicCases()]);
+  await Promise.all([loadPrescriptions(), loadBillings(), loadLabs(), loadMemberBalance(), loadChronicCases(), loadCareFollowups()]);
 }
 
 async function searchDiagnosisOptions(keyword = '') {
@@ -1155,6 +1279,100 @@ function removeRxDetail(index: number) {
   rxForm.value.details.splice(index, 1);
 }
 
+function resetCareFollowupForm() {
+  careFollowupForm.value = {
+    symptomSummary: '',
+    statusSummary: '',
+    temperature: undefined,
+    heartRate: undefined,
+    respiratoryRate: undefined,
+    weight: undefined,
+    objectiveNote: '',
+    assessmentText: '',
+    planAdjustment: '',
+    medicationAdjustment: '',
+    labOrderIds: [],
+    prescriptionIds: [],
+  };
+}
+
+function collectVitalSigns() {
+  return Object.fromEntries(
+    Object.entries({
+      temperature: careFollowupForm.value.temperature,
+      heartRate: careFollowupForm.value.heartRate,
+      respiratoryRate: careFollowupForm.value.respiratoryRate,
+      weight: careFollowupForm.value.weight,
+    }).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+  );
+}
+
+function vitalSignText(vitalSigns?: Record<string, any> | null) {
+  if (!vitalSigns) return '';
+  return [
+    vitalSigns.temperature !== undefined ? `${t('page.consultation.detail.temperature')} ${vitalSigns.temperature}℃` : '',
+    vitalSigns.heartRate !== undefined ? `${t('page.consultation.detail.heartRate')} ${vitalSigns.heartRate}/min` : '',
+    vitalSigns.respiratoryRate !== undefined ? `${t('page.consultation.detail.respiratoryRate')} ${vitalSigns.respiratoryRate}/min` : '',
+    vitalSigns.weight !== undefined ? `${t('page.consultation.detail.weight')} ${vitalSigns.weight}kg` : '',
+  ].filter(Boolean).join(' / ');
+}
+
+function labResultSummary(lab: any) {
+  const summary = lab.reportSummary || '';
+  const abnormal = Number(lab.abnormalCount || 0) > 0
+    ? `${t('page.lab.fields.abnormalCount')} ${lab.abnormalCount}`
+    : '';
+  const items = (lab.resultItems || [])
+    .slice(0, 4)
+    .map((item: any) => `${item.itemName}: ${[item.resultValue, item.unit, item.flag].filter(Boolean).join(' ')}`)
+    .join('；');
+  return [summary, abnormal, items].filter(Boolean).join(' / ') || '-';
+}
+
+function prescriptionBrief(rx: any) {
+  return (rx.details || [])
+    .slice(0, 4)
+    .map((item: any) => `${item.itemName || item.drugName} ${[item.dosage, item.frequency, `x${item.quantity || 0}${item.dosageUnit || ''}`].filter(Boolean).join(' / ')}`)
+    .join('；') || '-';
+}
+
+async function submitCareFollowup() {
+  if (!currentVisit.value?.id || !canEditVisit.value) return;
+  const vitalSigns = collectVitalSigns();
+  const hasContent = [
+    careFollowupForm.value.symptomSummary,
+    careFollowupForm.value.statusSummary,
+    careFollowupForm.value.objectiveNote,
+    careFollowupForm.value.assessmentText,
+    careFollowupForm.value.planAdjustment,
+    careFollowupForm.value.medicationAdjustment,
+    Object.keys(vitalSigns).length ? 'vitals' : '',
+    careFollowupForm.value.labOrderIds.length ? 'labs' : '',
+    careFollowupForm.value.prescriptionIds.length ? 'prescriptions' : '',
+  ].some(Boolean);
+
+  if (!hasContent) {
+    message.error(t('page.consultation.messages.careFollowupRequired'));
+    return;
+  }
+
+  careFollowups.value = await vpetVisitCareFollowupCreate(currentVisit.value.id, {
+    careStage: currentVisit.value?.careStage,
+    symptomSummary: careFollowupForm.value.symptomSummary || undefined,
+    statusSummary: careFollowupForm.value.statusSummary || undefined,
+    vitalSigns: Object.keys(vitalSigns).length ? JSON.stringify(vitalSigns) : undefined,
+    objectiveNote: careFollowupForm.value.objectiveNote || undefined,
+    assessmentText: careFollowupForm.value.assessmentText || undefined,
+    planAdjustment: careFollowupForm.value.planAdjustment || undefined,
+    medicationAdjustment: careFollowupForm.value.medicationAdjustment || undefined,
+    labOrderIds: careFollowupForm.value.labOrderIds,
+    prescriptionIds: careFollowupForm.value.prescriptionIds,
+    recordedBy: currentVisit.value?.doctorId,
+  }) as any[];
+  resetCareFollowupForm();
+  message.success(t('page.consultation.messages.careFollowupCreated'));
+}
+
 async function saveSoap() {
   if (!currentVisit.value?.id || !canEditVisit.value) return;
   const diagnosisPayload = soap.value.diagnosisCode
@@ -1169,8 +1387,6 @@ async function saveSoap() {
     chiefComplaint: soap.value.S,
     treatmentPlan: soap.value.P,
     symptomSummary: soap.value.S,
-    statusSummary: soap.value.statusSummary,
-    planSummary: soap.value.planSummary,
     physicalExam: soap.value.O ? JSON.stringify({ note: soap.value.O }) : undefined,
     diagnosis: diagnosisPayload ? JSON.stringify(diagnosisPayload) : undefined,
   });

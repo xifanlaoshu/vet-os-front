@@ -93,6 +93,19 @@ export function vpetVisitGet(id: number, options?: RequestOptions) {
   return request(`/api/vpet/visit/${id}`, { method: 'GET', ...(options || {}) });
 }
 
+export function vpetVisitCareFollowups(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/care-followups`, { method: 'GET', ...(options || {}) });
+}
+
+export function vpetVisitCareFollowupCreate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/care-followups`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 慢病档案列表 GET /api/vpet/visit/chronic/cases */
 export function vpetChronicCaseList(
   params?: { petId?: number; customerId?: number; status?: number; keyword?: string },
