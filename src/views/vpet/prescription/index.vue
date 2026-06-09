@@ -302,22 +302,6 @@ const {
 } = useVpetReference();
 const [DynamicTable, dynamicTableInstance] = useTable();
 
-const createVisible = ref(false);
-const templateVisible = ref(false);
-const saving = ref(false);
-const visitOptions = ref<any[]>([]);
-const doctorMap = ref<Record<number, string>>({});
-const chargeableOptions = ref<ChargeableOption[]>([]);
-const templates = ref<any[]>([]);
-const selectedTemplateId = ref<number[]>([]);
-const form = ref({
-  visitId: undefined as number | undefined,
-  doctorId: undefined as number | undefined,
-  diagnosisSummary: '',
-  details: [] as PrescriptionDetailForm[],
-});
-const templateForm = ref(createEmptyTemplateForm());
-
 let chargeableSearchTimer: number | undefined;
 let detailRowSeed = 0;
 
@@ -356,6 +340,22 @@ function createEmptyTemplateForm() {
     items: [createEmptyDetail()],
   };
 }
+
+const createVisible = ref(false);
+const templateVisible = ref(false);
+const saving = ref(false);
+const visitOptions = ref<any[]>([]);
+const doctorMap = ref<Record<number, string>>({});
+const chargeableOptions = ref<ChargeableOption[]>([]);
+const templates = ref<any[]>([]);
+const selectedTemplateId = ref<number[]>([]);
+const form = ref({
+  visitId: undefined as number | undefined,
+  doctorId: undefined as number | undefined,
+  diagnosisSummary: '',
+  details: [] as PrescriptionDetailForm[],
+});
+const templateForm = ref(createEmptyTemplateForm());
 
 function parseDiagnosisSummary(visit?: any) {
   let raw = visit?.diagnosis;
