@@ -86,6 +86,16 @@
               <a-input v-model:value="templateForm.description" />
             </a-form-item>
           </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('page.lab.fields.templateHeader')">
+              <a-textarea v-model:value="templateForm.templateHeader" :rows="3" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('page.lab.fields.templateFooter')">
+              <a-textarea v-model:value="templateForm.templateFooter" :rows="3" />
+            </a-form-item>
+          </a-col>
         </a-row>
 
         <div class="vpet-section-title">{{ t('page.lab.resultSchema') }}</div>
@@ -99,6 +109,24 @@
           <a-button danger @click="removeSchemaRow(index)">{{ t('common.delete') }}</a-button>
         </div>
         <a-button @click="addSchemaRow">{{ t('page.lab.addSchemaRow') }}</a-button>
+
+        <a-table
+          class="vpet-block-spaced"
+          row-key="id"
+          size="small"
+          :pagination="false"
+          :columns="templateColumns"
+          :data-source="templates"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'action'">
+              <a-space>
+                <a-button type="link" size="small" @click="editTemplate(record)">{{ t('common.edit') }}</a-button>
+                <a-button type="link" danger size="small" @click="deleteTemplate(record)">{{ t('common.delete') }}</a-button>
+              </a-space>
+            </template>
+          </template>
+        </a-table>
       </a-form>
     </a-modal>
   </div>
@@ -114,6 +142,9 @@ import {
   vpetLabList,
   vpetLabSubmitLis,
   vpetLabTemplateCreate,
+  vpetLabTemplateDelete,
+  vpetLabTemplateList,
+  vpetLabTemplateUpdate,
 } from '@/api/backend/vpet';
 import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
@@ -147,6 +178,7 @@ const petOptions = ref<any[]>([]);
 const doctorOptions = ref<any[]>([]);
 const visitOptions = ref<any[]>([]);
 const sampleTypeOptions = ref<any[]>([]);
+const templates = ref<any[]>([]);
 const templateForm = ref(createEmptyTemplateForm());
 
 const visitMap = computed(() => {
@@ -178,13 +210,24 @@ const columns = [
   { title: t('common.action'), key: 'action', width: 180, fixed: 'right' as const },
 ];
 
+const templateColumns = [
+  { title: t('page.lab.fields.templateCode'), dataIndex: 'code', width: 120 },
+  { title: t('page.lab.fields.templateName'), dataIndex: 'name', width: 180 },
+  { title: t('page.lab.fields.sampleType'), dataIndex: 'sampleType', width: 120 },
+  { title: t('page.lab.fields.defaultChargeAmount'), dataIndex: 'defaultChargeAmount', width: 120 },
+  { title: t('common.action'), key: 'action', width: 140, fixed: 'right' as const },
+];
+
 function createEmptyTemplateForm() {
   return {
+    id: undefined as number | undefined,
     code: '',
     name: '',
     sampleType: undefined as string | undefined,
     defaultChargeAmount: 0,
     description: '',
+    templateHeader: '',
+    templateFooter: '',
     schemaItems: [
       { itemCode: '', itemName: '', unit: '', refMin: undefined, refMax: undefined, flag: '' },
     ],
@@ -320,6 +363,7 @@ async function openCreateModal() {
 function openTemplateModal() {
   templateForm.value = createEmptyTemplateForm();
   templateVisible.value = true;
+  loadTemplates();
 }
 
 function addSchemaRow() {
@@ -343,18 +387,62 @@ async function submitTemplate() {
     return;
   }
 
-  await vpetLabTemplateCreate({
+  const payload = {
     code: templateForm.value.code,
     name: templateForm.value.name,
     sampleType: templateForm.value.sampleType,
     defaultChargeAmount: Number(templateForm.value.defaultChargeAmount || 0),
     description: templateForm.value.description || undefined,
+    templateHeader: templateForm.value.templateHeader || undefined,
+    templateFooter: templateForm.value.templateFooter || undefined,
     resultSchema: {
       items: templateForm.value.schemaItems.filter(item => item.itemName),
     },
-  });
-  message.success(t('page.lab.messages.templateCreated'));
-  templateVisible.value = false;
+  };
+
+  if (templateForm.value.id) {
+    await vpetLabTemplateUpdate(templateForm.value.id, payload);
+    message.success(t('page.lab.messages.templateUpdated'));
+  } else {
+    await vpetLabTemplateCreate(payload);
+    message.success(t('page.lab.messages.templateCreated'));
+  }
+  templateForm.value = createEmptyTemplateForm();
+  await loadTemplates();
+}
+
+async function loadTemplates() {
+  templates.value = await vpetLabTemplateList() as any[];
+}
+
+function editTemplate(record: any) {
+  const schemaItems = Array.isArray(record.resultSchema?.items)
+    ? record.resultSchema.items
+    : [];
+  templateForm.value = {
+    ...createEmptyTemplateForm(),
+    ...record,
+    templateHeader: record.templateHeader || '',
+    templateFooter: record.templateFooter || '',
+    schemaItems: schemaItems.length
+      ? schemaItems.map((item: any) => ({
+          itemCode: item.itemCode || item.code || '',
+          itemName: item.itemName || item.name || '',
+          unit: item.unit || '',
+          refMin: item.refMin,
+          refMax: item.refMax,
+          flag: item.flag || '',
+        }))
+      : createEmptyTemplateForm().schemaItems,
+  };
+}
+
+async function deleteTemplate(record: any) {
+  await vpetLabTemplateDelete(record.id);
+  message.success(t('page.lab.messages.templateDeleted'));
+  await loadTemplates();
+  if (templateForm.value.id === record.id)
+    templateForm.value = createEmptyTemplateForm();
 }
 
 onMounted(async () => {

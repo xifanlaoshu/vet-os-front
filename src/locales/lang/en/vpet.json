@@ -712,6 +712,8 @@
         "templateCode": "Template code",
         "templateName": "Template name",
         "templateDescription": "Template description",
+        "templateHeader": "Template header",
+        "templateFooter": "Template footer",
         "defaultChargeAmount": "Default charge",
         "metricKey": "Result code"
       },
@@ -720,7 +722,9 @@
         "reportSaved": "Lab report saved",
         "lisSubmitted": "LIS task submitted",
         "templateRequired": "Please fill template code and template name",
-        "templateCreated": "Lab template created"
+        "templateCreated": "Lab template created",
+        "templateUpdated": "Lab template updated",
+        "templateDeleted": "Lab template disabled"
       }
     },
     "hospitalization": {

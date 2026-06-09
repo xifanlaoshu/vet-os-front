@@ -712,6 +712,8 @@
         "templateCode": "模板编码",
         "templateName": "模板名称",
         "templateDescription": "模板说明",
+        "templateHeader": "模板头",
+        "templateFooter": "模板尾",
         "defaultChargeAmount": "默认收费",
         "metricKey": "结果编码"
       },
@@ -720,7 +722,9 @@
         "reportSaved": "化验报告已保存",
         "lisSubmitted": "LIS 任务已提交",
         "templateRequired": "请完整填写模板编码和模板名称",
-        "templateCreated": "检查模板已创建"
+        "templateCreated": "检查模板已创建",
+        "templateUpdated": "检查模板已更新",
+        "templateDeleted": "检查模板已停用"
       }
     },
     "hospitalization": {

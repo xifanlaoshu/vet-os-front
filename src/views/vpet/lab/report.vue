@@ -16,6 +16,15 @@
       <a-alert v-if="aiSummary" class="vpet-block-spaced" type="info" :message="aiSummary.summaryForDoctor" :description="aiSummary.summaryForOwner" show-icon />
     </a-card>
 
+    <a-card
+      v-if="templateHeader"
+      class="vpet-detail-card"
+      :title="t('page.lab.fields.templateHeader')"
+      :bordered="false"
+    >
+      <div class="vpet-pre-wrap">{{ templateHeader }}</div>
+    </a-card>
+
     <a-card class="vpet-panel-card" :title="t('page.lab.reportItems')" :bordered="false">
       <div v-for="(item, index) in items" :key="index" class="vpet-form-grid">
         <a-input v-model:value="item.itemName" :placeholder="t('page.lab.fields.itemName')" />
@@ -28,11 +37,20 @@
       </div>
       <a-textarea v-model:value="reportSummary" :rows="4" :placeholder="t('page.lab.fields.reportSummary')" />
     </a-card>
+
+    <a-card
+      v-if="templateFooter"
+      class="vpet-detail-card"
+      :title="t('page.lab.fields.templateFooter')"
+      :bordered="false"
+    >
+      <div class="vpet-pre-wrap">{{ templateFooter }}</div>
+    </a-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRoute } from 'vue-router';
 import { vpetAiLabInterpret, vpetLabGet, vpetLabSaveReport, vpetLabSubmitLis } from '@/api/backend/vpet';
@@ -48,6 +66,8 @@ const detail = ref<any>(null);
 const items = ref<any[]>([]);
 const reportSummary = ref('');
 const aiSummary = ref<any>(null);
+const templateHeader = computed(() => detail.value?.templateSnapshot?.templateHeader || '');
+const templateFooter = computed(() => detail.value?.templateSnapshot?.templateFooter || '');
 
 function addRow() {
   items.value.push({ itemName: '', resultValue: '', unit: '', refMin: undefined, refMax: undefined, flag: '' });

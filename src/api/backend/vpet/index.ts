@@ -433,6 +433,14 @@ export function vpetLabTemplateCreate(body: any, options?: RequestOptions) {
   return request('/api/vpet/lab/templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
 }
 
+export function vpetLabTemplateUpdate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/lab/templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetLabTemplateDelete(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/lab/templates/${id}`, { method: 'DELETE', ...(options || {}) });
+}
+
 /** 浼氬憳鍗″紑鍗?POST /api/vpet/member/card */
 export function vpetMemberOpenCard(body: any, options?: RequestOptions) {
   return request('/api/vpet/member/card', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
