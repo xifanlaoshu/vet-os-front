@@ -100,9 +100,15 @@
 
         <a-card class="vpet-detail-card" :title="t('page.consultation.detail.continuousCare')">
           <template #extra>
-            <a-tag color="blue">{{ careFollowups.length }}</a-tag>
+            <a-space>
+              <a-tag color="blue">{{ careFollowups.length }}</a-tag>
+              <a-button type="link" size="small" @click="continuousCareExpanded = !continuousCareExpanded">
+                {{ continuousCareExpanded ? t('page.consultation.detail.collapseContinuousCare') : t('page.consultation.detail.expandContinuousCare') }}
+              </a-button>
+            </a-space>
           </template>
-          <a-alert
+          <template v-if="continuousCareExpanded">
+            <a-alert
             type="info"
             show-icon
             class="vpet-block-bottom"
@@ -224,6 +230,7 @@
               </div>
             </a-timeline-item>
           </a-timeline>
+          </template>
         </a-card>
 
         <a-card class="vpet-detail-card" :title="t('page.consultation.detail.prescription')">
@@ -760,6 +767,7 @@ const billings = ref<any[]>([]);
 const labs = ref<any[]>([]);
 const chronicCases = ref<any[]>([]);
 const careFollowups = ref<any[]>([]);
+const continuousCareExpanded = ref(false);
 const emrAuditLogs = ref<any[]>([]);
 const emrSignatures = ref<any[]>([]);
 const prescriptionTxnsMap = ref<Record<number, any[]>>({});
@@ -1056,6 +1064,7 @@ async function loadCareFollowups() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
   careFollowups.value = await vpetVisitCareFollowups(visitId) as any[];
+  continuousCareExpanded.value = careFollowups.value.length > 0;
 }
 
 async function loadMemberBalance() {
@@ -1370,6 +1379,7 @@ async function submitCareFollowup() {
     prescriptionIds: careFollowupForm.value.prescriptionIds,
     recordedBy: currentVisit.value?.doctorId,
   }) as any[];
+  continuousCareExpanded.value = true;
   resetCareFollowupForm();
   message.success(t('page.consultation.messages.careFollowupCreated'));
 }

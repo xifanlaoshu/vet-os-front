@@ -398,6 +398,8 @@
         "emptyProgressBatches": "No progress batches",
         "emptyPlanBatches": "No plan batches",
         "continuousCare": "Continuous care follow-up",
+        "expandContinuousCare": "Expand",
+        "collapseContinuousCare": "Collapse",
         "continuousCareHint": "Use this area after the initial SOAP to record ongoing hospitalization, nursing, monitoring, lab feedback, and medication adjustments for this visit.",
         "symptomObservation": "Symptom observation",
         "statusObservation": "Status observation",

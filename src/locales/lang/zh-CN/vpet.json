@@ -398,6 +398,8 @@
         "emptyProgressBatches": "暂无病情批次记录",
         "emptyPlanBatches": "暂无计划批次记录",
         "continuousCare": "持续诊疗跟进",
+        "expandContinuousCare": "展开",
+        "collapseContinuousCare": "收起",
         "continuousCareHint": "初诊 SOAP 之后，在这里记录本次就诊内的住院护理、状态观察、指标检测反馈和每日用药调整。",
         "symptomObservation": "症状观察",
         "statusObservation": "状态观察",
