@@ -745,10 +745,16 @@
     },
     "queue": {
       "title": "Queue Board",
+      "eyebrow": "VET OS Calling Board",
+      "notice": "Please watch the queue screen and proceed to the consultation room when called.",
       "waiting": "Waiting",
       "active": "Called / In consultation",
+      "autoRefresh": "Auto refresh",
+      "inConsultation": "In consultation",
       "emptyWaiting": "No waiting visits",
-      "emptyActive": "No active visits"
+      "emptyWaitingHint": "The waiting queue is currently clear",
+      "emptyActive": "No active visits",
+      "emptyActiveHint": "There are no visits currently in consultation"
     },
     "lab": {
       "title": "Lab Orders",

@@ -745,10 +745,16 @@
     },
     "queue": {
       "title": "门诊叫号屏",
+      "eyebrow": "VET OS 叫号大屏",
+      "notice": "请留意屏幕叫号信息，听到呼叫后前往对应诊室。",
       "waiting": "候诊中",
       "active": "已叫号 / 接诊中",
+      "autoRefresh": "自动刷新",
+      "inConsultation": "正在接诊",
       "emptyWaiting": "暂无候诊记录",
-      "emptyActive": "暂无接诊记录"
+      "emptyWaitingHint": "候诊队列已清空",
+      "emptyActive": "暂无接诊记录",
+      "emptyActiveHint": "当前没有正在接诊的候诊记录"
     },
     "lab": {
       "title": "化验检查",
