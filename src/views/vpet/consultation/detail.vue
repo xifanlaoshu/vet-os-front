@@ -13,6 +13,9 @@
           <a-button :disabled="!currentVisit?.petId" @click="openChronicCenter">
             {{ t('page.chronic.title') }}
           </a-button>
+          <a-button :disabled="!currentVisit?.id" @click="openPrintRecord">
+            {{ t('page.consultation.print.printButton') }}
+          </a-button>
           <a-button :disabled="!currentVisit?.id" @click="syncBilling">
             {{ t('page.consultation.detail.syncBilling') }}
           </a-button>
@@ -109,100 +112,103 @@
           </template>
           <template v-if="continuousCareExpanded">
             <a-alert
-            type="info"
-            show-icon
-            class="vpet-block-bottom"
-            :message="t('page.consultation.detail.continuousCareHint')"
-          />
-          <a-form layout="vertical">
-            <a-row :gutter="16">
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.symptomObservation')">
-                  <a-textarea v-model:value="careFollowupForm.symptomSummary" :rows="3" :disabled="!canEditVisit" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.statusObservation')">
-                  <a-textarea v-model:value="careFollowupForm.statusSummary" :rows="3" :disabled="!canEditVisit" />
-                </a-form-item>
-              </a-col>
-            </a-row>
-            <a-row :gutter="16">
-              <a-col :span="6">
-                <a-form-item :label="t('page.consultation.detail.temperature')">
-                  <a-input-number v-model:value="careFollowupForm.temperature" :min="0" :precision="1" :disabled="!canEditVisit" style="width: 100%" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('page.consultation.detail.heartRate')">
-                  <a-input-number v-model:value="careFollowupForm.heartRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('page.consultation.detail.respiratoryRate')">
-                  <a-input-number v-model:value="careFollowupForm.respiratoryRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('page.consultation.detail.weight')">
-                  <a-input-number v-model:value="careFollowupForm.weight" :min="0" :precision="2" :disabled="!canEditVisit" style="width: 100%" />
-                </a-form-item>
-              </a-col>
-            </a-row>
-            <a-form-item :label="t('page.consultation.detail.objectiveObservation')">
-              <a-textarea v-model:value="careFollowupForm.objectiveNote" :rows="2" :disabled="!canEditVisit" />
-            </a-form-item>
-            <a-row :gutter="16">
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.followupAssessment')">
-                  <a-textarea v-model:value="careFollowupForm.assessmentText" :rows="3" :disabled="!canEditVisit" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.planAdjustment')">
-                  <a-textarea v-model:value="careFollowupForm.planAdjustment" :rows="3" :disabled="!canEditVisit" />
-                </a-form-item>
-              </a-col>
-            </a-row>
-            <a-form-item :label="t('page.consultation.detail.medicationAdjustment')">
-              <a-textarea v-model:value="careFollowupForm.medicationAdjustment" :rows="2" :disabled="!canEditVisit" />
-            </a-form-item>
-            <a-row :gutter="16">
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.linkedLabs')">
-                  <a-select
-                    v-model:value="careFollowupForm.labOrderIds"
-                    mode="multiple"
-                    allow-clear
-                    :disabled="!canEditVisit"
-                    :options="careLabOptions"
-                    :placeholder="t('page.consultation.detail.linkedLabsPlaceholder')"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label="t('page.consultation.detail.linkedPrescriptions')">
-                  <a-select
-                    v-model:value="careFollowupForm.prescriptionIds"
-                    mode="multiple"
-                    allow-clear
-                    :disabled="!canEditVisit"
-                    :options="carePrescriptionOptions"
-                    :placeholder="t('page.consultation.detail.linkedPrescriptionsPlaceholder')"
-                  />
-                </a-form-item>
-              </a-col>
-            </a-row>
-            <a-button type="primary" :disabled="!canEditVisit" @click="submitCareFollowup">
-              {{ t('page.consultation.detail.addCareFollowup') }}
-            </a-button>
-          </a-form>
+              type="info"
+              show-icon
+              class="vpet-block-bottom"
+              :message="t('page.consultation.detail.continuousCareHint')"
+            />
+            <a-form layout="vertical">
+              <a-row :gutter="16">
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.symptomObservation')">
+                    <a-textarea v-model:value="careFollowupForm.symptomSummary" :rows="3" :disabled="!canEditVisit" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.statusObservation')">
+                    <a-textarea v-model:value="careFollowupForm.statusSummary" :rows="3" :disabled="!canEditVisit" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-row :gutter="16">
+                <a-col :span="6">
+                  <a-form-item :label="t('page.consultation.detail.temperature')">
+                    <a-input-number v-model:value="careFollowupForm.temperature" :min="0" :precision="1" :disabled="!canEditVisit" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                  <a-form-item :label="t('page.consultation.detail.heartRate')">
+                    <a-input-number v-model:value="careFollowupForm.heartRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                  <a-form-item :label="t('page.consultation.detail.respiratoryRate')">
+                    <a-input-number v-model:value="careFollowupForm.respiratoryRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                  <a-form-item :label="t('page.consultation.detail.weight')">
+                    <a-input-number v-model:value="careFollowupForm.weight" :min="0" :precision="2" :disabled="!canEditVisit" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-form-item :label="t('page.consultation.detail.objectiveObservation')">
+                <a-textarea v-model:value="careFollowupForm.objectiveNote" :rows="2" :disabled="!canEditVisit" />
+              </a-form-item>
+              <a-row :gutter="16">
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.followupAssessment')">
+                    <a-textarea v-model:value="careFollowupForm.assessmentText" :rows="3" :disabled="!canEditVisit" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.planAdjustment')">
+                    <a-textarea v-model:value="careFollowupForm.planAdjustment" :rows="3" :disabled="!canEditVisit" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-form-item :label="t('page.consultation.detail.medicationAdjustment')">
+                <a-textarea v-model:value="careFollowupForm.medicationAdjustment" :rows="2" :disabled="!canEditVisit" />
+              </a-form-item>
+              <a-row :gutter="16">
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.linkedLabs')">
+                    <a-select
+                      v-model:value="careFollowupForm.labOrderIds"
+                      mode="multiple"
+                      allow-clear
+                      :disabled="!canEditVisit"
+                      :options="careLabOptions"
+                      :placeholder="t('page.consultation.detail.linkedLabsPlaceholder')"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.consultation.detail.linkedPrescriptions')">
+                    <a-select
+                      v-model:value="careFollowupForm.prescriptionIds"
+                      mode="multiple"
+                      allow-clear
+                      :disabled="!canEditVisit"
+                      :options="carePrescriptionOptions"
+                      :placeholder="t('page.consultation.detail.linkedPrescriptionsPlaceholder')"
+                    />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-button type="primary" :disabled="!canEditVisit" @click="submitCareFollowup">
+                {{ t('page.consultation.detail.addCareFollowup') }}
+              </a-button>
+            </a-form>
 
-          <a-divider />
-          <a-empty v-if="careFollowups.length === 0" :description="t('page.consultation.detail.emptyCareFollowups')" />
-          <a-timeline v-else>
+            <a-divider />
+            <a-empty v-if="careFollowups.length === 0" :description="t('page.consultation.detail.emptyCareFollowups')" />
+            <a-timeline v-else>
             <a-timeline-item v-for="item in careFollowups" :key="item.id">
-              <div class="vpet-subtitle">{{ item.batchNo }} / {{ formatToDateTime(item.occurredAt) }}</div>
+              <div class="vpet-subtitle">
+                {{ item.batchNo }} / {{ formatToDateTime(item.occurredAt) }}
+                / {{ t('page.consultation.detail.recordedBy') }} {{ staffLabel(item.recorder, item.recordedBy) }}
+              </div>
               <div class="vpet-inline-note">{{ item.symptomSummary || '-' }}</div>
               <div class="vpet-muted vpet-inline-note">{{ item.statusSummary || '-' }}</div>
               <div v-if="vitalSignText(item.vitalSigns)" class="vpet-inline-note">
@@ -228,9 +234,72 @@
                   <div class="vpet-muted">{{ prescriptionBrief(rx) }}</div>
                 </div>
               </div>
-            </a-timeline-item>
-          </a-timeline>
+              </a-timeline-item>
+            </a-timeline>
           </template>
+        </a-card>
+
+        <a-card class="vpet-detail-card" :title="t('page.consultation.detail.media')">
+          <template #extra>
+            <a-button type="primary" size="small" :disabled="!canEditVisit" @click="openMediaBatchModal">
+              {{ t('page.consultation.detail.addMediaBatch') }}
+            </a-button>
+          </template>
+          <a-alert
+            type="info"
+            show-icon
+            class="vpet-block-bottom"
+            :message="t('page.consultation.detail.mediaHint')"
+          />
+          <a-empty v-if="mediaBatches.length === 0" :description="t('page.consultation.detail.emptyMediaBatches')" />
+          <div v-else class="vpet-media-batches">
+            <div v-for="batch in mediaBatches" :key="batch.id" class="vpet-media-batch">
+              <div class="vpet-media-batch__head">
+                <div>
+                  <div class="vpet-subtitle">
+                    {{ batch.batchNo }} / {{ formatToDateTime(batch.capturedAt) }}
+                  </div>
+                  <div class="vpet-muted">
+                    {{ mediaRelationText(batch) }} / {{ t('page.consultation.detail.operator') }} {{ staffLabel(batch.operator, batch.operatorId) }}
+                  </div>
+                  <div v-if="batch.remark" class="vpet-muted">{{ batch.remark }}</div>
+                </div>
+                <a-upload
+                  multiple
+                  accept="image/*,video/*"
+                  :show-upload-list="false"
+                  :disabled="!canEditVisit || uploadingMediaBatchId === batch.id"
+                  :before-upload="(file: any) => uploadMediaFile(batch, file)"
+                >
+                  <a-button size="small" :loading="uploadingMediaBatchId === batch.id">
+                    {{ t('page.consultation.detail.uploadMedia') }}
+                  </a-button>
+                </a-upload>
+              </div>
+              <a-space-compact class="vpet-media-oss">
+                <a-input
+                  v-model:value="ossMediaForm[batch.id]"
+                  :disabled="!canEditVisit"
+                  :placeholder="t('page.consultation.detail.ossUrlPlaceholder')"
+                />
+                <a-button :disabled="!canEditVisit || !ossMediaForm[batch.id]" @click="addOssMediaFile(batch)">
+                  {{ t('page.consultation.detail.addOssUrl') }}
+                </a-button>
+              </a-space-compact>
+              <div v-if="(batch.files || []).length" class="vpet-media-files">
+                <div v-for="file in batch.files || []" :key="file.id" class="vpet-media-file">
+                  <img v-if="file.fileType === 'image'" :src="mediaFileUrl(file.url)" :alt="file.originalName || file.fileName || batch.batchNo" />
+                  <video v-else-if="file.fileType === 'video'" :src="mediaFileUrl(file.url)" controls />
+                  <a v-else :href="mediaFileUrl(file.url)" target="_blank">{{ file.originalName || file.fileName || file.url }}</a>
+                  <div class="vpet-media-file__meta">
+                    <span>{{ file.originalName || file.fileName || '-' }}</span>
+                    <span>{{ file.storageType?.toUpperCase?.() || '-' }} / {{ fileSizeText(file.fileSize) }}</span>
+                  </div>
+                </div>
+              </div>
+              <a-empty v-else :description="t('page.consultation.detail.emptyMediaFiles')" />
+            </div>
+          </div>
         </a-card>
 
         <a-card class="vpet-detail-card" :title="t('page.consultation.detail.prescription')">
@@ -264,12 +333,13 @@
           />
 
           <a-table
+            class="vpet-rx-edit-table"
             row-key="rowKey"
             size="small"
             :pagination="false"
             :columns="rxDetailInputColumns"
             :data-source="rxForm.details"
-            :scroll="{ x: 1080 }"
+            :scroll="{ x: 1400 }"
           >
             <template #bodyCell="{ column, record, index }">
               <template v-if="column.key === 'item'">
@@ -375,6 +445,15 @@
                 </div>
               </div>
 
+              <a-descriptions :column="2" size="small" class="vpet-block-spaced">
+                <a-descriptions-item :label="t('page.consultation.detail.prescriber')">
+                  {{ staffLabel(item.doctor, item.doctorId, item.doctorSnapshot?.name) }}
+                </a-descriptions-item>
+                <a-descriptions-item :label="t('page.consultation.detail.pharmacist')">
+                  {{ staffLabel(item.pharmacist, item.pharmacistId) }}
+                </a-descriptions-item>
+              </a-descriptions>
+
               <div class="vpet-block-spaced">
                 <div class="vpet-subtitle-spaced">
                   {{ t('page.consultation.detail.transactionList') }}
@@ -394,6 +473,7 @@
                     {{ Math.abs(Number(txn.quantityChange || 0)).toFixed(2) }}
                     / {{ t('page.pharmacy.fields.batchNo') }} {{ txn.batch?.batchNo || '-' }}
                     / {{ t('common.updatedAt') }} {{ formatToDateTime(txn.txnTime) }}
+                    / {{ t('page.consultation.detail.operator') }} {{ staffLabel(txn.operator, txn.operatorId) }}
                   </a-timeline-item>
                 </a-timeline>
               </div>
@@ -424,6 +504,18 @@
               {{ memberBalanceText }}
             </a-descriptions-item>
           </a-descriptions>
+          <a-divider v-if="diagnosisTraceItems.length" style="margin: 12px 0" />
+          <div v-if="diagnosisTraceItems.length" class="vpet-section-title">
+            {{ t('page.consultation.detail.diagnosisTrace') }}
+          </div>
+          <a-timeline v-if="diagnosisTraceItems.length" size="small">
+            <a-timeline-item v-for="item in diagnosisTraceItems" :key="item.id || item.code || item.name">
+              <div class="vpet-subtitle">{{ item.name || item.code || '-' }}</div>
+              <div class="vpet-muted">
+                {{ t('page.consultation.detail.recordedBy') }} {{ staffLabel(item.recorder, item.recordedBy) }}
+              </div>
+            </a-timeline-item>
+          </a-timeline>
         </a-card>
 
         <a-card class="vpet-detail-card" :title="t('page.consultation.detail.emrCompliance')">
@@ -443,6 +535,9 @@
           <a-timeline v-else size="small">
             <a-timeline-item v-for="log in emrAuditLogs" :key="log.id">
               <div class="vpet-subtitle">{{ emrAuditActionText(log.action) }} / {{ formatToDateTime(log.createdAt) }}</div>
+              <div class="vpet-muted">
+                {{ t('page.consultation.detail.operator') }} {{ staffLabel(log.operator, log.operatorId) }}
+              </div>
               <div class="vpet-muted">{{ log.reason || '-' }}</div>
             </a-timeline-item>
           </a-timeline>
@@ -665,6 +760,40 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:open="mediaBatchVisible"
+      :title="t('page.consultation.detail.addMediaBatch')"
+      destroy-on-close
+      @ok="submitMediaBatch"
+    >
+      <a-form layout="vertical">
+        <a-form-item :label="t('page.consultation.detail.captureTime')">
+          <a-input v-model:value="mediaBatchForm.capturedAt" type="datetime-local" />
+        </a-form-item>
+        <a-form-item :label="t('page.consultation.detail.relationType')">
+          <a-select
+            v-model:value="mediaBatchForm.relationType"
+            :options="mediaRelationOptions"
+            @change="mediaBatchForm.careFollowupId = undefined"
+          />
+        </a-form-item>
+        <a-form-item
+          v-if="mediaBatchForm.relationType === 'care_followup'"
+          :label="t('page.consultation.detail.relationCareFollowup')"
+        >
+          <a-select
+            v-model:value="mediaBatchForm.careFollowupId"
+            allow-clear
+            :options="mediaCareFollowupOptions"
+            :placeholder="t('page.consultation.detail.relationCareFollowupPlaceholder')"
+          />
+        </a-form-item>
+        <a-form-item :label="t('page.consultation.detail.mediaRemark')">
+          <a-textarea v-model:value="mediaBatchForm.remark" :rows="3" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -673,7 +802,9 @@ import { computed, onMounted, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRoute, useRouter } from 'vue-router';
 import { formatToDateTime } from '@/utils/dateUtil';
+import { baseApiUrl } from '@/utils/request';
 import { useFormModal } from '@/hooks/useModal';
+import { uploadUpload } from '@/api/backend/api/toolsUpload';
 import {
   vpetBillingByVisit,
   vpetBillingPay,
@@ -695,6 +826,9 @@ import {
   vpetVisitCareFollowupCreate,
   vpetVisitCareFollowups,
   vpetVisitLockEmr,
+  vpetVisitMediaBatchCreate,
+  vpetVisitMediaBatches,
+  vpetVisitMediaFileCreate,
   vpetVisitRequestUnlock,
   vpetVisitSignEmr,
   vpetVisitSignatures,
@@ -760,6 +894,9 @@ const { customerLabel, doctorLabel, drugLabel, filterByLabel, loadDictOptions, p
 const route = useRoute();
 const router = useRouter();
 const [showUnlockModal] = useFormModal();
+const visitScopeOptions = computed(() =>
+  route.query.scope === 'currentStaff' ? { params: { scope: 'currentStaff' } } : undefined,
+);
 
 const currentVisit = ref<any>(null);
 const prescriptions = ref<any[]>([]);
@@ -767,6 +904,7 @@ const billings = ref<any[]>([]);
 const labs = ref<any[]>([]);
 const chronicCases = ref<any[]>([]);
 const careFollowups = ref<any[]>([]);
+const mediaBatches = ref<any[]>([]);
 const continuousCareExpanded = ref(false);
 const emrAuditLogs = ref<any[]>([]);
 const emrSignatures = ref<any[]>([]);
@@ -780,8 +918,11 @@ const prescriptionTemplates = ref<any[]>([]);
 const selectedPrescriptionTemplateId = ref<number[]>([]);
 const payVisible = ref(false);
 const labCreateVisible = ref(false);
+const mediaBatchVisible = ref(false);
 const paying = ref(false);
 const payingBill = ref<any>(null);
+const uploadingMediaBatchId = ref<number | undefined>();
+const ossMediaForm = ref<Record<number, string>>({});
 
 const soap = ref({
   S: '',
@@ -825,6 +966,13 @@ const labCreateForm = ref({
   chargeAmount: 0,
 });
 
+const mediaBatchForm = ref({
+  capturedAt: '',
+  relationType: 'soap' as 'soap' | 'care_followup',
+  careFollowupId: undefined as number | undefined,
+  remark: '',
+});
+
 const labTemplateOptions = computed(() => {
   const species = currentVisit.value?.pet?.species || currentVisit.value?.petSnapshot?.species;
   return labTemplates.value
@@ -853,6 +1001,16 @@ const careLabOptions = computed(() => labs.value.map((item: any) => ({
 const carePrescriptionOptions = computed(() => prescriptions.value.map((item: any) => ({
   value: Number(item.id),
   label: `${item.rxNo}${item.batchNo ? ` / ${item.batchNo}` : ''} / ${prescriptionStatusText(item.status)}`,
+})));
+
+const mediaRelationOptions = computed(() => [
+  { value: 'soap', label: t('page.consultation.detail.relationSoap') },
+  { value: 'care_followup', label: t('page.consultation.detail.relationCareFollowup') },
+]);
+
+const mediaCareFollowupOptions = computed(() => careFollowups.value.map((item: any) => ({
+  value: Number(item.id),
+  label: `${item.batchNo} / ${formatToDateTime(item.occurredAt)} / ${item.symptomSummary || item.statusSummary || '-'}`,
 })));
 
 const defaultPaymentMethod = computed<number | undefined>(() => {
@@ -934,6 +1092,8 @@ const diagnosisSummary = computed(() => {
     .join(' / ');
 });
 
+const diagnosisTraceItems = computed(() => parseDiagnosisList(currentVisit.value));
+
 const isVisitLocked = computed(() => Number(currentVisit.value?.locked || 0) === 1);
 const canEditVisit = computed(() => [1, 2, 3].includes(Number(currentVisit.value?.status || 0)) && !isVisitLocked.value);
 const canEndVisit = computed(() => [1, 2, 3].includes(Number(currentVisit.value?.status || 0)));
@@ -947,13 +1107,13 @@ const memberBalanceText = computed(() => {
 });
 
 const rxDetailInputColumns = [
-  { title: t('page.prescription.fields.item'), key: 'item', width: 260 },
-  { title: t('page.prescription.fields.specification'), key: 'specification', width: 150 },
-  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 130 },
-  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 120 },
-  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 110 },
-  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 90 },
-  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 120 },
+  { title: t('page.prescription.fields.item'), key: 'item', width: 380 },
+  { title: t('page.prescription.fields.specification'), key: 'specification', width: 180 },
+  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 220 },
+  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 180 },
+  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 130 },
+  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 120 },
+  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 130 },
   { title: t('common.action'), key: 'action', width: 90, fixed: 'right' as const },
 ];
 
@@ -973,15 +1133,19 @@ function parseDiagnosis(detail: any) {
   };
 }
 
+function staffLabel(staff?: any, staffId?: string | number | null, fallbackName?: string) {
+  return doctorLabel(staff, staffId, fallbackName);
+}
+
 async function loadVisit(startIfNeeded = false) {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  const snapshot: any = await vpetVisitGet(visitId);
+  const snapshot: any = await vpetVisitGet(visitId, visitScopeOptions.value);
   const shouldStart = startIfNeeded
     && [1, 2].includes(Number(snapshot?.status || 0))
     && !snapshot?.startTime;
   const detail = shouldStart
-    ? await vpetVisitStart(visitId)
+    ? await vpetVisitStart(visitId, visitScopeOptions.value)
     : snapshot;
 
   currentVisit.value = detail;
@@ -1006,8 +1170,8 @@ async function loadEmrCompliance() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
   const [logs, signatures] = await Promise.all([
-    vpetVisitAuditLogs(visitId),
-    vpetVisitSignatures(visitId),
+    vpetVisitAuditLogs(visitId, visitScopeOptions.value),
+    vpetVisitSignatures(visitId, visitScopeOptions.value),
   ]);
   emrAuditLogs.value = (logs || []) as any[];
   emrSignatures.value = (signatures || []) as any[];
@@ -1063,8 +1227,14 @@ async function loadChronicCases() {
 async function loadCareFollowups() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  careFollowups.value = await vpetVisitCareFollowups(visitId) as any[];
+  careFollowups.value = await vpetVisitCareFollowups(visitId, visitScopeOptions.value) as any[];
   continuousCareExpanded.value = careFollowups.value.length > 0;
+}
+
+async function loadMediaBatches() {
+  const visitId = Number(route.params.id);
+  if (!visitId) return;
+  mediaBatches.value = await vpetVisitMediaBatches(visitId, visitScopeOptions.value) as any[];
 }
 
 async function loadMemberBalance() {
@@ -1081,7 +1251,7 @@ async function loadMemberBalance() {
 }
 
 async function refreshLinkedData() {
-  await Promise.all([loadPrescriptions(), loadBillings(), loadLabs(), loadMemberBalance(), loadChronicCases(), loadCareFollowups()]);
+  await Promise.all([loadPrescriptions(), loadBillings(), loadLabs(), loadMemberBalance(), loadChronicCases(), loadCareFollowups(), loadMediaBatches()]);
 }
 
 async function searchDiagnosisOptions(keyword = '') {
@@ -1346,6 +1516,121 @@ function prescriptionBrief(rx: any) {
     .join('；') || '-';
 }
 
+function currentLocalDateTime() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function openMediaBatchModal() {
+  mediaBatchForm.value = {
+    capturedAt: currentLocalDateTime(),
+    relationType: 'soap',
+    careFollowupId: undefined,
+    remark: '',
+  };
+  mediaBatchVisible.value = true;
+}
+
+function mediaRelationText(batch: any) {
+  if (batch?.relationType === 'care_followup') {
+    const followup = batch.careFollowup || careFollowups.value.find(item => Number(item.id) === Number(batch.careFollowupId));
+    return `${t('page.consultation.detail.relationCareFollowup')}${followup?.batchNo ? ` / ${followup.batchNo}` : ''}`;
+  }
+  return t('page.consultation.detail.relationSoap');
+}
+
+function inferMediaFileType(file: any): 'image' | 'video' {
+  const mimeType = String(file?.type || file?.mimeType || '').toLowerCase();
+  const name = String(file?.name || file?.originalName || file?.url || '').toLowerCase();
+  if (mimeType.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm|m4v)$/.test(name)) return 'video';
+  return 'image';
+}
+
+function mediaFileUrl(url?: string) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${baseApiUrl || ''}${url}`;
+}
+
+function fileSizeText(size?: number | string | null) {
+  const value = Number(size || 0);
+  if (!value) return '-';
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+}
+
+async function submitMediaBatch() {
+  if (!currentVisit.value?.id || !canEditVisit.value) return;
+  if (mediaBatchForm.value.relationType === 'care_followup' && !mediaBatchForm.value.careFollowupId) {
+    message.error(t('page.consultation.messages.mediaCareFollowupRequired'));
+    return;
+  }
+
+  await vpetVisitMediaBatchCreate(
+    currentVisit.value.id,
+    {
+      capturedAt: mediaBatchForm.value.capturedAt
+        ? new Date(mediaBatchForm.value.capturedAt).toISOString()
+        : undefined,
+      relationType: mediaBatchForm.value.relationType,
+      careFollowupId: mediaBatchForm.value.relationType === 'care_followup'
+        ? mediaBatchForm.value.careFollowupId
+        : undefined,
+      remark: mediaBatchForm.value.remark || undefined,
+    },
+    visitScopeOptions.value,
+  );
+  mediaBatchVisible.value = false;
+  message.success(t('page.consultation.messages.mediaBatchCreated'));
+  await loadMediaBatches();
+}
+
+async function uploadMediaFile(batch: any, file: File) {
+  if (!currentVisit.value?.id || !batch?.id || !canEditVisit.value) return false;
+  uploadingMediaBatchId.value = Number(batch.id);
+  try {
+    const result = await uploadUpload({}, file);
+    mediaBatches.value = await vpetVisitMediaFileCreate(
+      currentVisit.value.id,
+      Number(batch.id),
+      {
+        fileType: inferMediaFileType(file),
+        storageType: 'local',
+        fileName: result?.filename?.split('/').pop(),
+        originalName: file.name,
+        url: result?.filename,
+        mimeType: file.type || undefined,
+        fileSize: file.size,
+      },
+      visitScopeOptions.value,
+    ) as any[];
+    message.success(t('page.consultation.messages.mediaFileUploaded'));
+  } finally {
+    uploadingMediaBatchId.value = undefined;
+  }
+  return false;
+}
+
+async function addOssMediaFile(batch: any) {
+  const url = (ossMediaForm.value[batch.id] || '').trim();
+  if (!currentVisit.value?.id || !batch?.id || !url) return;
+  mediaBatches.value = await vpetVisitMediaFileCreate(
+    currentVisit.value.id,
+    Number(batch.id),
+    {
+      fileType: inferMediaFileType({ url }),
+      storageType: 'oss',
+      originalName: url.split('/').pop() || url,
+      url,
+    },
+    visitScopeOptions.value,
+  ) as any[];
+  ossMediaForm.value[batch.id] = '';
+  message.success(t('page.consultation.messages.mediaFileUploaded'));
+}
+
 async function submitCareFollowup() {
   if (!currentVisit.value?.id || !canEditVisit.value) return;
   const vitalSigns = collectVitalSigns();
@@ -1366,19 +1651,22 @@ async function submitCareFollowup() {
     return;
   }
 
-  careFollowups.value = await vpetVisitCareFollowupCreate(currentVisit.value.id, {
-    careStage: currentVisit.value?.careStage,
-    symptomSummary: careFollowupForm.value.symptomSummary || undefined,
-    statusSummary: careFollowupForm.value.statusSummary || undefined,
-    vitalSigns: Object.keys(vitalSigns).length ? JSON.stringify(vitalSigns) : undefined,
-    objectiveNote: careFollowupForm.value.objectiveNote || undefined,
-    assessmentText: careFollowupForm.value.assessmentText || undefined,
-    planAdjustment: careFollowupForm.value.planAdjustment || undefined,
-    medicationAdjustment: careFollowupForm.value.medicationAdjustment || undefined,
-    labOrderIds: careFollowupForm.value.labOrderIds,
-    prescriptionIds: careFollowupForm.value.prescriptionIds,
-    recordedBy: currentVisit.value?.doctorId,
-  }) as any[];
+  careFollowups.value = await vpetVisitCareFollowupCreate(
+    currentVisit.value.id,
+    {
+      careStage: currentVisit.value?.careStage,
+      symptomSummary: careFollowupForm.value.symptomSummary || undefined,
+      statusSummary: careFollowupForm.value.statusSummary || undefined,
+      vitalSigns: Object.keys(vitalSigns).length ? JSON.stringify(vitalSigns) : undefined,
+      objectiveNote: careFollowupForm.value.objectiveNote || undefined,
+      assessmentText: careFollowupForm.value.assessmentText || undefined,
+      planAdjustment: careFollowupForm.value.planAdjustment || undefined,
+      medicationAdjustment: careFollowupForm.value.medicationAdjustment || undefined,
+      labOrderIds: careFollowupForm.value.labOrderIds,
+      prescriptionIds: careFollowupForm.value.prescriptionIds,
+    },
+    visitScopeOptions.value,
+  ) as any[];
   continuousCareExpanded.value = true;
   resetCareFollowupForm();
   message.success(t('page.consultation.messages.careFollowupCreated'));
@@ -1394,13 +1682,17 @@ async function saveSoap() {
       }]
     : undefined;
 
-  await vpetVisitUpdate(currentVisit.value.id, {
-    chiefComplaint: soap.value.S,
-    treatmentPlan: soap.value.P,
-    symptomSummary: soap.value.S,
-    physicalExam: soap.value.O ? JSON.stringify({ note: soap.value.O }) : undefined,
-    diagnosis: diagnosisPayload ? JSON.stringify(diagnosisPayload) : undefined,
-  });
+  await vpetVisitUpdate(
+    currentVisit.value.id,
+    {
+      chiefComplaint: soap.value.S,
+      treatmentPlan: soap.value.P,
+      symptomSummary: soap.value.S,
+      physicalExam: soap.value.O ? JSON.stringify({ note: soap.value.O }) : undefined,
+      diagnosis: diagnosisPayload ? JSON.stringify(diagnosisPayload) : undefined,
+    },
+    visitScopeOptions.value,
+  );
   message.success(t('page.consultation.messages.saved'));
   await loadVisit();
 }
@@ -1410,10 +1702,13 @@ async function lockEmr() {
   if (canEditVisit.value) {
     await saveSoap();
   }
-  await vpetVisitLockEmr(currentVisit.value.id, {
-    reason: 'manual_lock',
-    operatorId: currentVisit.value?.doctorId,
-  });
+  await vpetVisitLockEmr(
+    currentVisit.value.id,
+    {
+      reason: 'manual_lock',
+    },
+    visitScopeOptions.value,
+  );
   message.success(t('page.consultation.messages.emrLocked'));
   await loadVisit();
 }
@@ -1423,10 +1718,13 @@ async function signEmr() {
   if (canEditVisit.value) {
     await saveSoap();
   }
-  await vpetVisitSignEmr(currentVisit.value.id, {
-    signType: 'doctor',
-    operatorId: currentVisit.value?.doctorId,
-  });
+  await vpetVisitSignEmr(
+    currentVisit.value.id,
+    {
+      signType: 'doctor',
+    },
+    visitScopeOptions.value,
+  );
   message.success(t('page.consultation.messages.emrSigned'));
   await loadVisit();
 }
@@ -1438,10 +1736,13 @@ async function requestUnlockEmr() {
       title: t('page.consultation.detail.unlockReasonPrompt'),
       width: 560,
       onFinish: async (values: any) => {
-        await vpetVisitRequestUnlock(currentVisit.value.id, {
-          reason: values.reason,
-          operatorId: currentVisit.value?.doctorId,
-        });
+        await vpetVisitRequestUnlock(
+          currentVisit.value.id,
+          {
+            reason: values.reason,
+          },
+          visitScopeOptions.value,
+        );
         message.success(t('page.consultation.messages.unlockRequested'));
         await loadEmrCompliance();
       },
@@ -1464,7 +1765,7 @@ async function requestUnlockEmr() {
 async function endVisit() {
   if (!currentVisit.value?.id) return;
   await saveSoap();
-  await vpetVisitEnd(currentVisit.value.id);
+  await vpetVisitEnd(currentVisit.value.id, visitScopeOptions.value);
   message.success(t('page.consultation.messages.ended'));
   await loadVisit();
 }
@@ -1512,7 +1813,7 @@ async function submitRx() {
 }
 
 async function dispensePrescription(item: any) {
-  await vpetPrescriptionDispense(item.id, { pharmacistId: currentVisit.value?.doctorId });
+  await vpetPrescriptionDispense(item.id, {});
   message.success(t('page.consultation.messages.dispensed'));
   await loadPrescriptions();
 }
@@ -1528,7 +1829,12 @@ async function syncBilling(showMessage = true) {
 }
 
 function openLabReport(id: number) {
-  router.push({ name: 'VPetLabReport', params: { id } });
+  router.push(`/vpet/lab/report/${id}`);
+}
+
+function openPrintRecord() {
+  if (!currentVisit.value?.id) return;
+  router.push(`/vpet/consultation/visit/${currentVisit.value.id}/print`);
 }
 
 function openChronicCenter() {
@@ -1635,3 +1941,79 @@ onMounted(async () => {
   await refreshLinkedData();
 });
 </script>
+
+<style scoped>
+.vpet-rx-edit-table :deep(.ant-table-cell) {
+  vertical-align: top;
+}
+
+.vpet-rx-edit-table :deep(.ant-input),
+.vpet-rx-edit-table :deep(.ant-input-number),
+.vpet-rx-edit-table :deep(.ant-select) {
+  width: 100%;
+}
+
+.vpet-media-batches {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.vpet-media-batch {
+  padding: 15px;
+  border: 1px solid #e8edf3;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.vpet-media-batch__head {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.vpet-media-oss {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.vpet-media-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.vpet-media-file {
+  overflow: hidden;
+  border: 1px solid #eef2f6;
+  border-radius: 10px;
+  background: #fafcff;
+}
+
+.vpet-media-file img,
+.vpet-media-file video {
+  display: block;
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  background: #eef2f6;
+}
+
+.vpet-media-file__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  color: #5f6b7a;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .vpet-media-batch__head {
+    flex-direction: column;
+  }
+}
+
+</style>

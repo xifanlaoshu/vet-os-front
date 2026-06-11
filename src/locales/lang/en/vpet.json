@@ -259,6 +259,7 @@
       "fields": {
         "user": "Linked system user",
         "userId": "User ID",
+        "userNickname": "User nickname",
         "name": "Name",
         "phone": "Phone",
         "title": "Title",
@@ -427,6 +428,20 @@
         "linkedPrescriptionsPlaceholder": "Select prescription batches from this visit",
         "addCareFollowup": "Add follow-up",
         "emptyCareFollowups": "No continuous care follow-ups",
+        "media": "Media",
+        "mediaHint": "Create a media capture batch first, then upload images/videos or register an OSS URL. Each batch can link to the initial SOAP or a continuous care follow-up.",
+        "addMediaBatch": "Add media batch",
+        "emptyMediaBatches": "No media batches",
+        "emptyMediaFiles": "No media files",
+        "uploadMedia": "Upload image/video",
+        "captureTime": "Capture time",
+        "relationType": "Linked section",
+        "relationSoap": "Initial SOAP",
+        "relationCareFollowup": "Continuous care follow-up",
+        "relationCareFollowupPlaceholder": "Select a follow-up batch",
+        "mediaRemark": "Media remark",
+        "ossUrlPlaceholder": "Enter OSS image or video URL",
+        "addOssUrl": "Add OSS URL",
         "diagnosisPlaceholder": "Search diagnosis master data",
         "prescription": "Prescriptions",
         "prescriptionSummary": "{count} prescription(s), {dispensed} dispensed",
@@ -441,10 +456,15 @@
         "transactionList": "Dispensing transactions",
         "prescriptionAndDispense": "Prescriptions & Dispensing",
         "emptyPrescription": "No prescriptions",
-        "emptyTransactions": "No dispensing transactions",
-        "visitInfo": "Visit Info",
-        "memberBalance": "Member balance",
-        "queueTrace": "Queue timeline",
+      "emptyTransactions": "No dispensing transactions",
+      "visitInfo": "Visit Info",
+      "diagnosisTrace": "Diagnosis trace",
+      "recordedBy": "Recorded by",
+      "prescriber": "Prescriber",
+      "pharmacist": "Pharmacist",
+      "operator": "Operator",
+      "memberBalance": "Member balance",
+      "queueTrace": "Queue timeline",
         "emptyQueueEvents": "No queue events",
         "billingAndPayments": "Billing & Payments",
         "emptyBills": "No bills",
@@ -468,6 +488,16 @@
         "unlockReasonPrompt": "Please enter the unlock reason",
         "unlockReason": "Unlock reason"
       },
+      "print": {
+        "title": "Medical Record Print",
+        "printButton": "Print record",
+        "documentNo": "Record No.",
+        "generatedAt": "Generated at",
+        "printedAt": "Printed at",
+        "basicInfo": "Basic information",
+        "doctorSignature": "Doctor signature",
+        "emptyLabs": "No lab results"
+      },
       "messages": {
         "visitNotFound": "Related visit record not found",
         "redirectToAppointmentEdit": "Please edit the appointment for {name} from the appointment page",
@@ -479,7 +509,10 @@
         "emrSigned": "Medical record signed and locked",
         "unlockRequested": "Unlock request submitted",
         "careFollowupRequired": "Please enter observation, adjustment, or link a lab/prescription before saving",
-        "careFollowupCreated": "Continuous care follow-up saved"
+        "careFollowupCreated": "Continuous care follow-up saved",
+        "mediaCareFollowupRequired": "Please select a continuous care follow-up batch",
+        "mediaBatchCreated": "Media capture batch created",
+        "mediaFileUploaded": "Media file saved"
       }
     },
     "billing": {
@@ -646,7 +679,8 @@
         "unit": "Unit",
         "retailPrice": "Retail price",
         "status": "Status",
-        "description": "Description"
+        "description": "Description",
+        "consentTemplates": "Consent forms"
       },
       "messages": {
         "required": "Please fill item code and item name",
@@ -857,6 +891,49 @@
         "cancelled": "Reminder cancelled"
       }
     },
+    "consent": {
+      "title": "Informed Consent",
+      "templates": "Consent templates",
+      "records": "Signed records",
+      "createTemplate": "Create template",
+      "editTemplate": "Edit template",
+      "createRecord": "Generate consent",
+      "sign": "Sign",
+      "void": "Void",
+      "preview": "Preview",
+      "variablesHelp": "Use underline blanks in template content, for example: Owner: __________, Pet: __________, Date: ____/__/__.",
+      "fields": {
+        "code": "Template code",
+        "name": "Template name",
+        "category": "Scenario",
+        "speciesScope": "Species scope",
+        "riskLevel": "Risk level",
+        "content": "Content",
+        "description": "Description",
+        "isActive": "Active",
+        "recordNo": "Record No.",
+        "title": "Title",
+        "visit": "Linked visit",
+        "customer": "Customer",
+        "pet": "Pet",
+        "doctor": "Staff",
+        "status": "Status",
+        "guardianName": "Guardian name",
+        "guardianPhone": "Guardian phone",
+        "signedAt": "Signed at",
+        "keyword": "Keyword",
+        "remark": "Remark"
+      },
+      "messages": {
+        "templateRequired": "Please complete template code, name, scenario, and content",
+        "templateCreated": "Consent template created",
+        "templateUpdated": "Consent template updated",
+        "templateDeleted": "Consent template disabled",
+        "recordCreated": "Consent record generated",
+        "recordSigned": "Consent record signed",
+        "recordVoided": "Consent record voided"
+      }
+    },
     "chronic": {
       "title": "Chronic Care",
       "create": "Create chronic case",
@@ -929,7 +1006,7 @@
     },
     "report": {
       "title": "Daily Report",
-      "doctorRanking": "Doctor ranking",
+      "doctorRanking": "Appointment staff performance",
       "lowStock": "Low stock",
       "chronicFollowups": "Recent chronic follow-ups",
       "cards": {
@@ -942,8 +1019,13 @@
       },
       "fields": {
         "date": "Date",
+        "doctor": "Doctor",
+        "staff": "Staff",
         "doctorId": "Doctor ID",
         "visitCount": "Visit count",
+        "appointmentCount": "Appointments",
+        "checkedInCount": "Checked in",
+        "completedAppointmentCount": "Completed",
         "drugName": "Drug",
         "currentStock": "Current stock",
         "caseNo": "Case No.",
@@ -1025,6 +1107,20 @@
         "taskType": "Task type",
         "bizType": "Business type",
         "riskLevel": "Risk level"
+      }
+    },
+    "visitHistory": {
+      "title": "Visit History",
+      "list": "Visit records",
+      "viewAll": "View all",
+      "fields": {
+        "dateRange": "Visit date",
+        "visitDate": "Visit date"
+      },
+      "placeholders": {
+        "startDate": "Start date",
+        "endDate": "End date",
+        "keyword": "Pet / customer / visit no. / complaint / diagnosis"
       }
     }
   }

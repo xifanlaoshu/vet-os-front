@@ -107,6 +107,28 @@ export function vpetVisitCareFollowupCreate(id: number, body: any, options?: Req
 }
 
 /** 慢病档案列表 GET /api/vpet/visit/chronic/cases */
+export function vpetVisitMediaBatches(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/media-batches`, { method: 'GET', ...(options || {}) });
+}
+
+export function vpetVisitMediaBatchCreate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/media-batches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export function vpetVisitMediaFileCreate(id: number, batchId: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/media-batches/${batchId}/files`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 export function vpetChronicCaseList(
   params?: { petId?: number; customerId?: number; status?: number; keyword?: string },
   options?: RequestOptions,
@@ -428,6 +450,46 @@ export function vpetReminderComplete(id: number, options?: RequestOptions) {
 
 export function vpetReminderCancel(id: number, options?: RequestOptions) {
   return request(`/api/vpet/reminder/${id}/cancel`, { method: 'POST', ...(options || {}) });
+}
+
+export function vpetConsentTemplateList(params?: any, options?: RequestOptions) {
+  return request('/api/vpet/consent/templates', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetConsentTemplateActive(options?: RequestOptions) {
+  return request('/api/vpet/consent/templates/active', { method: 'GET', ...(options || {}) });
+}
+
+export function vpetConsentTemplateCreate(body: any, options?: RequestOptions) {
+  return request('/api/vpet/consent/templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetConsentTemplateUpdate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/consent/templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetConsentTemplateDelete(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/consent/templates/${id}`, { method: 'DELETE', ...(options || {}) });
+}
+
+export function vpetConsentRecordList(params?: any, options?: RequestOptions) {
+  return request('/api/vpet/consent/records', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetConsentRecordGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/consent/records/${id}`, { method: 'GET', ...(options || {}) });
+}
+
+export function vpetConsentRecordCreate(body: any, options?: RequestOptions) {
+  return request('/api/vpet/consent/records', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetConsentRecordSign(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/consent/records/${id}/sign`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetConsentRecordVoid(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/consent/records/${id}/void`, { method: 'POST', ...(options || {}) });
 }
 
 export function vpetLabGet(id: number, options?: RequestOptions) {

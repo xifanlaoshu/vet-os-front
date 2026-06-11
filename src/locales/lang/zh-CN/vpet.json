@@ -259,6 +259,7 @@
       "fields": {
         "user": "关联系统用户",
         "userId": "用户ID",
+        "userNickname": "用户昵称",
         "name": "姓名",
         "phone": "手机号",
         "title": "职称",
@@ -427,6 +428,20 @@
         "linkedPrescriptionsPlaceholder": "选择本次就诊的处方批次",
         "addCareFollowup": "新增跟进",
         "emptyCareFollowups": "暂无持续诊疗跟进",
+        "media": "影像资料",
+        "mediaHint": "先创建影像采集批次，再在批次下上传图片、视频或登记 OSS 地址，可关联初诊 SOAP 或某次持续诊疗跟进。",
+        "addMediaBatch": "新增影像采集批次",
+        "emptyMediaBatches": "暂无影像采集批次",
+        "emptyMediaFiles": "暂无影像文件",
+        "uploadMedia": "上传图片/视频",
+        "captureTime": "采集时间",
+        "relationType": "关联位置",
+        "relationSoap": "初诊 SOAP",
+        "relationCareFollowup": "持续诊疗跟进",
+        "relationCareFollowupPlaceholder": "选择要关联的跟进批次",
+        "mediaRemark": "影像备注",
+        "ossUrlPlaceholder": "填写 OSS 图片或视频地址",
+        "addOssUrl": "登记 OSS 地址",
         "diagnosisPlaceholder": "搜索诊断主数据",
         "prescription": "开立处方",
         "prescriptionSummary": "已开处方 {count} 张，已发药 {dispensed} 张",
@@ -441,10 +456,15 @@
         "transactionList": "发药流水",
         "prescriptionAndDispense": "处方与发药",
         "emptyPrescription": "暂无处方",
-        "emptyTransactions": "暂无发药流水",
-        "visitInfo": "就诊信息",
-        "memberBalance": "会员余额",
-        "queueTrace": "队列轨迹",
+      "emptyTransactions": "暂无发药流水",
+      "visitInfo": "就诊信息",
+      "diagnosisTrace": "诊断留痕",
+      "recordedBy": "记录人",
+      "prescriber": "开具人",
+      "pharmacist": "发药人",
+      "operator": "操作人",
+      "memberBalance": "会员余额",
+      "queueTrace": "队列轨迹",
         "emptyQueueEvents": "暂无轨迹",
         "billingAndPayments": "账单与支付",
         "emptyBills": "暂无账单",
@@ -468,6 +488,16 @@
         "unlockReasonPrompt": "请输入申请解锁原因",
         "unlockReason": "解锁原因"
       },
+      "print": {
+        "title": "病历打印",
+        "printButton": "打印病历",
+        "documentNo": "病历号",
+        "generatedAt": "生成时间",
+        "printedAt": "打印时间",
+        "basicInfo": "基础信息",
+        "doctorSignature": "医生签名",
+        "emptyLabs": "暂无检查结果"
+      },
       "messages": {
         "visitNotFound": "未找到对应就诊记录",
         "redirectToAppointmentEdit": "请在预约挂号页面编辑 {name} 的预约记录",
@@ -479,7 +509,10 @@
         "emrSigned": "病历已签署并锁定",
         "unlockRequested": "解锁申请已提交",
         "careFollowupRequired": "请填写观察、调整内容，或关联检查/处方后再保存",
-        "careFollowupCreated": "持续诊疗跟进已保存"
+        "careFollowupCreated": "持续诊疗跟进已保存",
+        "mediaCareFollowupRequired": "请选择要关联的持续诊疗跟进批次",
+        "mediaBatchCreated": "影像采集批次已创建",
+        "mediaFileUploaded": "影像文件已保存"
       }
     },
     "billing": {
@@ -646,7 +679,8 @@
         "unit": "单位",
         "retailPrice": "零售价",
         "status": "状态",
-        "description": "项目说明"
+        "description": "项目说明",
+        "consentTemplates": "关联告知书"
       },
       "messages": {
         "required": "请填写项目编码和项目名称",
@@ -857,6 +891,49 @@
         "cancelled": "提醒已取消"
       }
     },
+    "consent": {
+      "title": "告知书管理",
+      "templates": "告知书模板",
+      "records": "签署记录",
+      "createTemplate": "新建模板",
+      "editTemplate": "编辑模板",
+      "createRecord": "生成告知书",
+      "sign": "签署",
+      "void": "作废",
+      "preview": "预览",
+      "variablesHelp": "模板正文请使用下划线占位，例如：宠主姓名：__________，宠物姓名：__________，告知日期：____年__月__日。",
+      "fields": {
+        "code": "模板编码",
+        "name": "模板名称",
+        "category": "告知场景",
+        "speciesScope": "适用物种",
+        "riskLevel": "风险等级",
+        "content": "告知正文",
+        "description": "模板说明",
+        "isActive": "启用状态",
+        "recordNo": "告知书编号",
+        "title": "告知书标题",
+        "visit": "关联就诊",
+        "customer": "客户",
+        "pet": "宠物",
+        "doctor": "医护人员",
+        "status": "签署状态",
+        "guardianName": "家长姓名",
+        "guardianPhone": "家长电话",
+        "signedAt": "签署时间",
+        "keyword": "关键词",
+        "remark": "备注"
+      },
+      "messages": {
+        "templateRequired": "请完整填写模板编码、名称、场景和正文",
+        "templateCreated": "告知书模板已创建",
+        "templateUpdated": "告知书模板已更新",
+        "templateDeleted": "告知书模板已停用",
+        "recordCreated": "告知书已生成",
+        "recordSigned": "告知书已签署",
+        "recordVoided": "告知书已作废"
+      }
+    },
     "chronic": {
       "title": "慢病管理",
       "create": "新建慢病档案",
@@ -929,7 +1006,7 @@
     },
     "report": {
       "title": "经营日报",
-      "doctorRanking": "医生排行",
+      "doctorRanking": "挂号员工绩效",
       "lowStock": "低库存预警",
       "chronicFollowups": "近期慢病复查",
       "cards": {
@@ -942,8 +1019,13 @@
       },
       "fields": {
         "date": "日期",
+        "doctor": "医生",
+        "staff": "员工",
         "doctorId": "医生 ID",
         "visitCount": "就诊次数",
+        "appointmentCount": "挂号数",
+        "checkedInCount": "签到数",
+        "completedAppointmentCount": "完成数",
         "drugName": "药品",
         "currentStock": "当前库存",
         "caseNo": "档案编号",
@@ -1025,6 +1107,20 @@
         "taskType": "任务类型",
         "bizType": "业务单据",
         "riskLevel": "风险级别"
+      }
+    },
+    "visitHistory": {
+      "title": "历史就诊记录",
+      "list": "就诊记录列表",
+      "viewAll": "查看全部",
+      "fields": {
+        "dateRange": "就诊日期",
+        "visitDate": "就诊日期"
+      },
+      "placeholders": {
+        "startDate": "开始日期",
+        "endDate": "结束日期",
+        "keyword": "宠物 / 客户 / 就诊号 / 主诉 / 诊断"
       }
     }
   }
