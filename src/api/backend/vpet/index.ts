@@ -309,8 +309,8 @@ export function vpetQueueGet(doctorId: number, options?: RequestOptions) {
 }
 
 /** 鍖荤敓涓绘暟鎹?GET /api/vpet/appointment/doctors/all */
-export function vpetDoctorAll(options?: RequestOptions) {
-  return request('/api/vpet/appointment/doctors/all', { method: 'GET', ...(options || {}) });
+export function vpetDoctorAll(params?: { bookableOnly?: boolean }, options?: RequestOptions) {
+  return request('/api/vpet/appointment/doctors/all', { method: 'GET', params, ...(options || {}) });
 }
 
 export function vpetDoctorList(params?: any, options?: RequestOptions) {

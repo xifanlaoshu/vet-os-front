@@ -265,6 +265,7 @@
         "position": "岗位",
         "department": "科室",
         "status": "状态",
+        "bookable": "可预约",
         "introduction": "简介"
       },
       "placeholders": {
@@ -287,6 +288,10 @@
         "ophthalmology": "眼科",
         "emergency": "急诊",
         "checkup": "体检"
+      },
+      "bookable": {
+        "yes": "可预约",
+        "no": "不可预约"
       },
       "messages": {
         "nameRequired": "请输入医护人员姓名",

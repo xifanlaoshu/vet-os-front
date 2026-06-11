@@ -167,12 +167,12 @@ export function useVpetReference() {
     })) as SelectOption[];
   }
 
-  async function loadDoctors() {
+  async function loadDoctors(params: { bookableOnly?: boolean } = {}) {
     await Promise.all([
       loadRawDictItems('vpet_doctor_department'),
       loadRawDictItems('vpet_staff_position'),
     ]);
-    const res: any[] = await vpetDoctorAll();
+    const res: any[] = await vpetDoctorAll(params);
     return (res || []).map(item => ({
       value: item.id,
       label: buildDoctorLabel(item),

@@ -265,6 +265,7 @@
         "position": "Position",
         "department": "Department",
         "status": "Status",
+        "bookable": "Bookable",
         "introduction": "Introduction"
       },
       "placeholders": {
@@ -287,6 +288,10 @@
         "ophthalmology": "Ophthalmology",
         "emergency": "Emergency",
         "checkup": "Check-up"
+      },
+      "bookable": {
+        "yes": "Bookable",
+        "no": "Not bookable"
       },
       "messages": {
         "nameRequired": "Please enter the staff name",

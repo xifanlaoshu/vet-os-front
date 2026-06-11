@@ -36,6 +36,14 @@
             :placeholder="`${t('common.chooseText')}${t('page.doctor.fields.status')}`"
           />
         </a-form-item>
+        <a-form-item :label="t('page.doctor.fields.bookable')" class="vpet-query-item-narrow">
+          <a-select
+            v-model:value="filters.bookable"
+            allow-clear
+            :options="bookableOptions"
+            :placeholder="`${t('common.chooseText')}${t('page.doctor.fields.bookable')}`"
+          />
+        </a-form-item>
         <div class="vpet-query-actions">
           <a-space>
             <a-button type="primary" @click="reloadTable">{{ t('common.search') }}</a-button>
@@ -137,6 +145,11 @@
               <a-select v-model:value="form.status" :options="doctorStatusOptions" :get-popup-container="getPopupContainer" />
             </a-form-item>
           </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('page.doctor.fields.bookable')">
+              <a-select v-model:value="form.bookable" :options="bookableOptions" :get-popup-container="getPopupContainer" />
+            </a-form-item>
+          </a-col>
         </a-row>
 
         <a-form-item :label="t('page.doctor.fields.introduction')">
@@ -184,6 +197,7 @@ const filters = ref({
   department: undefined as string | undefined,
   position: undefined as string | undefined,
   status: undefined as number | undefined,
+  bookable: undefined as number | undefined,
 });
 
 const defaultDoctorStatus = computed<number | undefined>(() => {
@@ -191,6 +205,11 @@ const defaultDoctorStatus = computed<number | undefined>(() => {
   const candidate = activeOption?.value ?? doctorStatusOptions.value[0]?.value;
   return candidate === undefined ? undefined : Number(candidate);
 });
+
+const bookableOptions = computed(() => [
+  { value: 1, label: t('page.doctor.bookable.yes') },
+  { value: 0, label: t('page.doctor.bookable.no') },
+]);
 
 function getPopupContainer(triggerNode: HTMLElement) {
   return resolveVpetPopupContainer(triggerNode);
@@ -205,6 +224,7 @@ function createEmptyForm() {
     position: 'doctor',
     department: undefined,
     introduction: '',
+    bookable: 1,
     status: defaultDoctorStatus.value,
   };
 }
@@ -240,6 +260,7 @@ const loadTableData = async (params: any) => {
       department: filters.value.department || undefined,
       position: filters.value.position || undefined,
       status: filters.value.status,
+      bookable: filters.value.bookable,
     });
     return res || { items: [], meta: {} };
   } catch {
@@ -258,6 +279,7 @@ function resetFilters() {
     department: undefined,
     position: undefined,
     status: undefined,
+    bookable: undefined,
   };
   reloadTable();
 }
@@ -269,6 +291,7 @@ function openModal(record: any = null) {
         ...createEmptyForm(),
         ...record,
         position: record.position || 'doctor',
+        bookable: record.bookable ?? 1,
         status: record.status ?? defaultDoctorStatus.value,
       }
     : createEmptyForm();
@@ -340,6 +363,16 @@ const columns = [
     customRender: ({ record }: any) => (
       <Tag color={record.status === 1 ? 'green' : 'default'}>
         {doctorStatusText(record.status)}
+      </Tag>
+    ),
+  },
+  {
+    title: t('page.doctor.fields.bookable'),
+    dataIndex: 'bookable',
+    width: 100,
+    customRender: ({ record }: any) => (
+      <Tag color={Number(record.bookable) === 1 ? 'blue' : 'default'}>
+        {Number(record.bookable) === 1 ? t('page.doctor.bookable.yes') : t('page.doctor.bookable.no')}
       </Tag>
     ),
   },

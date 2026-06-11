@@ -159,7 +159,7 @@ function resetFilters() {
 async function openCreateModal(record: any = {}) {
   const isUpdate = Boolean(record.id);
   if (!customerOptions.value.length) customerOptions.value = await loadCustomers();
-  if (!doctorOptions.value.length) doctorOptions.value = await loadDoctors();
+  if (!doctorOptions.value.length) doctorOptions.value = await loadDoctors({ bookableOnly: true });
   const visitTypeOptions = await loadDictOptions('pet_visit_type');
 
   const schemas: any[] = [
@@ -402,6 +402,6 @@ const columns = [
 ];
 
 onMounted(async () => {
-  [customerOptions.value, doctorOptions.value] = await Promise.all([loadCustomers(), loadDoctors()]);
+  [customerOptions.value, doctorOptions.value] = await Promise.all([loadCustomers(), loadDoctors({ bookableOnly: true })]);
 });
 </script>
