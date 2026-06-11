@@ -2,35 +2,37 @@
   <div class="vpet-page">
     <a-card class="vpet-query-card" :title="t('page.appointment.title')" :bordered="false">
       <a-form class="vpet-query-form vpet-appointment-query" layout="horizontal">
-        <a-form-item :label="t('page.appointment.fields.date')">
-          <a-date-picker v-model:value="filters.date" />
-        </a-form-item>
-        <a-form-item :label="t('page.appointment.fields.doctor')">
-          <a-select
-            v-model:value="filters.doctorId"
-            allow-clear
-            show-search
-            :placeholder="t('page.appointment.doctorPlaceholder')"
-            :options="doctorOptions"
-            :filter-option="filterByLabel"
-          />
-        </a-form-item>
-        <a-form-item :label="t('page.appointment.fields.status')">
-          <a-select
-            v-model:value="filters.status"
-            allow-clear
-            :placeholder="t('page.appointment.statusPlaceholder')"
-            :options="appointmentStatusOptions"
-          />
-        </a-form-item>
-        <a-form-item :label="t('page.appointment.fields.keyword')">
-          <a-input
-            v-model:value="filters.keyword"
-            allow-clear
-            :placeholder="t('page.appointment.keywordPlaceholder')"
-            @pressEnter="reloadAppointments"
-          />
-        </a-form-item>
+        <div class="appointment-query-fields">
+          <a-form-item :label="t('page.appointment.fields.date')">
+            <a-date-picker v-model:value="filters.date" />
+          </a-form-item>
+          <a-form-item :label="t('page.appointment.fields.doctor')">
+            <a-select
+              v-model:value="filters.doctorId"
+              allow-clear
+              show-search
+              :placeholder="t('page.appointment.doctorPlaceholder')"
+              :options="doctorOptions"
+              :filter-option="filterByLabel"
+            />
+          </a-form-item>
+          <a-form-item :label="t('page.appointment.fields.status')">
+            <a-select
+              v-model:value="filters.status"
+              allow-clear
+              :placeholder="t('page.appointment.statusPlaceholder')"
+              :options="appointmentStatusOptions"
+            />
+          </a-form-item>
+          <a-form-item :label="t('page.appointment.fields.keyword')">
+            <a-input
+              v-model:value="filters.keyword"
+              allow-clear
+              :placeholder="t('page.appointment.keywordPlaceholder')"
+              @pressEnter="reloadAppointments"
+            />
+          </a-form-item>
+        </div>
         <div class="vpet-query-actions">
           <a-space>
             <a-radio-group v-model:value="viewMode" button-style="solid" @change="handleViewModeChange">
@@ -622,11 +624,38 @@ watch(
 
 <style scoped lang="less">
 .vpet-appointment-query {
-  grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) minmax(150px, 0.8fr) minmax(220px, 1.2fr) auto;
+  display: block;
 
   :deep(.ant-form-item) {
+    grid-column: auto;
     min-width: 0;
   }
+
+  :deep(.ant-form-item-row) {
+    grid-template-columns: 76px minmax(0, 1fr);
+    column-gap: 8px;
+  }
+
+  :deep(.ant-form-item-label > label) {
+    height: 34px;
+    font-size: 12px;
+  }
+
+  :deep(.ant-form-item-control-input) {
+    min-height: 34px;
+  }
+}
+
+.appointment-query-fields {
+  display: grid;
+  grid-template-columns: minmax(132px, 0.85fr) minmax(188px, 1.15fr) minmax(132px, 0.85fr) minmax(210px, 1.35fr);
+  gap: 10px 14px;
+  align-items: center;
+}
+
+.vpet-appointment-query .vpet-query-actions {
+  margin-top: 10px;
+  padding-top: 0;
 }
 
 .vpet-appointment-board {
@@ -829,9 +858,9 @@ watch(
   flex-wrap: wrap;
 }
 
-@media (max-width: 1200px) {
-  .vpet-appointment-query {
-    grid-template-columns: repeat(2, minmax(180px, 1fr));
+@media (max-width: 768px) {
+  .appointment-query-fields {
+    grid-template-columns: 1fr;
   }
 }
 </style>
