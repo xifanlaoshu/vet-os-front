@@ -107,8 +107,8 @@
       height: calc(100vh - var(--app-header-height));
     }
 
-    & > :deep(.ant-menu) {
-      justify-content: center;
+    &:not(.is-side-menu) > :deep(.ant-menu) {
+      justify-content: flex-start;
       width: 100%;
     }
   }
