@@ -1,7 +1,7 @@
 import { NavigationFailureType, isNavigationFailure } from 'vue-router';
 import NProgress from 'nprogress'; // progress bar
 import { Modal } from 'ant-design-vue';
-import { LOGIN_NAME, PAGE_NOT_FOUND_NAME, REDIRECT_NAME } from './constant';
+import { LOGIN_NAME, REDIRECT_NAME } from './constant';
 import type { WhiteNameList } from './constant';
 import type { Router, RouteLocationNormalized } from 'vue-router';
 import { useUserStore } from '@/store/modules/user';
@@ -11,7 +11,9 @@ import { transformI18n } from '@/hooks/useI18n';
 
 NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
-const defaultRoutePath = '/dashboard/welcome';
+function isLegacyDashboardPath(path?: string) {
+  return !path || path === '/' || path.startsWith('/dashboard');
+}
 
 export function createRouterGuards(router: Router, whiteNameList: WhiteNameList) {
   router.beforeEach(async (to, from, next) => {
@@ -22,9 +24,16 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
 
     if (userStore.token) {
       if (to.name === LOGIN_NAME) {
-        next({ path: defaultRoutePath });
+        if (userStore.menus.length === 0) {
+          const [err] = await _to(userStore.afterLogin());
+          if (err) {
+            userStore.clearLoginStatus();
+            Modal.destroyAll();
+            return next({ name: LOGIN_NAME });
+          }
+        }
+        next({ path: userStore.getHomePath() });
       } else {
-        const hasRoute = router.hasRoute(to.name!);
         if (userStore.menus.length === 0) {
           // 从后台获取菜单
           const [err] = await _to(userStore.afterLogin());
@@ -34,17 +43,18 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
             return next({ name: LOGIN_NAME });
           }
           // 解决警告：No match found for location with path "XXXXXXX"
-          if (to.name === PAGE_NOT_FOUND_NAME) {
-            next({ path: to.fullPath, query: to.query, replace: true });
-          }
-          // 如果该路由不存在，可能是动态注册的路由，它还没准备好，需要再重定向一次到该路由
-          else if (!hasRoute) {
-            next({ ...to, replace: true });
+          if (isLegacyDashboardPath(to.path)) {
+            next({ path: userStore.getHomePath(), replace: true });
           } else {
-            next();
+            // Dynamic routes have just been registered. Re-enter the original
+            // target so hidden detail routes such as /vpet/.../:id can match.
+            next({ path: to.fullPath, replace: true });
           }
         } else {
-          next();
+          if (isLegacyDashboardPath(to.path))
+            next({ path: userStore.getHomePath(), replace: true });
+          else
+            next();
         }
       }
     } else {
