@@ -93,7 +93,12 @@
                 v-for="doctor in visibleDoctorOptions"
                 :key="`${slot.key}-${doctor.value}`"
                 class="appointment-grid__cell"
-                :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
+                :class="{
+                  'is-compact': !slotHasAppointments(slot.key),
+                  'is-night-collapsed': slot.isNightCollapsed,
+                  'is-unavailable': !slot.isNightCollapsed && !isCellAvailable(slot, doctor.value),
+                  'has-schedule-conflict': appointmentsInCell(slot.key, doctor.value).some(hasScheduleConflict),
+                }"
               >
                 <button
                   v-if="slot.isNightCollapsed"
@@ -104,9 +109,15 @@
                   {{ t('page.appointment.expandNightRangeAction') }}
                 </button>
                 <div v-else-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
-                  <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
+                  <div
+                    v-for="record in appointmentsInCell(slot.key, doctor.value)"
+                    :key="record.id"
+                    class="appointment-card"
+                    :class="{ 'has-schedule-conflict': hasScheduleConflict(record) }"
+                  >
                     <div class="appointment-card__top">
                       <a-tag :color="appointmentStatusColor(record.status)">{{ appointmentStatusText(record.status) }}</a-tag>
+                      <a-tag v-if="hasScheduleConflict(record)" color="error">{{ t('page.appointment.scheduleConflict') }}</a-tag>
                     </div>
                     <div class="appointment-card__pet">{{ petLabel(record.pet, record.petSnapshot, record.petId) }}</div>
                     <div class="appointment-card__customer">{{ customerLabel(record.customer, record.customerSnapshot, record.customerId) }}</div>
@@ -120,7 +131,7 @@
                   </div>
                 </div>
                 <button
-                  v-else
+                  v-else-if="isCellAvailable(slot, doctor.value)"
                   type="button"
                   class="appointment-grid__add"
                   :title="t('page.appointment.addInSlot')"
@@ -128,6 +139,9 @@
                 >
                   <Icon icon="ant-design:plus-outlined" />
                 </button>
+                <div v-else class="appointment-grid__unavailable">
+                  {{ t('page.appointment.notScheduled') }}
+                </div>
               </div>
             </template>
           </div>
@@ -161,6 +175,7 @@ import {
   vpetAppointmentCreate,
   vpetAppointmentList,
   vpetAppointmentUpdate,
+  vpetScheduleMonth,
   vpetVisitList,
 } from '@/api/backend/vpet';
 import { formatToDateTime } from '@/utils/dateUtil';
@@ -172,9 +187,27 @@ defineOptions({ name: 'VPetAppointment' });
 type SelectOption = {
   value: number | string;
   label: string;
+  disabled?: boolean;
 };
 
 type AppointmentViewMode = 'grid' | 'list';
+
+type ShiftRecord = {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
+  color?: string;
+  status?: number;
+};
+
+type StaffScheduleRecord = {
+  id: number;
+  doctorId: number;
+  scheduleDate: string;
+  shiftId: number | null;
+  shift?: ShiftRecord | null;
+};
 
 const CANCELLED_APPOINTMENT_STATUS = 4;
 const { t, appointmentStatusColor, appointmentStatusOptions, appointmentStatusText } = useVpetLocale();
@@ -197,6 +230,10 @@ const scheduleLoading = ref(false);
 const scheduleAppointments = ref<any[]>([]);
 const scheduleScrollRef = ref<HTMLElement>();
 const scheduleScrollLeft = ref(0);
+const scheduleMonthKey = ref('');
+const scheduleMonthCache = ref<Record<string, { schedules: StaffScheduleRecord[]; shifts: ShiftRecord[] }>>({});
+const staffSchedules = ref<StaffScheduleRecord[]>([]);
+const shifts = ref<ShiftRecord[]>([]);
 const nightExpandedManually = ref(false);
 const filters = ref({
   date: dayjs() as Dayjs,
@@ -321,11 +358,34 @@ async function loadScheduleAppointments() {
   resetScheduleScroll();
   scheduleLoading.value = true;
   try {
-    const data: any = await vpetAppointmentList(buildAppointmentQuery());
+    const [data] = await Promise.all([
+      vpetAppointmentList(buildAppointmentQuery()),
+      loadMonthlySchedules(),
+    ]);
     scheduleAppointments.value = sortAppointmentsByTime(data?.items || []).filter(isScheduleVisibleAppointment);
   } finally {
     scheduleLoading.value = false;
   }
+}
+
+async function loadMonthlySchedules(force = false, monthValue?: string) {
+  const month = monthValue || filters.value.date.format('YYYY-MM');
+  if (!force && scheduleMonthCache.value[month]) {
+    if (scheduleMonthKey.value !== month) {
+      scheduleMonthKey.value = month;
+      staffSchedules.value = scheduleMonthCache.value[month].schedules;
+      shifts.value = scheduleMonthCache.value[month].shifts;
+    }
+    return;
+  }
+  const data: any = await vpetScheduleMonth({ month });
+  scheduleMonthKey.value = month;
+  staffSchedules.value = data?.schedules || [];
+  shifts.value = data?.shifts || [];
+  scheduleMonthCache.value[month] = {
+    schedules: staffSchedules.value,
+    shifts: shifts.value,
+  };
 }
 
 function sortAppointmentsByTime(items: any[]) {
@@ -374,6 +434,72 @@ function appointmentsInCell(slotKey: string, doctorId: number | string) {
   );
 }
 
+function scheduleForSlot(doctorId: number | string, dateTime: Dayjs) {
+  const month = dateTime.format('YYYY-MM');
+  const date = dateTime.format('YYYY-MM-DD');
+  const monthSchedules = scheduleMonthCache.value[month]?.schedules || staffSchedules.value;
+  const schedule = monthSchedules.find(item =>
+    Number(item.doctorId) === Number(doctorId)
+    && item.scheduleDate === date,
+  );
+  if (!schedule?.shiftId)
+    return null;
+  const monthShifts = scheduleMonthCache.value[month]?.shifts || shifts.value;
+  return schedule.shift || monthShifts.find(item => Number(item.id) === Number(schedule.shiftId)) || null;
+}
+
+function normalizeClock(value?: string) {
+  const [hour = '00', minute = '00', second = '00'] = String(value || '00:00:00').split(':');
+  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:${second.padStart(2, '0')}`;
+}
+
+function isClockInShift(clock: string, shift?: ShiftRecord | null) {
+  if (!shift || Number(shift.status ?? 1) !== 1)
+    return false;
+  const current = normalizeClock(clock);
+  const start = normalizeClock(shift.startTime);
+  const end = normalizeClock(shift.endTime);
+  if (start === end)
+    return true;
+  if (start < end)
+    return current >= start && current < end;
+  return current >= start || current < end;
+}
+
+function isDoctorWorkingAt(doctorId: number | string, dateTime?: Dayjs | string) {
+  if (!dateTime)
+    return false;
+  const value = dayjs(dateTime);
+  if (!value.isValid())
+    return false;
+  return isClockInShift(value.format('HH:mm:ss'), scheduleForSlot(doctorId, value));
+}
+
+function isCellAvailable(slot: any, doctorId: number | string) {
+  return !slot.isNightCollapsed && isDoctorWorkingAt(doctorId, slot.dateTime);
+}
+
+function hasScheduleConflict(record: any) {
+  return !isDoctorWorkingAt(record.doctorId, record.appointmentTime);
+}
+
+function availableDoctorOptionsAt(dateTime?: Dayjs | string, keepDoctorId?: number | string) {
+  const options = doctorOptions.value.filter(item => isDoctorWorkingAt(item.value, dateTime));
+  if (!keepDoctorId || options.some(item => Number(item.value) === Number(keepDoctorId)))
+    return options;
+  const current = doctorOptions.value.find(item => Number(item.value) === Number(keepDoctorId));
+  if (!current)
+    return options;
+  return [
+    {
+      ...current,
+      label: `${current.label}（排班冲突）`,
+      disabled: true,
+    },
+    ...options,
+  ];
+}
+
 function isScheduleVisibleAppointment(record: any) {
   return Number(record?.status) !== CANCELLED_APPOINTMENT_STATUS;
 }
@@ -392,6 +518,34 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
   if (!customerOptions.value.length) customerOptions.value = await loadCustomers();
   if (!doctorOptions.value.length) doctorOptions.value = await loadDoctors({ bookableOnly: true });
   const visitTypeOptions = await loadDictOptions('pet_visit_type');
+  const initialAppointmentTime = isUpdate
+    ? (record.appointmentTime ? dayjs(record.appointmentTime) : filters.value.date.hour(9).minute(0).second(0))
+    : (preset.appointmentTime || filters.value.date.hour(9).minute(0).second(0));
+  await loadMonthlySchedules(false, initialAppointmentTime.format('YYYY-MM'));
+  let modalFormRef: any;
+
+  const refreshDoctorField = async (appointmentTime?: Dayjs | string, keepDoctorId?: number | string) => {
+    const value = appointmentTime ? dayjs(appointmentTime) : undefined;
+    if (value?.isValid())
+      await loadMonthlySchedules(false, value.format('YYYY-MM'));
+    const options = availableDoctorOptionsAt(value, keepDoctorId);
+    modalFormRef?.updateSchema([
+      {
+        field: 'doctorId',
+        componentProps: {
+          options,
+          showSearch: true,
+          optionFilterProp: 'label',
+          placeholder: t('page.appointment.placeholders.doctor'),
+          style: { width: '100%' },
+        },
+      },
+    ]);
+    const selectedDoctorId = modalFormRef?.getFieldsValue?.().doctorId;
+    const selectedOption = options.find(item => Number(item.value) === Number(selectedDoctorId));
+    if (selectedDoctorId && (!selectedOption || selectedOption.disabled))
+      modalFormRef?.setFieldsValue({ doctorId: undefined });
+  };
 
   const schemas: any[] = [
     {
@@ -427,9 +581,10 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
       field: 'doctorId',
       label: t('page.appointment.fields.doctor'),
       component: 'Select',
+      required: true,
       colProps: { span: 12 },
       componentProps: {
-        options: doctorOptions.value,
+        options: availableDoctorOptionsAt(initialAppointmentTime, isUpdate ? record.doctorId : preset.doctorId),
         showSearch: true,
         optionFilterProp: 'label',
         placeholder: t('page.appointment.placeholders.doctor'),
@@ -445,6 +600,9 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
       componentProps: {
         showTime: true,
         style: { width: '100%' },
+        onChange: async (value: Dayjs) => {
+          await refreshDoctorField(value);
+        },
       },
     },
     {
@@ -494,6 +652,7 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
     },
     formProps: { labelWidth: 110, schemas, autoSubmitOnEnter: true },
   });
+  modalFormRef = formRef;
 
   formRef?.updateSchema([
     {
@@ -807,6 +966,22 @@ watch(
   background: #fff;
 }
 
+.appointment-grid__cell.is-unavailable {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #f4f6f9 0,
+      #f4f6f9 8px,
+      #eef2f7 8px,
+      #eef2f7 16px
+    );
+}
+
+.appointment-grid__cell.has-schedule-conflict {
+  background: #fff7ed;
+  box-shadow: inset 0 0 0 1px #fdba74;
+}
+
 .appointment-grid__cell.is-compact {
   min-height: 38px;
   padding: 5px 8px;
@@ -863,6 +1038,18 @@ watch(
   background: #f0f7ff;
 }
 
+.appointment-grid__unavailable {
+  display: flex;
+  width: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d6dbe4;
+  border-radius: 8px;
+  color: #98a2b3;
+  font-size: 12px;
+}
+
 .appointment-card {
   width: 100%;
   padding: 10px;
@@ -870,6 +1057,11 @@ watch(
   border-radius: 10px;
   background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
   box-shadow: 0 4px 12px rgb(27 57 106 / 6%);
+}
+
+.appointment-card.has-schedule-conflict {
+  border-color: #fb923c;
+  background: linear-gradient(180deg, #fff7ed 0%, #fff 100%);
 }
 
 .appointment-card__top {
