@@ -311,6 +311,12 @@
       "keywordPlaceholder": "客户/宠物/预约事项",
       "doctorPlaceholder": "全部医护人员",
       "statusPlaceholder": "全部状态",
+      "expandNightRange": "展开 0-9 点",
+      "collapseNightRange": "收起 0-9 点",
+      "expandNightRangeShort": "展开",
+      "expandNightRangeAction": "展开夜间时段",
+      "nightRangeHint": "0-9 点默认收起，展开后可查看或新增夜间预约。",
+      "nightRangeHasAppointments": "0-9 点存在预约，已自动展开。",
       "viewModes": {
         "grid": "排班视图",
         "list": "列表视图"

@@ -50,6 +50,18 @@
 
     <a-card v-if="viewMode === 'grid'" class="vpet-panel-card vpet-appointment-board" :bordered="false">
       <a-spin :spinning="scheduleLoading">
+        <div class="appointment-night-toggle">
+          <a-button
+            size="small"
+            :disabled="hasNightAppointments"
+            @click="nightExpandedManually = !nightExpandedManually"
+          >
+            {{ nightRangeExpanded ? t('page.appointment.collapseNightRange') : t('page.appointment.expandNightRange') }}
+          </a-button>
+          <span class="appointment-night-toggle__hint">
+            {{ hasNightAppointments ? t('page.appointment.nightRangeHasAppointments') : t('page.appointment.nightRangeHint') }}
+          </span>
+        </div>
         <div class="appointment-grid" :style="{ '--doctor-count': visibleDoctorOptions.length || 1 }">
           <div class="appointment-grid__head appointment-grid__time-head">{{ t('page.appointment.fields.appointmentTime') }}</div>
           <div
@@ -60,17 +72,32 @@
             {{ doctor.label }}
           </div>
 
-          <template v-for="slot in timeSlots" :key="slot.key">
-            <div class="appointment-grid__time" :class="{ 'is-compact': !slotHasAppointments(slot.key) }">
-              {{ slot.label }}
+          <template v-for="slot in visibleTimeSlots" :key="slot.key">
+            <div
+              class="appointment-grid__time"
+              :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
+              @click="slot.isNightCollapsed && (nightExpandedManually = true)"
+            >
+              <span>{{ slot.label }}</span>
+              <a-button v-if="slot.isNightCollapsed" type="link" size="small">
+                {{ t('page.appointment.expandNightRangeShort') }}
+              </a-button>
             </div>
             <div
               v-for="doctor in visibleDoctorOptions"
               :key="`${slot.key}-${doctor.value}`"
               class="appointment-grid__cell"
-              :class="{ 'is-compact': !slotHasAppointments(slot.key) }"
+              :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
             >
-              <div v-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
+              <button
+                v-if="slot.isNightCollapsed"
+                type="button"
+                class="appointment-grid__night-action"
+                @click="nightExpandedManually = true"
+              >
+                {{ t('page.appointment.expandNightRangeAction') }}
+              </button>
+              <div v-else-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
                 <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
                   <div class="appointment-card__top">
                     <strong>{{ appointmentTimeText(record.appointmentTime) }}</strong>
@@ -116,7 +143,7 @@
 
 <script setup lang="tsx">
 import dayjs, { type Dayjs } from 'dayjs';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Tag, message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useTable } from '@/components/core/dynamic-table';
@@ -161,6 +188,7 @@ const [showModal] = useFormModal();
 const viewMode = ref<AppointmentViewMode>('grid');
 const scheduleLoading = ref(false);
 const scheduleAppointments = ref<any[]>([]);
+const nightExpandedManually = ref(false);
 const filters = ref({
   date: dayjs() as Dayjs,
   doctorId: undefined as number | undefined,
@@ -187,6 +215,28 @@ const timeSlots = computed(() => {
       dateTime: slotTime,
     };
   });
+});
+
+const nightEndHour = 9;
+const nightSlotKeys = computed(() => timeSlots.value
+  .filter(slot => dayjs(slot.dateTime).hour() < nightEndHour)
+  .map(slot => slot.key));
+const hasNightAppointments = computed(() =>
+  scheduleAppointments.value.some(record => nightSlotKeys.value.includes(slotKeyOf(record.appointmentTime))),
+);
+const nightRangeExpanded = computed(() => hasNightAppointments.value || nightExpandedManually.value);
+const visibleTimeSlots = computed(() => {
+  if (nightRangeExpanded.value)
+    return timeSlots.value;
+  return [
+    {
+      key: 'night-collapsed',
+      label: '00:00-09:00',
+      dateTime: (filters.value.date || dayjs()).startOf('day'),
+      isNightCollapsed: true,
+    },
+    ...timeSlots.value.filter(slot => !nightSlotKeys.value.includes(slot.key)),
+  ];
 });
 
 async function syncPetField(formRef: any, customerId?: number) {
@@ -268,6 +318,7 @@ async function reloadAppointments() {
 }
 
 function resetFilters() {
+  nightExpandedManually.value = false;
   filters.value = {
     date: dayjs(),
     doctorId: undefined,
@@ -291,6 +342,8 @@ function appointmentsInCell(slotKey: string, doctorId: number | string) {
 }
 
 function slotHasAppointments(slotKey: string) {
+  if (slotKey === 'night-collapsed')
+    return false;
   return scheduleAppointments.value.some(record => slotKeyOf(record.appointmentTime) === slotKey);
 }
 
@@ -548,6 +601,13 @@ onMounted(async () => {
   [customerOptions.value, doctorOptions.value] = await Promise.all([loadCustomers(), loadDoctors({ bookableOnly: true })]);
   await loadScheduleAppointments();
 });
+
+watch(
+  () => filters.value.date?.format('YYYY-MM-DD'),
+  () => {
+    nightExpandedManually.value = false;
+  },
+);
 </script>
 
 <style scoped lang="less">
@@ -561,6 +621,19 @@ onMounted(async () => {
 
 .vpet-appointment-board {
   overflow-x: auto;
+}
+
+.appointment-night-toggle {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.appointment-night-toggle__hint {
+  line-height: 1.6;
 }
 
 .appointment-grid {
@@ -622,6 +695,17 @@ onMounted(async () => {
   padding-top: 9px;
 }
 
+.appointment-grid__time.is-night-collapsed {
+  min-height: 44px;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-top: 6px;
+  color: #344054;
+  background: #f8fafc;
+}
+
 .appointment-grid__cell {
   display: flex;
   min-height: 116px;
@@ -632,6 +716,30 @@ onMounted(async () => {
 .appointment-grid__cell.is-compact {
   min-height: 38px;
   padding: 5px 8px;
+}
+
+.appointment-grid__cell.is-night-collapsed {
+  min-height: 44px;
+  align-items: center;
+}
+
+.appointment-grid__night-action {
+  display: flex;
+  width: 100%;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d8e1ee;
+  border-radius: 8px;
+  background: #fbfdff;
+  color: #667085;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.appointment-grid__night-action:hover {
+  border-color: #1677ff;
+  color: #1677ff;
 }
 
 .appointment-grid__cards {

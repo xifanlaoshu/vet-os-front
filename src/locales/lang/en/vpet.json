@@ -311,6 +311,12 @@
       "keywordPlaceholder": "Customer / pet / reason",
       "doctorPlaceholder": "All medical staff",
       "statusPlaceholder": "All statuses",
+      "expandNightRange": "Expand 0-9",
+      "collapseNightRange": "Collapse 0-9",
+      "expandNightRangeShort": "Expand",
+      "expandNightRangeAction": "Expand night range",
+      "nightRangeHint": "0-9 is collapsed by default. Expand it to view or add night appointments.",
+      "nightRangeHasAppointments": "Appointments exist from 0-9, so the range is expanded automatically.",
       "viewModes": {
         "grid": "Schedule",
         "list": "List"
