@@ -177,6 +177,7 @@ type SelectOption = {
 
 type AppointmentViewMode = 'grid' | 'list';
 
+const CANCELLED_APPOINTMENT_STATUS = 4;
 const { t, appointmentStatusColor, appointmentStatusOptions, appointmentStatusText } = useVpetLocale();
 const {
   customerLabel,
@@ -322,7 +323,7 @@ async function loadScheduleAppointments() {
   scheduleLoading.value = true;
   try {
     const data: any = await vpetAppointmentList(buildAppointmentQuery());
-    scheduleAppointments.value = sortAppointmentsByTime(data?.items || []);
+    scheduleAppointments.value = sortAppointmentsByTime(data?.items || []).filter(isScheduleVisibleAppointment);
   } finally {
     scheduleLoading.value = false;
   }
@@ -368,15 +369,23 @@ function slotKeyOf(appointmentTime?: string) {
 
 function appointmentsInCell(slotKey: string, doctorId: number | string) {
   return scheduleAppointments.value.filter(record =>
-    slotKeyOf(record.appointmentTime) === slotKey
+    isScheduleVisibleAppointment(record)
+    && slotKeyOf(record.appointmentTime) === slotKey
     && Number(record.doctorId) === Number(doctorId),
   );
+}
+
+function isScheduleVisibleAppointment(record: any) {
+  return Number(record?.status) !== CANCELLED_APPOINTMENT_STATUS;
 }
 
 function slotHasAppointments(slotKey: string) {
   if (slotKey === 'night-collapsed')
     return false;
-  return scheduleAppointments.value.some(record => slotKeyOf(record.appointmentTime) === slotKey);
+  return scheduleAppointments.value.some(record =>
+    isScheduleVisibleAppointment(record)
+    && slotKeyOf(record.appointmentTime) === slotKey,
+  );
 }
 
 function appointmentTimeText(value?: string) {
