@@ -46,7 +46,8 @@
                 v-for="day in monthDays"
                 :key="`${doctor.id}-${day.date}`"
                 class="schedule-grid__cell"
-                :class="{ 'is-rest-day': isRestDay(day.date) }"
+                :class="{ 'has-shift': Boolean(scheduleValue(doctor.id, day.date)) }"
+                :style="scheduleCellStyle(doctor.id, day.date)"
               >
                 <a-select
                   :value="scheduleValue(doctor.id, day.date)"
@@ -152,6 +153,14 @@ const scheduleMap = computed(() => {
   return map;
 });
 
+const shiftMap = computed(() => {
+  const map = new Map<number, ShiftRecord>();
+  shifts.value.forEach((item) => {
+    map.set(Number(item.id), item);
+  });
+  return map;
+});
+
 function isRestDay(date: string) {
   if (adjustedWorkdaySet2026.has(date)) return false;
   const day = dayjs(date).day();
@@ -164,6 +173,29 @@ function timeRange(shift: ShiftRecord) {
 
 function scheduleValue(doctorId: number, date: string) {
   return scheduleMap.value.get(`${doctorId}_${date}`)?.shiftId;
+}
+
+function hexToRgba(hex?: string, alpha = 0.14) {
+  const value = (hex || '#1677ff').replace('#', '').trim();
+  const normalized = value.length === 3
+    ? value.split('').map(char => `${char}${char}`).join('')
+    : value;
+  if (!/^[0-9a-f]{6}$/i.test(normalized)) return `rgb(22 119 255 / ${alpha})`;
+  const numeric = Number.parseInt(normalized, 16);
+  const red = (numeric >> 16) & 255;
+  const green = (numeric >> 8) & 255;
+  const blue = numeric & 255;
+  return `rgb(${red} ${green} ${blue} / ${alpha})`;
+}
+
+function scheduleCellStyle(doctorId: number, date: string) {
+  const shiftId = scheduleValue(doctorId, date);
+  if (!shiftId) return {};
+  const color = shiftMap.value.get(Number(shiftId))?.color || '#1677ff';
+  return {
+    background: hexToRgba(color, 0.16),
+    boxShadow: `inset 4px 0 0 ${color}, inset 0 0 0 1px ${hexToRgba(color, 0.36)}`,
+  };
 }
 
 async function loadMonthSchedule() {
@@ -182,7 +214,15 @@ async function saveCell(doctorId: number, scheduleDate: string, shiftId?: number
   const saved: any = await vpetScheduleSave({ doctorId, scheduleDate, shiftId: shiftId || null });
   const key = `${doctorId}_${scheduleDate}`;
   const next = schedules.value.filter(item => `${item.doctorId}_${dayjs(item.scheduleDate).format('YYYY-MM-DD')}` !== key);
-  if (shiftId) next.push(saved || { id: Date.now(), doctorId, scheduleDate, shiftId });
+  if (shiftId) {
+    next.push({
+      id: saved?.id || Date.now(),
+      ...saved,
+      doctorId,
+      scheduleDate,
+      shiftId,
+    });
+  }
   schedules.value = next;
   message.success('排班已保存');
 }
@@ -298,8 +338,7 @@ onMounted(loadMonthSchedule);
   font-size: 12px;
 }
 
-.schedule-grid__day-head.is-rest-day,
-.schedule-grid__cell.is-rest-day {
+.schedule-grid__day-head.is-rest-day {
   background: #fff7e6;
 }
 
@@ -326,5 +365,11 @@ onMounted(loadMonthSchedule);
 
 .schedule-grid__cell :deep(.ant-select) {
   width: 100%;
+}
+
+.schedule-grid__cell.has-shift :deep(.ant-select-selector) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 </style>
