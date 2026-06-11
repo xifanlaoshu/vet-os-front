@@ -22,9 +22,11 @@ export const transformMenuToRoutes = (
 
     if (!isExt) {
       // 规范化路由路径
-      route.path = route.path.startsWith('/') ? route.path : `/${route.path}`;
-      if (parentRoute?.path && !route.path.startsWith(parentRoute.path)) {
-        route.path = uniqueSlash(`${parentRoute.path}/${route.path}`);
+      const isAbsolutePath = route.path.startsWith('/');
+      if (!isAbsolutePath) {
+        route.path = parentRoute?.path
+          ? uniqueSlash(`${parentRoute.path}/${route.path}`)
+          : `/${route.path}`;
       }
     }
     // 以路由路径作为唯一的路由名称

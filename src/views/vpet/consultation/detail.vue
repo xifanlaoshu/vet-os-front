@@ -1137,6 +1137,10 @@ function staffLabel(staff?: any, staffId?: string | number | null, fallbackName?
   return doctorLabel(staff, staffId, fallbackName);
 }
 
+function ensureArray<T = any>(value: unknown): T[] {
+  return Array.isArray(value) ? value as T[] : [];
+}
+
 async function loadVisit(startIfNeeded = false) {
   const visitId = Number(route.params.id);
   if (!visitId) return;
@@ -1191,7 +1195,7 @@ function emrAuditActionText(action: string) {
 async function loadPrescriptions() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  prescriptions.value = await vpetPrescriptionByVisit(visitId) as any[];
+  prescriptions.value = ensureArray(await vpetPrescriptionByVisit(visitId));
 
   const txns = await Promise.all(
     prescriptions.value.map(async (item) => {
@@ -1205,14 +1209,14 @@ async function loadPrescriptions() {
 async function loadBillings() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  billings.value = await vpetBillingByVisit(visitId) as any[];
+  billings.value = ensureArray(await vpetBillingByVisit(visitId));
 }
 
 async function loadLabs() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
   const result = await vpetLabList({ visitId, page: 1, pageSize: 100 });
-  labs.value = result?.items || [];
+  labs.value = ensureArray(result?.items);
 }
 
 async function loadChronicCases() {
@@ -1221,20 +1225,20 @@ async function loadChronicCases() {
     chronicCases.value = [];
     return;
   }
-  chronicCases.value = await vpetChronicCaseList({ petId }) as any[];
+  chronicCases.value = ensureArray(await vpetChronicCaseList({ petId }));
 }
 
 async function loadCareFollowups() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  careFollowups.value = await vpetVisitCareFollowups(visitId, visitScopeOptions.value) as any[];
+  careFollowups.value = ensureArray(await vpetVisitCareFollowups(visitId, visitScopeOptions.value));
   continuousCareExpanded.value = careFollowups.value.length > 0;
 }
 
 async function loadMediaBatches() {
   const visitId = Number(route.params.id);
   if (!visitId) return;
-  mediaBatches.value = await vpetVisitMediaBatches(visitId, visitScopeOptions.value) as any[];
+  mediaBatches.value = ensureArray(await vpetVisitMediaBatches(visitId, visitScopeOptions.value));
 }
 
 async function loadMemberBalance() {
@@ -1592,7 +1596,7 @@ async function uploadMediaFile(batch: any, file: File) {
   uploadingMediaBatchId.value = Number(batch.id);
   try {
     const result = await uploadUpload({}, file);
-    mediaBatches.value = await vpetVisitMediaFileCreate(
+    mediaBatches.value = ensureArray(await vpetVisitMediaFileCreate(
       currentVisit.value.id,
       Number(batch.id),
       {
@@ -1605,7 +1609,7 @@ async function uploadMediaFile(batch: any, file: File) {
         fileSize: file.size,
       },
       visitScopeOptions.value,
-    ) as any[];
+    ));
     message.success(t('page.consultation.messages.mediaFileUploaded'));
   } finally {
     uploadingMediaBatchId.value = undefined;
@@ -1616,7 +1620,7 @@ async function uploadMediaFile(batch: any, file: File) {
 async function addOssMediaFile(batch: any) {
   const url = (ossMediaForm.value[batch.id] || '').trim();
   if (!currentVisit.value?.id || !batch?.id || !url) return;
-  mediaBatches.value = await vpetVisitMediaFileCreate(
+  mediaBatches.value = ensureArray(await vpetVisitMediaFileCreate(
     currentVisit.value.id,
     Number(batch.id),
     {
@@ -1626,7 +1630,7 @@ async function addOssMediaFile(batch: any) {
       url,
     },
     visitScopeOptions.value,
-  ) as any[];
+  ));
   ossMediaForm.value[batch.id] = '';
   message.success(t('page.consultation.messages.mediaFileUploaded'));
 }
@@ -1651,7 +1655,7 @@ async function submitCareFollowup() {
     return;
   }
 
-  careFollowups.value = await vpetVisitCareFollowupCreate(
+  careFollowups.value = ensureArray(await vpetVisitCareFollowupCreate(
     currentVisit.value.id,
     {
       careStage: currentVisit.value?.careStage,
@@ -1666,7 +1670,7 @@ async function submitCareFollowup() {
       prescriptionIds: careFollowupForm.value.prescriptionIds,
     },
     visitScopeOptions.value,
-  ) as any[];
+  ));
   continuousCareExpanded.value = true;
   resetCareFollowupForm();
   message.success(t('page.consultation.messages.careFollowupCreated'));
