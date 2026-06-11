@@ -351,6 +351,34 @@ export function vpetDoctorDelete(id: number, options?: RequestOptions) {
   return request(`/api/vpet/appointment/doctors/${id}`, { method: 'DELETE', ...(options || {}) });
 }
 
+export function vpetShiftList(params?: any, options?: RequestOptions) {
+  return request('/api/vpet/appointment/shifts', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetShiftActive(options?: RequestOptions) {
+  return request('/api/vpet/appointment/shifts/active', { method: 'GET', ...(options || {}) });
+}
+
+export function vpetShiftCreate(body: any, options?: RequestOptions) {
+  return request('/api/vpet/appointment/shifts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetShiftUpdate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/appointment/shifts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetShiftDelete(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/appointment/shifts/${id}`, { method: 'DELETE', ...(options || {}) });
+}
+
+export function vpetScheduleMonth(params: { month: string }, options?: RequestOptions) {
+  return request('/api/vpet/appointment/schedules/month', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetScheduleSave(body: any, options?: RequestOptions) {
+  return request('/api/vpet/appointment/schedules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
 /** 鍙彿 POST /api/vpet/queue/call */
 export function vpetQueueCall(body: { doctorId: number; visitId?: number }, options?: RequestOptions) {
   return request('/api/vpet/queue/call', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
