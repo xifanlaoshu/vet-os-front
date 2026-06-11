@@ -322,11 +322,15 @@ async function loadAppointments() {
     if (filters.value.status !== undefined) params.status = filters.value.status;
     if (filters.value.keyword) params.keyword = filters.value.keyword;
     const data: any = await vpetAppointmentList(params);
-    appointments.value = data?.items || [];
+    appointments.value = sortAppointmentsByTime(data?.items || []);
     appointmentPagination.value.total = data?.meta?.totalItems || 0;
   } finally {
     appointmentLoading.value = false;
   }
+}
+
+function sortAppointmentsByTime(items: any[]) {
+  return items.slice().sort((a, b) => dayjs(a.appointmentTime).valueOf() - dayjs(b.appointmentTime).valueOf());
 }
 
 async function loadVisits() {

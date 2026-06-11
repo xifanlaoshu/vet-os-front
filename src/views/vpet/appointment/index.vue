@@ -218,6 +218,9 @@ const loadTableData = async (params: any) => {
   if (filters.value.doctorId) query.doctorId = filters.value.doctorId;
   if (filters.value.keyword) query.keyword = filters.value.keyword;
   const data: any = await vpetAppointmentList(query);
+  if (Array.isArray(data?.items)) {
+    data.items = sortAppointmentsByTime(data.items);
+  }
   return data || { items: [], meta: {} };
 };
 
@@ -237,12 +240,14 @@ async function loadScheduleAppointments() {
   scheduleLoading.value = true;
   try {
     const data: any = await vpetAppointmentList(buildAppointmentQuery());
-    scheduleAppointments.value = ((data?.items || []) as any[]).sort((a, b) =>
-      dayjs(a.appointmentTime).valueOf() - dayjs(b.appointmentTime).valueOf(),
-    );
+    scheduleAppointments.value = sortAppointmentsByTime(data?.items || []);
   } finally {
     scheduleLoading.value = false;
   }
+}
+
+function sortAppointmentsByTime(items: any[]) {
+  return items.slice().sort((a, b) => dayjs(a.appointmentTime).valueOf() - dayjs(b.appointmentTime).valueOf());
 }
 
 function reloadTable() {
