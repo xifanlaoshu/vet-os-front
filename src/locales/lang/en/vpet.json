@@ -306,12 +306,17 @@
       "list": "Appointment List",
       "create": "New appointment",
       "edit": "Edit appointment",
+      "addInSlot": "Add appointment in this slot",
       "keywordPlaceholder": "Customer / pet / reason",
-      "doctorPlaceholder": "All doctors",
+      "doctorPlaceholder": "All medical staff",
       "statusPlaceholder": "All statuses",
+      "viewModes": {
+        "grid": "Schedule",
+        "list": "List"
+      },
       "fields": {
         "date": "Appointment date",
-        "doctor": "Doctor",
+        "doctor": "Medical staff",
         "status": "Status",
         "keyword": "Keyword",
         "customer": "Customer",
@@ -325,7 +330,7 @@
       "placeholders": {
         "customer": "Select customer",
         "pet": "Select pet",
-        "doctor": "Select doctor",
+        "doctor": "Select medical staff",
         "visitType": "Select visit type",
         "selectCustomerFirst": "Please select customer first"
       },
@@ -334,7 +339,7 @@
         "followup": "Follow-up"
       },
       "table": {
-        "doctor": "Doctor",
+        "doctor": "Medical staff",
         "action": "Action",
         "checkIn": "Check in",
         "openRecord": "Open record",

@@ -1,7 +1,7 @@
 <template>
   <div class="vpet-page">
     <a-card class="vpet-query-card" :title="t('page.appointment.title')" :bordered="false">
-      <a-form class="vpet-query-form" layout="horizontal">
+      <a-form class="vpet-query-form vpet-appointment-query" layout="horizontal">
         <a-form-item :label="t('page.appointment.fields.date')">
           <a-date-picker v-model:value="filters.date" />
         </a-form-item>
@@ -10,7 +10,6 @@
             v-model:value="filters.doctorId"
             allow-clear
             show-search
-            style="width: 220px"
             :placeholder="t('page.appointment.doctorPlaceholder')"
             :options="doctorOptions"
             :filter-option="filterByLabel"
@@ -20,7 +19,6 @@
           <a-select
             v-model:value="filters.status"
             allow-clear
-            style="width: 180px"
             :placeholder="t('page.appointment.statusPlaceholder')"
             :options="appointmentStatusOptions"
           />
@@ -30,12 +28,16 @@
             v-model:value="filters.keyword"
             allow-clear
             :placeholder="t('page.appointment.keywordPlaceholder')"
-            @pressEnter="reloadTable"
+            @pressEnter="reloadAppointments"
           />
         </a-form-item>
         <div class="vpet-query-actions">
           <a-space>
-            <a-button type="primary" @click="reloadTable">{{ t('common.search') }}</a-button>
+            <a-radio-group v-model:value="viewMode" button-style="solid" @change="handleViewModeChange">
+              <a-radio-button value="grid">{{ t('page.appointment.viewModes.grid') }}</a-radio-button>
+              <a-radio-button value="list">{{ t('page.appointment.viewModes.list') }}</a-radio-button>
+            </a-radio-group>
+            <a-button type="primary" @click="reloadAppointments">{{ t('common.search') }}</a-button>
             <a-button @click="resetFilters">{{ t('common.reset') }}</a-button>
             <a-button type="primary" @click="openCreateModal()">
               <Icon icon="ant-design:plus-outlined" />
@@ -46,7 +48,62 @@
       </a-form>
     </a-card>
 
+    <a-card v-if="viewMode === 'grid'" class="vpet-panel-card vpet-appointment-board" :bordered="false">
+      <a-spin :spinning="scheduleLoading">
+        <div class="appointment-grid" :style="{ '--doctor-count': visibleDoctorOptions.length || 1 }">
+          <div class="appointment-grid__head appointment-grid__time-head">{{ t('page.appointment.fields.appointmentTime') }}</div>
+          <div
+            v-for="doctor in visibleDoctorOptions"
+            :key="doctor.value"
+            class="appointment-grid__head appointment-grid__doctor-head"
+          >
+            {{ doctor.label }}
+          </div>
+
+          <template v-for="slot in timeSlots" :key="slot.key">
+            <div class="appointment-grid__time" :class="{ 'is-compact': !slotHasAppointments(slot.key) }">
+              {{ slot.label }}
+            </div>
+            <div
+              v-for="doctor in visibleDoctorOptions"
+              :key="`${slot.key}-${doctor.value}`"
+              class="appointment-grid__cell"
+              :class="{ 'is-compact': !slotHasAppointments(slot.key) }"
+            >
+              <div v-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
+                <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
+                  <div class="appointment-card__top">
+                    <strong>{{ appointmentTimeText(record.appointmentTime) }}</strong>
+                    <a-tag :color="appointmentStatusColor(record.status)">{{ appointmentStatusText(record.status) }}</a-tag>
+                  </div>
+                  <div class="appointment-card__pet">{{ petLabel(record.pet, record.petSnapshot, record.petId) }}</div>
+                  <div class="appointment-card__customer">{{ customerLabel(record.customer, record.customerSnapshot, record.customerId) }}</div>
+                  <div class="appointment-card__reason">{{ record.reason || '-' }}</div>
+                  <a-space size="small" class="appointment-card__actions">
+                    <a-button size="small" type="link" @click="openVisit(record)">{{ t('page.appointment.table.openRecord') }}</a-button>
+                    <a-button v-if="record.status === 1" size="small" type="link" @click="checkIn(record)">{{ t('page.appointment.table.checkIn') }}</a-button>
+                    <a-button v-if="record.status === 1" size="small" type="link" @click="openCreateModal(record)">{{ t('common.edit') }}</a-button>
+                    <a-button v-if="record.status === 1" size="small" type="link" danger @click="cancelAppointment(record)">{{ t('page.appointment.table.cancel') }}</a-button>
+                  </a-space>
+                </div>
+              </div>
+              <button
+                v-else
+                type="button"
+                class="appointment-grid__add"
+                :title="t('page.appointment.addInSlot')"
+                @click="openCreateModal({}, { doctorId: Number(doctor.value), appointmentTime: slot.dateTime })"
+              >
+                <Icon icon="ant-design:plus-outlined" />
+              </button>
+            </div>
+          </template>
+        </div>
+      </a-spin>
+    </a-card>
+
     <DynamicTable
+      v-if="viewMode === 'list'"
       class="vpet-panel-card vpet-list-card"
       :header-title="t('page.appointment.list')"
       show-index
@@ -59,7 +116,7 @@
 
 <script setup lang="tsx">
 import dayjs, { type Dayjs } from 'dayjs';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { Tag, message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useTable } from '@/components/core/dynamic-table';
@@ -84,6 +141,8 @@ type SelectOption = {
   label: string;
 };
 
+type AppointmentViewMode = 'grid' | 'list';
+
 const { t, appointmentStatusColor, appointmentStatusOptions, appointmentStatusText } = useVpetLocale();
 const {
   customerLabel,
@@ -99,6 +158,9 @@ const router = useRouter();
 const [DynamicTable, dynamicTableInstance] = useTable();
 const [showModal] = useFormModal();
 
+const viewMode = ref<AppointmentViewMode>('grid');
+const scheduleLoading = ref(false);
+const scheduleAppointments = ref<any[]>([]);
 const filters = ref({
   date: dayjs() as Dayjs,
   doctorId: undefined as number | undefined,
@@ -109,6 +171,23 @@ const filters = ref({
 const customerOptions = ref<SelectOption[]>([]);
 const petOptions = ref<SelectOption[]>([]);
 const doctorOptions = ref<SelectOption[]>([]);
+
+const visibleDoctorOptions = computed(() => {
+  if (!filters.value.doctorId) return doctorOptions.value;
+  return doctorOptions.value.filter(item => Number(item.value) === Number(filters.value.doctorId));
+});
+
+const timeSlots = computed(() => {
+  const baseDate = filters.value.date || dayjs();
+  return Array.from({ length: 48 }, (_, index) => {
+    const slotTime = baseDate.startOf('day').add(index * 30, 'minute');
+    return {
+      key: slotTime.format('HH:mm'),
+      label: slotTime.format('HH:mm'),
+      dateTime: slotTime,
+    };
+  });
+});
 
 async function syncPetField(formRef: any, customerId?: number) {
   petOptions.value = await loadPets(customerId);
@@ -131,8 +210,8 @@ async function syncPetField(formRef: any, customerId?: number) {
 
 const loadTableData = async (params: any) => {
   const query: any = {
-    page: params.page,
-    pageSize: params.pageSize,
+    page: params.page || 1,
+    pageSize: 100,
     date: filters.value.date.format('YYYY-MM-DD'),
   };
   if (filters.value.status !== undefined) query.status = filters.value.status;
@@ -142,8 +221,45 @@ const loadTableData = async (params: any) => {
   return data || { items: [], meta: {} };
 };
 
+function buildAppointmentQuery() {
+  const query: any = {
+    page: 1,
+    pageSize: 100,
+    date: filters.value.date.format('YYYY-MM-DD'),
+  };
+  if (filters.value.status !== undefined) query.status = filters.value.status;
+  if (filters.value.doctorId) query.doctorId = filters.value.doctorId;
+  if (filters.value.keyword) query.keyword = filters.value.keyword;
+  return query;
+}
+
+async function loadScheduleAppointments() {
+  scheduleLoading.value = true;
+  try {
+    const data: any = await vpetAppointmentList(buildAppointmentQuery());
+    scheduleAppointments.value = ((data?.items || []) as any[]).sort((a, b) =>
+      dayjs(a.appointmentTime).valueOf() - dayjs(b.appointmentTime).valueOf(),
+    );
+  } finally {
+    scheduleLoading.value = false;
+  }
+}
+
 function reloadTable() {
-  dynamicTableInstance?.reload();
+  if (viewMode.value === 'list') dynamicTableInstance?.reload();
+}
+
+async function handleViewModeChange() {
+  await nextTick();
+  await reloadAppointments();
+}
+
+async function reloadAppointments() {
+  if (viewMode.value === 'grid') {
+    await loadScheduleAppointments();
+    return;
+  }
+  reloadTable();
 }
 
 function resetFilters() {
@@ -153,10 +269,31 @@ function resetFilters() {
     status: undefined,
     keyword: '',
   };
-  reloadTable();
+  reloadAppointments();
 }
 
-async function openCreateModal(record: any = {}) {
+function slotKeyOf(appointmentTime?: string) {
+  const value = appointmentTime ? dayjs(appointmentTime) : dayjs();
+  const flooredMinute = value.minute() < 30 ? 0 : 30;
+  return value.minute(flooredMinute).second(0).format('HH:mm');
+}
+
+function appointmentsInCell(slotKey: string, doctorId: number | string) {
+  return scheduleAppointments.value.filter(record =>
+    slotKeyOf(record.appointmentTime) === slotKey
+    && Number(record.doctorId) === Number(doctorId),
+  );
+}
+
+function slotHasAppointments(slotKey: string) {
+  return scheduleAppointments.value.some(record => slotKeyOf(record.appointmentTime) === slotKey);
+}
+
+function appointmentTimeText(value?: string) {
+  return value ? dayjs(value).format('HH:mm') : '-';
+}
+
+async function openCreateModal(record: any = {}, preset: { doctorId?: number; appointmentTime?: Dayjs } = {}) {
   const isUpdate = Boolean(record.id);
   if (!customerOptions.value.length) customerOptions.value = await loadCustomers();
   if (!doctorOptions.value.length) doctorOptions.value = await loadDoctors({ bookableOnly: true });
@@ -258,7 +395,7 @@ async function openCreateModal(record: any = {}) {
           await vpetAppointmentCreate(body);
         }
         message.success(t(isUpdate ? 'page.appointment.messages.updated' : 'page.appointment.messages.created'));
-        reloadTable();
+        await reloadAppointments();
       },
     },
     formProps: { labelWidth: 110, schemas, autoSubmitOnEnter: true },
@@ -290,7 +427,8 @@ async function openCreateModal(record: any = {}) {
   } else {
     await syncPetField(formRef);
     formRef?.setFieldsValue({
-      appointmentTime: filters.value.date.hour(9).minute(0).second(0),
+      doctorId: preset.doctorId,
+      appointmentTime: preset.appointmentTime || filters.value.date.hour(9).minute(0).second(0),
     });
   }
 }
@@ -298,7 +436,7 @@ async function openCreateModal(record: any = {}) {
 async function checkIn(record: any) {
   const visit: any = await vpetAppointmentCheckIn(record.id);
   message.success(t('page.appointment.messages.checkedIn', { queueNumber: visit?.queueNumber || '-' }));
-  reloadTable();
+  await reloadAppointments();
 }
 
 async function openVisit(record: any) {
@@ -320,7 +458,7 @@ async function openVisit(record: any) {
 async function cancelAppointment(record: any) {
   await vpetAppointmentCancel(record.id);
   message.success(t('page.appointment.messages.cancelled'));
-  reloadTable();
+  await reloadAppointments();
 }
 
 function doctorText(record: any) {
@@ -403,5 +541,162 @@ const columns = [
 
 onMounted(async () => {
   [customerOptions.value, doctorOptions.value] = await Promise.all([loadCustomers(), loadDoctors({ bookableOnly: true })]);
+  await loadScheduleAppointments();
 });
 </script>
+
+<style scoped lang="less">
+.vpet-appointment-query {
+  grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) minmax(150px, 0.8fr) minmax(220px, 1.2fr) auto;
+
+  :deep(.ant-form-item) {
+    min-width: 0;
+  }
+}
+
+.vpet-appointment-board {
+  overflow-x: auto;
+}
+
+.appointment-grid {
+  display: grid;
+  grid-template-columns: 82px repeat(var(--doctor-count), minmax(220px, 1fr));
+  width: max-content;
+  min-width: 100%;
+  border: 1px solid #edf0f5;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.appointment-grid__head,
+.appointment-grid__time,
+.appointment-grid__cell {
+  border-right: 1px solid #edf0f5;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.appointment-grid__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  color: #24324b;
+  font-weight: 600;
+}
+
+.appointment-grid__time-head {
+  left: 0;
+  z-index: 3;
+}
+
+.appointment-grid__doctor-head {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appointment-grid__time {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 116px;
+  padding-top: 12px;
+  background: #fbfcfe;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.appointment-grid__time.is-compact {
+  min-height: 38px;
+  padding-top: 9px;
+}
+
+.appointment-grid__cell {
+  display: flex;
+  min-height: 116px;
+  padding: 8px;
+  background: #fff;
+}
+
+.appointment-grid__cell.is-compact {
+  min-height: 38px;
+  padding: 5px 8px;
+}
+
+.appointment-grid__cards {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.appointment-grid__add {
+  display: flex;
+  width: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #c9d4e5;
+  border-radius: 8px;
+  background: #fbfdff;
+  color: #6b7a90;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.appointment-grid__add:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+  background: #f0f7ff;
+}
+
+.appointment-card {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dbe7f6;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+  box-shadow: 0 4px 12px rgb(27 57 106 / 6%);
+}
+
+.appointment-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.appointment-card__pet {
+  margin-top: 6px;
+  color: #1f2a44;
+  font-weight: 600;
+}
+
+.appointment-card__customer,
+.appointment-card__reason {
+  margin-top: 3px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.appointment-card__reason {
+  color: #344054;
+}
+
+.appointment-card__actions {
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+  .vpet-appointment-query {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+</style>

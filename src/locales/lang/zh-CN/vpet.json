@@ -306,12 +306,17 @@
       "list": "预约列表",
       "create": "新增预约",
       "edit": "编辑预约",
+      "addInSlot": "在该时间段新增预约",
       "keywordPlaceholder": "客户/宠物/预约事项",
-      "doctorPlaceholder": "全部医生",
+      "doctorPlaceholder": "全部医护人员",
       "statusPlaceholder": "全部状态",
+      "viewModes": {
+        "grid": "排班视图",
+        "list": "列表视图"
+      },
       "fields": {
         "date": "预约日期",
-        "doctor": "医生",
+        "doctor": "医护人员",
         "status": "状态",
         "keyword": "关键词",
         "customer": "客户",
@@ -325,7 +330,7 @@
       "placeholders": {
         "customer": "选择客户",
         "pet": "选择宠物",
-        "doctor": "选择医生",
+        "doctor": "选择医护人员",
         "visitType": "选择预约类型",
         "selectCustomerFirst": "请先选择客户"
       },
@@ -334,7 +339,7 @@
         "followup": "复诊"
       },
       "table": {
-        "doctor": "医生",
+        "doctor": "医护人员",
         "action": "操作",
         "checkIn": "签到",
         "openRecord": "打开病历",
