@@ -106,7 +106,6 @@
                 <div v-else-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
                   <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
                     <div class="appointment-card__top">
-                      <strong>{{ appointmentTimeText(record.appointmentTime) }}</strong>
                       <a-tag :color="appointmentStatusColor(record.status)">{{ appointmentStatusText(record.status) }}</a-tag>
                     </div>
                     <div class="appointment-card__pet">{{ petLabel(record.pet, record.petSnapshot, record.petId) }}</div>
@@ -386,10 +385,6 @@ function slotHasAppointments(slotKey: string) {
     isScheduleVisibleAppointment(record)
     && slotKeyOf(record.appointmentTime) === slotKey,
   );
-}
-
-function appointmentTimeText(value?: string) {
-  return value ? dayjs(value).format('HH:mm') : '-';
 }
 
 async function openCreateModal(record: any = {}, preset: { doctorId?: number; appointmentTime?: Dayjs } = {}) {
@@ -880,7 +875,7 @@ watch(
 .appointment-card__top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 
