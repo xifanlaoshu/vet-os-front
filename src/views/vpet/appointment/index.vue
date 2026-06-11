@@ -64,8 +64,8 @@
             {{ hasNightAppointments ? t('page.appointment.nightRangeHasAppointments') : t('page.appointment.nightRangeHint') }}
           </span>
         </div>
-        <div class="appointment-grid-scroll">
-          <div class="appointment-grid" :style="scheduleGridStyle">
+        <div class="appointment-sticky-header" aria-hidden="true">
+          <div class="appointment-sticky-header__grid" :style="scheduleStickyHeaderStyle">
             <div class="appointment-grid__head appointment-grid__time-head">{{ t('page.appointment.fields.appointmentTime') }}</div>
             <div
               v-for="doctor in visibleDoctorOptions"
@@ -74,7 +74,10 @@
             >
               {{ doctor.label }}
             </div>
-
+          </div>
+        </div>
+        <div ref="scheduleScrollRef" class="appointment-grid-scroll" @scroll="handleScheduleScroll">
+          <div class="appointment-grid" :style="scheduleGridStyle">
             <template v-for="slot in visibleTimeSlots" :key="slot.key">
               <div
                 class="appointment-grid__time"
@@ -192,6 +195,8 @@ const [showModal] = useFormModal();
 const viewMode = ref<AppointmentViewMode>('grid');
 const scheduleLoading = ref(false);
 const scheduleAppointments = ref<any[]>([]);
+const scheduleScrollRef = ref<HTMLElement>();
+const scheduleScrollLeft = ref(0);
 const nightExpandedManually = ref(false);
 const filters = ref({
   date: dayjs() as Dayjs,
@@ -216,6 +221,11 @@ const scheduleGridStyle = computed(() => {
     minWidth: `${82 + doctorCount * 240}px`,
   };
 });
+
+const scheduleStickyHeaderStyle = computed(() => ({
+  ...scheduleGridStyle.value,
+  transform: `translateX(-${scheduleScrollLeft.value}px)`,
+}));
 
 const timeSlots = computed(() => {
   const baseDate = filters.value.date || dayjs();
@@ -250,6 +260,15 @@ const visibleTimeSlots = computed(() => {
     ...timeSlots.value.filter(slot => !nightSlotKeys.value.includes(slot.key)),
   ];
 });
+
+function handleScheduleScroll(event: Event) {
+  scheduleScrollLeft.value = (event.currentTarget as HTMLElement).scrollLeft;
+}
+
+function resetScheduleScroll() {
+  scheduleScrollLeft.value = 0;
+  if (scheduleScrollRef.value) scheduleScrollRef.value.scrollLeft = 0;
+}
 
 async function syncPetField(formRef: any, customerId?: number) {
   petOptions.value = await loadPets(customerId);
@@ -299,6 +318,7 @@ function buildAppointmentQuery() {
 }
 
 async function loadScheduleAppointments() {
+  resetScheduleScroll();
   scheduleLoading.value = true;
   try {
     const data: any = await vpetAppointmentList(buildAppointmentQuery());
@@ -659,12 +679,16 @@ watch(
 }
 
 .vpet-appointment-board {
-  overflow: hidden;
+  overflow: visible;
 
   :deep(.ant-card-body),
   :deep(.ant-spin-nested-loading),
   :deep(.ant-spin-container) {
     min-width: 0;
+  }
+
+  :deep(.ant-card-body) {
+    overflow: visible;
   }
 }
 
@@ -688,12 +712,31 @@ watch(
   padding-bottom: 8px;
 }
 
+.appointment-sticky-header {
+  position: sticky;
+  top: -20px;
+  z-index: 20;
+  overflow: hidden;
+  border: 1px solid #edf0f5;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: #f8fafc;
+  box-shadow: 0 8px 18px rgb(15 23 42 / 8%);
+}
+
+.appointment-sticky-header__grid {
+  display: grid;
+  grid-template-columns: 82px repeat(var(--doctor-count), minmax(220px, 1fr));
+  min-width: 100%;
+  will-change: transform;
+}
+
 .appointment-grid {
   display: grid;
   grid-template-columns: 82px repeat(var(--doctor-count), minmax(220px, 1fr));
   min-width: 100%;
   border: 1px solid #edf0f5;
-  border-radius: 12px;
+  border-radius: 0 0 12px 12px;
   background: #fff;
 }
 
@@ -705,9 +748,6 @@ watch(
 }
 
 .appointment-grid__head {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   min-height: 44px;
   padding: 10px 12px;
   background: #f8fafc;
@@ -716,8 +756,7 @@ watch(
 }
 
 .appointment-grid__time-head {
-  left: 0;
-  z-index: 3;
+  box-shadow: 1px 0 0 #edf0f5;
 }
 
 .appointment-grid__doctor-head {
