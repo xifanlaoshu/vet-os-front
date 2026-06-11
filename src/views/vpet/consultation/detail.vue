@@ -246,6 +246,7 @@
             :options="prescriptionTemplateOptions"
             :placeholder="t('page.prescription.placeholders.template')"
             class="vpet-block-bottom"
+            style="width: 100%"
             @change="applyPrescriptionTemplate"
           />
           <a-input
