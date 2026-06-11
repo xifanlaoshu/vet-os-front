@@ -62,69 +62,71 @@
             {{ hasNightAppointments ? t('page.appointment.nightRangeHasAppointments') : t('page.appointment.nightRangeHint') }}
           </span>
         </div>
-        <div class="appointment-grid" :style="{ '--doctor-count': visibleDoctorOptions.length || 1 }">
-          <div class="appointment-grid__head appointment-grid__time-head">{{ t('page.appointment.fields.appointmentTime') }}</div>
-          <div
-            v-for="doctor in visibleDoctorOptions"
-            :key="doctor.value"
-            class="appointment-grid__head appointment-grid__doctor-head"
-          >
-            {{ doctor.label }}
-          </div>
-
-          <template v-for="slot in visibleTimeSlots" :key="slot.key">
-            <div
-              class="appointment-grid__time"
-              :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
-              @click="slot.isNightCollapsed && (nightExpandedManually = true)"
-            >
-              <span>{{ slot.label }}</span>
-              <a-button v-if="slot.isNightCollapsed" type="link" size="small">
-                {{ t('page.appointment.expandNightRangeShort') }}
-              </a-button>
-            </div>
+        <div class="appointment-grid-scroll">
+          <div class="appointment-grid" :style="scheduleGridStyle">
+            <div class="appointment-grid__head appointment-grid__time-head">{{ t('page.appointment.fields.appointmentTime') }}</div>
             <div
               v-for="doctor in visibleDoctorOptions"
-              :key="`${slot.key}-${doctor.value}`"
-              class="appointment-grid__cell"
-              :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
+              :key="doctor.value"
+              class="appointment-grid__head appointment-grid__doctor-head"
             >
-              <button
-                v-if="slot.isNightCollapsed"
-                type="button"
-                class="appointment-grid__night-action"
-                @click="nightExpandedManually = true"
-              >
-                {{ t('page.appointment.expandNightRangeAction') }}
-              </button>
-              <div v-else-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
-                <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
-                  <div class="appointment-card__top">
-                    <strong>{{ appointmentTimeText(record.appointmentTime) }}</strong>
-                    <a-tag :color="appointmentStatusColor(record.status)">{{ appointmentStatusText(record.status) }}</a-tag>
-                  </div>
-                  <div class="appointment-card__pet">{{ petLabel(record.pet, record.petSnapshot, record.petId) }}</div>
-                  <div class="appointment-card__customer">{{ customerLabel(record.customer, record.customerSnapshot, record.customerId) }}</div>
-                  <div class="appointment-card__reason">{{ record.reason || '-' }}</div>
-                  <a-space size="small" class="appointment-card__actions">
-                    <a-button size="small" type="link" @click="openVisit(record)">{{ t('page.appointment.table.openRecord') }}</a-button>
-                    <a-button v-if="record.status === 1" size="small" type="link" @click="checkIn(record)">{{ t('page.appointment.table.checkIn') }}</a-button>
-                    <a-button v-if="record.status === 1" size="small" type="link" @click="openCreateModal(record)">{{ t('common.edit') }}</a-button>
-                    <a-button v-if="record.status === 1" size="small" type="link" danger @click="cancelAppointment(record)">{{ t('page.appointment.table.cancel') }}</a-button>
-                  </a-space>
-                </div>
-              </div>
-              <button
-                v-else
-                type="button"
-                class="appointment-grid__add"
-                :title="t('page.appointment.addInSlot')"
-                @click="openCreateModal({}, { doctorId: Number(doctor.value), appointmentTime: slot.dateTime })"
-              >
-                <Icon icon="ant-design:plus-outlined" />
-              </button>
+              {{ doctor.label }}
             </div>
-          </template>
+
+            <template v-for="slot in visibleTimeSlots" :key="slot.key">
+              <div
+                class="appointment-grid__time"
+                :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
+                @click="slot.isNightCollapsed && (nightExpandedManually = true)"
+              >
+                <span>{{ slot.label }}</span>
+                <a-button v-if="slot.isNightCollapsed" type="link" size="small">
+                  {{ t('page.appointment.expandNightRangeShort') }}
+                </a-button>
+              </div>
+              <div
+                v-for="doctor in visibleDoctorOptions"
+                :key="`${slot.key}-${doctor.value}`"
+                class="appointment-grid__cell"
+                :class="{ 'is-compact': !slotHasAppointments(slot.key), 'is-night-collapsed': slot.isNightCollapsed }"
+              >
+                <button
+                  v-if="slot.isNightCollapsed"
+                  type="button"
+                  class="appointment-grid__night-action"
+                  @click="nightExpandedManually = true"
+                >
+                  {{ t('page.appointment.expandNightRangeAction') }}
+                </button>
+                <div v-else-if="appointmentsInCell(slot.key, doctor.value).length" class="appointment-grid__cards">
+                  <div v-for="record in appointmentsInCell(slot.key, doctor.value)" :key="record.id" class="appointment-card">
+                    <div class="appointment-card__top">
+                      <strong>{{ appointmentTimeText(record.appointmentTime) }}</strong>
+                      <a-tag :color="appointmentStatusColor(record.status)">{{ appointmentStatusText(record.status) }}</a-tag>
+                    </div>
+                    <div class="appointment-card__pet">{{ petLabel(record.pet, record.petSnapshot, record.petId) }}</div>
+                    <div class="appointment-card__customer">{{ customerLabel(record.customer, record.customerSnapshot, record.customerId) }}</div>
+                    <div class="appointment-card__reason">{{ record.reason || '-' }}</div>
+                    <a-space size="small" class="appointment-card__actions">
+                      <a-button size="small" type="link" @click="openVisit(record)">{{ t('page.appointment.table.openRecord') }}</a-button>
+                      <a-button v-if="record.status === 1" size="small" type="link" @click="checkIn(record)">{{ t('page.appointment.table.checkIn') }}</a-button>
+                      <a-button v-if="record.status === 1" size="small" type="link" @click="openCreateModal(record)">{{ t('common.edit') }}</a-button>
+                      <a-button v-if="record.status === 1" size="small" type="link" danger @click="cancelAppointment(record)">{{ t('page.appointment.table.cancel') }}</a-button>
+                    </a-space>
+                  </div>
+                </div>
+                <button
+                  v-else
+                  type="button"
+                  class="appointment-grid__add"
+                  :title="t('page.appointment.addInSlot')"
+                  @click="openCreateModal({}, { doctorId: Number(doctor.value), appointmentTime: slot.dateTime })"
+                >
+                  <Icon icon="ant-design:plus-outlined" />
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
       </a-spin>
     </a-card>
@@ -203,6 +205,14 @@ const doctorOptions = ref<SelectOption[]>([]);
 const visibleDoctorOptions = computed(() => {
   if (!filters.value.doctorId) return doctorOptions.value;
   return doctorOptions.value.filter(item => Number(item.value) === Number(filters.value.doctorId));
+});
+
+const scheduleGridStyle = computed(() => {
+  const doctorCount = visibleDoctorOptions.value.length || 1;
+  return {
+    '--doctor-count': doctorCount,
+    minWidth: `${82 + doctorCount * 240}px`,
+  };
 });
 
 const timeSlots = computed(() => {
@@ -620,7 +630,13 @@ watch(
 }
 
 .vpet-appointment-board {
-  overflow-x: auto;
+  overflow: hidden;
+
+  :deep(.ant-card-body),
+  :deep(.ant-spin-nested-loading),
+  :deep(.ant-spin-container) {
+    min-width: 0;
+  }
 }
 
 .appointment-night-toggle {
@@ -636,10 +652,16 @@ watch(
   line-height: 1.6;
 }
 
+.appointment-grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+}
+
 .appointment-grid {
   display: grid;
   grid-template-columns: 82px repeat(var(--doctor-count), minmax(220px, 1fr));
-  width: max-content;
   min-width: 100%;
   border: 1px solid #edf0f5;
   border-radius: 12px;
