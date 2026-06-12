@@ -42,3 +42,15 @@ export async function storageList(
     ...(options || {}),
   });
 }
+
+/** 续签受控文件预览短链 POST /api/tools/storage/file/${token}/refresh */
+export async function storageRefreshFileToken(token: string, options?: RequestOptions) {
+  return request<{
+    id?: number;
+    path?: string;
+    tokenExpiresAt?: string;
+  }>(`/api/tools/storage/file/${encodeURIComponent(token)}/refresh`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}

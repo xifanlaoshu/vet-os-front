@@ -76,6 +76,8 @@ const _permissions = [
   'todo:update',
   'todo:delete',
   'tool:storage:list',
+  'tool:storage:read',
+  'tool:storage:sign',
   'tool:storage:delete',
   'upload:upload',
 ] as const;

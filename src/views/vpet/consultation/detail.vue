@@ -288,9 +288,14 @@
               </a-space-compact>
               <div v-if="(batch.files || []).length" class="vpet-media-files">
                 <div v-for="file in batch.files || []" :key="file.id" class="vpet-media-file">
-                  <img v-if="file.fileType === 'image'" :src="mediaFileUrl(file.url)" :alt="file.originalName || file.fileName || batch.batchNo" />
-                  <video v-else-if="file.fileType === 'video'" :src="mediaFileUrl(file.url)" controls />
-                  <a v-else :href="mediaFileUrl(file.url)" target="_blank">{{ file.originalName || file.fileName || file.url }}</a>
+                  <img
+                    v-if="file.fileType === 'image'"
+                    :src="mediaDisplayUrl(file.url)"
+                    :alt="file.originalName || file.fileName || batch.batchNo"
+                    @error="refreshMediaDisplayUrl(file.url)"
+                  />
+                  <video v-else-if="file.fileType === 'video'" :src="mediaDisplayUrl(file.url)" controls />
+                  <a v-else :href="mediaDisplayUrl(file.url)" target="_blank">{{ file.originalName || file.fileName || file.url }}</a>
                   <div class="vpet-media-file__meta">
                     <span>{{ file.originalName || file.fileName || '-' }}</span>
                     <span>{{ file.storageType?.toUpperCase?.() || '-' }} / {{ fileSizeText(file.fileSize) }}</span>
@@ -805,6 +810,7 @@ import { formatToDateTime } from '@/utils/dateUtil';
 import { baseApiUrl } from '@/utils/request';
 import { useFormModal } from '@/hooks/useModal';
 import { uploadUpload } from '@/api/backend/api/toolsUpload';
+import { storageRefreshFileToken } from '@/api/backend/api/toolsStorage';
 import {
   vpetBillingByVisit,
   vpetBillingPay,
@@ -923,6 +929,7 @@ const paying = ref(false);
 const payingBill = ref<any>(null);
 const uploadingMediaBatchId = ref<number | undefined>();
 const ossMediaForm = ref<Record<number, string>>({});
+const mediaDisplayUrls = ref<Record<string, string>>({});
 
 const soap = ref({
   S: '',
@@ -1555,6 +1562,32 @@ function mediaFileUrl(url?: string) {
   if (!url) return '';
   if (/^https?:\/\//i.test(url)) return url;
   return `${baseApiUrl || ''}${url}`;
+}
+
+function mediaDisplayUrl(url?: string) {
+  if (!url) return '';
+  return mediaDisplayUrls.value[url] || mediaFileUrl(url);
+}
+
+function extractStorageToken(url?: string) {
+  const match = String(url || '').match(/\/api\/storage\/file\/([^/?#]+)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : '';
+}
+
+async function refreshMediaDisplayUrl(url?: string) {
+  const token = extractStorageToken(url);
+  if (!token || !url || mediaDisplayUrls.value[url]) return;
+  try {
+    const result = await storageRefreshFileToken(token, { errorMsg: false });
+    if (result?.path) {
+      mediaDisplayUrls.value = {
+        ...mediaDisplayUrls.value,
+        [url]: mediaFileUrl(result.path),
+      };
+    }
+  } catch {
+    // Keep the original media URL visible; authorization errors are handled by the preview request itself.
+  }
 }
 
 function fileSizeText(size?: number | string | null) {
