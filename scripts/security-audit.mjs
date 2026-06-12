@@ -38,6 +38,11 @@ const rules = [
     pattern: /\braw\s*:\s*error\b/,
     message: 'Do not log raw request error objects because they may contain Authorization headers.',
   },
+  {
+    rule: 'no-refresh-token-in-url',
+    pattern: /[?&]refreshToken=|refreshToken\s*[:=]\s*[^;\n]*(?:url|query|params)/i,
+    message: 'Do not place refresh tokens in URLs, query strings, or route params; send them in the request body only.',
+  },
 ];
 
 for (const file of sourceFiles) {
