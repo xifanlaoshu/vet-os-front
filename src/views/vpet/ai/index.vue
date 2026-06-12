@@ -1,7 +1,7 @@
 <template>
   <div class="vpet-page vpet-stack">
-    <a-card class="vpet-panel-card" :bordered="false">
-      <a-tabs>
+    <a-card class="vpet-panel-card vpet-ai-card" :title="t('page.ai.title')" :bordered="false">
+      <a-tabs class="vpet-ai-tabs">
         <a-tab-pane key="soap" :tab="t('page.ai.soapDraft')">
           <a-form layout="vertical">
             <a-row :gutter="[16, 0]">
@@ -56,7 +56,14 @@
         </a-tab-pane>
 
         <a-tab-pane key="logs" :tab="t('page.ai.logs')">
-          <a-table row-key="id" :columns="logColumns" :data-source="logs" :pagination="false" />
+          <a-table
+            class="vpet-ai-log-table"
+            row-key="id"
+            :columns="logColumns"
+            :data-source="logs"
+            :pagination="false"
+            :scroll="{ x: 620 }"
+          />
         </a-tab-pane>
       </a-tabs>
     </a-card>
@@ -167,27 +174,53 @@ onMounted(async () => {
 </script>
 
 <style lang="less" scoped>
+  .vpet-ai-card {
+    :deep(.ant-card-body) {
+      padding-top: 16px;
+    }
+  }
+
+  .vpet-ai-tabs {
+    :deep(.ant-tabs-nav) {
+      margin-bottom: 18px;
+    }
+  }
+
   .vpet-ai-actions {
     display: flex;
     justify-content: flex-end;
+    margin-top: 4px;
   }
 
   .vpet-ai-review-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 15px;
     flex-wrap: wrap;
+    padding: 15px;
+    border: 1px solid #dbe7f3;
+    border-radius: 16px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 251, 255, 0.94)),
+      #fff;
     margin-bottom: 15px;
   }
 
   .vpet-ai-review-select {
-    width: 360px;
+    flex: 1 1 360px;
+    width: auto;
     max-width: 100%;
   }
 
   .vpet-ai-output {
     margin: 0;
+    max-height: 520px;
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid #dbe7f3;
+    border-radius: 14px;
+    background: #f8fbfd;
     white-space: pre-wrap;
     word-break: break-word;
     color: #1f2a37;

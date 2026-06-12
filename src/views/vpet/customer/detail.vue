@@ -47,7 +47,7 @@
               <template v-else-if="column.key === 'action'">
                 <a-space>
                   <a-button size="small" @click="router.push(`/vpet/pet/${record.id}`)">{{ t('common.detail') }}</a-button>
-                  <a-button size="small" @click="showPetVisits(record)">{{ t('common.visitHistory') }}</a-button>
+                  <a-button size="small" @click="openPetVisitHistory(record)">{{ t('common.visitHistory') }}</a-button>
                   <a-button size="small" @click="openEditPet(record)">{{ t('common.edit') }}</a-button>
                 </a-space>
               </template>
@@ -77,6 +77,9 @@
           >
             {{ t('common.clear') }}
           </a-button>
+          <a-button type="primary" @click="openCustomerVisitHistory">
+            {{ t('page.visitHistory.viewAll') }}
+          </a-button>
         </a-space>
       </template>
       <a-table :data-source="visits" :columns="visitColumns" row-key="id" size="small" :pagination="false">
@@ -91,9 +94,14 @@
             {{ diagnosisText(record) }}
           </template>
           <template v-else-if="column.key === 'action'">
-            <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}`)">
-              {{ t('common.viewMedicalRecord') }}
-            </a-button>
+            <a-space>
+              <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}`)">
+                {{ t('common.viewMedicalRecord') }}
+              </a-button>
+              <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}/print`)">
+                {{ t('page.consultation.print.printButton') }}
+              </a-button>
+            </a-space>
           </template>
         </template>
       </a-table>
@@ -161,7 +169,7 @@ const visitColumns = [
     width: 180,
     customRender: ({ text }: any) => (text ? formatToDateTime(text) : '-'),
   },
-  { title: t('common.action'), key: 'action', width: 120 },
+  { title: t('common.action'), key: 'action', width: 190 },
 ];
 
 function createEmptyPetForm() {
@@ -217,9 +225,24 @@ function openEditPet(record: any) {
   showPetForm.value = true;
 }
 
-function showPetVisits(record: any) {
-  selectedPetId.value = record.id;
-  loadVisits();
+function openCustomerVisitHistory() {
+  router.push({
+    path: '/vpet/visit-history',
+    query: {
+      customerId: Number(route.params.id),
+      petId: selectedPetId.value,
+    },
+  });
+}
+
+function openPetVisitHistory(record: any) {
+  router.push({
+    path: '/vpet/visit-history',
+    query: {
+      customerId: Number(route.params.id),
+      petId: record.id,
+    },
+  });
 }
 
 async function loadVisits() {

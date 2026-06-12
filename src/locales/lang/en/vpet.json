@@ -1123,6 +1123,46 @@
         "riskLevel": "Risk level"
       }
     },
+    "audit": {
+      "title": "Audit Center",
+      "list": "Audit events",
+      "detail": "Audit detail",
+      "fields": {
+        "source": "Source",
+        "bizType": "Business type",
+        "bizId": "Business ID",
+        "action": "Action",
+        "operatorId": "Operator",
+        "occurredAt": "Occurred at",
+        "reason": "Reason",
+        "dateRange": "Time range",
+        "metadata": "Metadata",
+        "beforeSnapshot": "Before snapshot",
+        "afterSnapshot": "After snapshot"
+      },
+      "sources": {
+        "operation": "Operation",
+        "emr": "Medical record",
+        "stock": "Inventory"
+      },
+      "bizTypes": {
+        "billing": "Billing",
+        "emr": "Medical record",
+        "inventoryStock": "Inventory stock"
+      },
+      "actions": {
+        "refund": "Refund",
+        "lock": "Locked record",
+        "signed": "Signed record",
+        "unlockRequested": "Unlock requested",
+        "unlockApproved": "Unlock approved",
+        "unlockRejected": "Unlock rejected",
+        "stockIn": "Stock in",
+        "stockOut": "Stock out",
+        "stockAdjust": "Stock adjusted",
+        "stockReturn": "Stock returned"
+      }
+    },
     "visitHistory": {
       "title": "Visit History",
       "list": "Visit records",

@@ -7,6 +7,8 @@
   "petDetail": "Pet Detail",
   "consultation": "Consultation Workbench",
   "consultationDetail": "Visit Record",
+  "consultationPrint": "Medical Record Print",
+  "visitHistory": "Visit History",
   "appointment": "Appointments",
   "chronic": "Chronic Care",
   "lab": "Lab",
@@ -24,5 +26,6 @@
   "store": "Stores",
   "ai": "AI Copilot",
   "doctor": "Medical Staff",
-  "queue": "Queue Board"
+  "queue": "Queue Board",
+  "audit": "Audit Center"
 }

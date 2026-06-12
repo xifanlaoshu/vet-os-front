@@ -7,7 +7,6 @@
             v-model:value="filters.visitId"
             allow-clear
             show-search
-            style="width: 280px"
             :placeholder="t('page.billing.placeholders.visit')"
             :options="visitOptions"
             :filter-option="filterByLabel"
@@ -17,7 +16,6 @@
           <a-select
             v-model:value="filters.paymentStatus"
             allow-clear
-            style="width: 180px"
             :placeholder="t('page.appointment.statusPlaceholder')"
             :options="paymentStatusOptions"
           />

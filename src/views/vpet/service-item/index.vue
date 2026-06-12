@@ -80,6 +80,18 @@
               <a-textarea v-model:value="serviceItemForm.description" :rows="3" />
             </a-form-item>
           </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('page.serviceItem.fields.consentTemplates')">
+              <a-select
+                v-model:value="serviceItemForm.consentTemplateIds"
+                mode="multiple"
+                allow-clear
+                show-search
+                option-filter-prop="label"
+                :options="consentTemplateOptions"
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </a-modal>
@@ -91,6 +103,7 @@ import { computed, onMounted, ref } from 'vue';
 import { message, Tag } from 'ant-design-vue';
 import Icon from '@/components/basic/icon/Icon.vue';
 import { useTable } from '@/components/core/dynamic-table';
+import { vpetConsentTemplateActive } from '@/api/backend/vpet';
 import {
   vpetChargeItemCreate,
   vpetChargeItemDelete,
@@ -108,6 +121,7 @@ const [ServiceItemTable, serviceItemTableInstance] = useTable();
 
 const showModal = ref(false);
 const chargeItemCategoryOptions = ref<any[]>([]);
+const consentTemplateOptions = ref<any[]>([]);
 const filters = ref({
   itemCode: '',
   itemName: '',
@@ -125,6 +139,16 @@ const columns = computed(() => [
     customRender: ({ text }: any) => optionLabel(chargeItemCategoryOptions.value, text, '-'),
   },
   { title: t('page.serviceItem.fields.specification'), dataIndex: 'specification', width: 160 },
+  {
+    title: t('page.serviceItem.fields.consentTemplates'),
+    dataIndex: 'consentTemplates',
+    width: 220,
+    customRender: ({ record }: any) => {
+      const templates = record.consentTemplates || [];
+      if (!templates.length) return '-';
+      return templates.slice(0, 3).map((item: any) => item.name).join('、') + (templates.length > 3 ? ` +${templates.length - 3}` : '');
+    },
+  },
   { title: t('page.serviceItem.fields.unit'), dataIndex: 'unit', width: 80 },
   {
     title: t('page.serviceItem.fields.retailPrice'),
@@ -198,6 +222,7 @@ function createEmptyServiceItemForm() {
     retailPrice: 0,
     status: 1,
     description: '',
+    consentTemplateIds: [] as number[],
   };
 }
 
@@ -226,6 +251,7 @@ async function submitServiceItem() {
     retailPrice: Number(serviceItemForm.value.retailPrice || 0),
     status: Number(serviceItemForm.value.status ?? 1),
     description: serviceItemForm.value.description || undefined,
+    consentTemplateIds: serviceItemForm.value.consentTemplateIds || [],
   };
 
   if (serviceItemForm.value.id) {
@@ -247,8 +273,15 @@ async function deleteServiceItem(record: any) {
 }
 
 onMounted(() => {
-  loadDictOptions('vpet_charge_item_category').then((options) => {
-    chargeItemCategoryOptions.value = options;
+  Promise.all([
+    loadDictOptions('vpet_charge_item_category'),
+    vpetConsentTemplateActive(),
+  ]).then(([categoryOptions, templates]: any[]) => {
+    chargeItemCategoryOptions.value = categoryOptions;
+    consentTemplateOptions.value = (templates || []).map((item: any) => ({
+      value: item.id,
+      label: `${item.name} / ${item.code}`,
+    }));
   });
 });
 </script>

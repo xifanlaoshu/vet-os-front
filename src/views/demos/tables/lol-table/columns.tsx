@@ -62,7 +62,7 @@ export const columns: TableColumn[] = [
     actions: ({ record }) => [
       {
         label: '查看详情',
-        onClick: () => router.push({ name: 'demos-table-lol-info', params: { id: record.heroId } }),
+        onClick: () => router.push(`/demos/table/lol/${record.heroId}`),
       },
     ],
   },

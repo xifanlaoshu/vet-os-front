@@ -240,6 +240,44 @@ export function useVpetLocale() {
     { value: 2, label: 'Executed' },
   ]);
 
+  const consentCategoryOptions = buildDictOptions('vpet_consent_category', () => [
+    { value: 'examination', label: '基础/专项检查' },
+    { value: 'lab', label: '化验采样' },
+    { value: 'imaging', label: '影像检查' },
+    { value: 'anesthesia', label: '麻醉镇静' },
+    { value: 'surgery', label: '手术治疗' },
+    { value: 'dental', label: '口腔治疗' },
+    { value: 'hospitalization', label: '住院监护' },
+    { value: 'emergency', label: '急危重症' },
+    { value: 'treatment', label: '治疗处置' },
+    { value: 'medication', label: '特殊用药' },
+    { value: 'transfusion', label: '输血血制品' },
+    { value: 'vaccination', label: '疫苗接种' },
+    { value: 'prevention', label: '预防保健' },
+    { value: 'isolation', label: '传染病隔离' },
+    { value: 'referral', label: '转诊' },
+    { value: 'refusal', label: '拒绝/延迟治疗' },
+    { value: 'homecare', label: '居家护理' },
+    { value: 'chronic', label: '慢病管理' },
+    { value: 'grooming', label: '美容洗护' },
+    { value: 'boarding', label: '寄养看护' },
+    { value: 'euthanasia', label: '安乐/遗体处理' },
+    { value: 'other', label: '其他' },
+  ], 'string');
+
+  const consentRiskLevelOptions = buildDictOptions('vpet_consent_risk_level', () => [
+    { value: 'low', label: '低风险' },
+    { value: 'medium', label: '中风险' },
+    { value: 'high', label: '高风险' },
+    { value: 'critical', label: '重大风险' },
+  ], 'string');
+
+  const consentRecordStatusOptions = buildDictOptions('vpet_consent_record_status', () => [
+    { value: 1, label: '待签署' },
+    { value: 2, label: '已签署' },
+    { value: 3, label: '已作废' },
+  ]);
+
   function speciesText(species?: string) {
     return buildOptionText(speciesOptions.value, species, t('common.none'));
   }
@@ -389,6 +427,26 @@ export function useVpetLocale() {
     return { 1: 'orange', 2: 'green' }[value || 0] || 'default';
   }
 
+  function consentCategoryText(value?: string) {
+    return buildOptionText(consentCategoryOptions.value, value, t('common.unknown'));
+  }
+
+  function consentRiskLevelText(value?: string) {
+    return buildOptionText(consentRiskLevelOptions.value, value, t('common.unknown'));
+  }
+
+  function consentRiskLevelColor(value?: string) {
+    return { low: 'green', medium: 'gold', high: 'orange', critical: 'red' }[value || ''] || 'default';
+  }
+
+  function consentRecordStatusText(value?: number) {
+    return buildOptionText(consentRecordStatusOptions.value, value, t('common.unknown'));
+  }
+
+  function consentRecordStatusColor(value?: number) {
+    return { 1: 'blue', 2: 'green', 3: 'red' }[value || 0] || 'default';
+  }
+
   return {
     t,
     speciesOptions,
@@ -414,6 +472,9 @@ export function useVpetLocale() {
     lifeStageOptions,
     queueEventOptions,
     nursingExecutionStatusOptions,
+    consentCategoryOptions,
+    consentRiskLevelOptions,
+    consentRecordStatusOptions,
     speciesText,
     appointmentStatusText,
     appointmentStatusColor,
@@ -450,5 +511,10 @@ export function useVpetLocale() {
     queueEventText,
     nursingExecutionStatusText,
     nursingExecutionStatusColor,
+    consentCategoryText,
+    consentRiskLevelText,
+    consentRiskLevelColor,
+    consentRecordStatusText,
+    consentRecordStatusColor,
   };
 }

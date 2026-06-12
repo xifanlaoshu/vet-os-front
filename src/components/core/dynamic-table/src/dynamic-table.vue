@@ -186,7 +186,7 @@
 
   :deep(.dynamic-table-search .ant-form-item-row) {
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     align-items: center;
     column-gap: 12px;
   }
@@ -195,7 +195,7 @@
     padding: 0;
     text-align: right;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: visible;
   }
 
   :deep(.dynamic-table-search .ant-form-item-label > label) {
@@ -250,6 +250,11 @@
     border-bottom: 1px solid rgba(219, 231, 243, 0.85);
   }
 
+  :deep(.dynamic-table-panel > .flex.justify-between .ant-space) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   :deep(.ant-table-wrapper) {
     padding: 0 12px 12px;
 
@@ -282,7 +287,7 @@
     }
 
     :deep(.dynamic-table-search .ant-form-item-row) {
-      grid-template-columns: 84px minmax(0, 1fr);
+      grid-template-columns: 96px minmax(0, 1fr);
       column-gap: 10px;
     }
 

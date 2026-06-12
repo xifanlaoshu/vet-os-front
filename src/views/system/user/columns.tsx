@@ -6,7 +6,8 @@ import { baseApiUrl } from '@/utils/request';
 export type TableListItem = API.UserEntity;
 export type TableColumnItem = TableColumn<TableListItem>;
 
-export const getAvatarUrl = (path: string) => {
+export const getAvatarUrl = (path?: string) => {
+  if (!path) return '';
   return /^https?:\/\//.test(path) ? path : baseApiUrl + path;
 };
 
@@ -45,7 +46,7 @@ export const baseColumns: TableColumnItem[] = [
     width: 220,
     customRender: ({ record }) => (
       <Space>
-        {record.roles.map((item) => (
+        {(record.roles || []).map((item) => (
           <Tag color={'success'} key={item.id}>
             {item.name}
           </Tag>

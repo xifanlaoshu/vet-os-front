@@ -27,15 +27,15 @@
   const tabs = [
     {
       title: '路由一',
-      name: 'demos-nested-routes-one',
+      name: '/demos/nested-routes/route-one',
     },
     {
       title: '路由二',
-      name: 'demos-nested-routes-two',
+      name: '/demos/nested-routes/route-two',
     },
     {
       title: '路由三',
-      name: 'demos-nested-routes-three',
+      name: '/demos/nested-routes/route-three',
     },
   ];
 
@@ -43,11 +43,11 @@
 
   const handleTabClick = (key) => {
     activeKey.value = key;
-    router.push({ name: key });
+    router.push(key);
   };
 
   watch(
-    () => route.name,
+    () => route.path,
     (val: string) => {
       activeKey.value = val;
     },

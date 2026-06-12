@@ -63,7 +63,7 @@
 
   // 解决路由切换动画出现滚动条闪烁问题
   const overflow = ref('auto');
-  const activeKey = computed(() => tabsViewStore.getCurrentTab?.fullPath);
+  const activeKey = computed(() => tabsViewStore.getCurrentTab?.fullPath || route.fullPath);
   // 缓存的路由组件列表
   const keepAliveComponents = computed(() => keepAliveStore.list);
   /** 过渡动画 */

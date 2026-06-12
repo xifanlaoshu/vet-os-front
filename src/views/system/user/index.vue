@@ -1,45 +1,69 @@
 <template>
-  <SplitPanel>
-    <template #left-content>
-      <DeptTree @select="onTreeSelect" @init="onDeptTreeInitData" />
-    </template>
-    <template #right-content>
-      <DynamicTable
-        header-title="用户管理"
-        show-index
-        title-tooltip="请不要随意删除用户，避免到影响其他用户的使用。"
-        :data-request="loadTableData"
-        :columns="columns"
-        :scroll="{ x: 2000 }"
-        :row-selection="rowSelection"
+  <div class="h-full">
+    <SplitPanel>
+      <template #left-content>
+        <DeptTree @select="onTreeSelect" @init="onDeptTreeInitData" />
+      </template>
+      <template #right-content>
+        <DynamicTable
+          header-title="用户管理"
+          show-index
+          title-tooltip="请不要随意删除用户，避免到影响其他用户的使用。"
+          :data-request="loadTableData"
+          :columns="columns"
+          :scroll="{ x: 2000 }"
+          :row-selection="rowSelection"
+        >
+          <template v-if="isCheckRows" #title>
+            <Alert class="w-full" type="info" show-icon>
+              <template #message>
+                已选 {{ isCheckRows }} 项
+                <a-button type="link" @click="rowSelection.selectedRowKeys = []">取消选择</a-button>
+              </template>
+            </Alert>
+          </template>
+          <template #toolbar>
+            <a-button
+              type="primary"
+              :disabled="!$auth('system:user:create')"
+              @click="openUserModal({})"
+            >
+              <Icon icon="ant-design:plus-outlined" /> 新增
+            </a-button>
+            <a-button
+              type="error"
+              :disabled="!isCheckRows || !$auth('system:user:delete')"
+              @click="delRowConfirm(rowSelection.selectedRowKeys)"
+            >
+              <Icon icon="ant-design:delete-outlined" /> 删除
+            </a-button>
+          </template>
+        </DynamicTable>
+      </template>
+    </SplitPanel>
+
+    <a-modal v-model:open="areaGrantVisible" title="租户院区授权" width="760px" @ok="saveUserAreaGrants">
+      <a-alert class="mb-3" type="info" show-icon message="用户登录后只能在已授权的院区中选择；默认院区会作为初始选中项。" />
+      <a-table
+        row-key="key"
+        :columns="areaGrantColumns"
+        :data-source="areaGrantRows"
+        :pagination="false"
+        :row-selection="areaGrantSelection"
+        size="small"
       >
-        <template v-if="isCheckRows" #title>
-          <Alert class="w-full" type="info" show-icon>
-            <template #message>
-              已选 {{ isCheckRows }} 项
-              <a-button type="link" @click="rowSelection.selectedRowKeys = []">取消选择</a-button>
-            </template>
-          </Alert>
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'defaultArea'">
+            <a-radio
+              :checked="defaultGrantKey === record.key"
+              :disabled="!selectedGrantKeys.includes(record.key)"
+              @change="defaultGrantKey = record.key"
+            />
+          </template>
         </template>
-        <template #toolbar>
-          <a-button
-            type="primary"
-            :disabled="!$auth('system:user:create')"
-            @click="openUserModal({})"
-          >
-            <Icon icon="ant-design:plus-outlined" /> 新增
-          </a-button>
-          <a-button
-            type="error"
-            :disabled="!isCheckRows || !$auth('system:user:delete')"
-            @click="delRowConfirm(rowSelection.selectedRowKeys)"
-          >
-            <Icon icon="ant-design:delete-outlined" /> 删除
-          </a-button>
-        </template>
-      </DynamicTable>
-    </template>
-  </SplitPanel>
+      </a-table>
+    </a-modal>
+  </div>
 </template>
 
 <script setup lang="tsx">
@@ -65,6 +89,11 @@
 
   const selectedDeptId = ref<number>();
   const deptTree = ref<any[]>([]);
+  const areaGrantVisible = ref(false);
+  const grantingUser = ref<TableListItem | null>(null);
+  const areaGrantRows = ref<any[]>([]);
+  const selectedGrantKeys = ref<string[]>([]);
+  const defaultGrantKey = ref<string>();
 
   const rowSelection = ref({
     selectedRowKeys: [] as number[],
@@ -119,8 +148,8 @@
       const { roles, dept } = await Api.systemUser.userRead({ id: record.id });
       formRef?.setFieldsValue({
         ...record,
-        deptId: dept.id,
-        roleIds: roles.map((item) => item.id),
+        deptId: dept?.id,
+        roleIds: (roles || []).map((item) => item.id),
       });
 
       formRef?.updateSchema([
@@ -187,6 +216,15 @@
       fixed: 'right',
       actions: ({ record }) => [
         {
+          icon: 'ant-design:cluster-outlined',
+          tooltip: '租户院区授权',
+          auth: {
+            perm: 'system:user:update',
+            effect: 'disable',
+          },
+          onClick: () => openAreaGrantModal(record),
+        },
+        {
           icon: 'ant-design:edit-outlined',
           tooltip: '编辑用户资料',
           auth: {
@@ -209,6 +247,62 @@
       ],
     },
   ];
+
+  const areaGrantColumns = [
+    { title: '租户', dataIndex: 'tenantName', width: 180 },
+    { title: '院区', dataIndex: 'areaName' },
+    { title: '默认登录', key: 'defaultArea', width: 100, align: 'center' },
+  ];
+
+  const areaGrantSelection = computed(() => ({
+    selectedRowKeys: selectedGrantKeys.value,
+    onChange: (keys: string[]) => {
+      selectedGrantKeys.value = keys;
+      if (!keys.includes(defaultGrantKey.value || '')) {
+        defaultGrantKey.value = keys[0];
+      }
+    },
+  }));
+
+  const openAreaGrantModal = async (record: TableListItem) => {
+    grantingUser.value = record;
+    const [areas, grants] = await Promise.all([
+      Api.systemTenant.tenantAreaOptions(),
+      Api.systemTenant.userAreaGrants(record.id),
+    ]);
+    areaGrantRows.value = (areas || []).map((area: any) => ({
+      key: `${area.tenantId}:${area.id}`,
+      tenantId: area.tenantId,
+      tenantName: area.tenant?.name || area.tenantName || `#${area.tenantId}`,
+      areaId: area.id,
+      areaName: area.name,
+    }));
+    selectedGrantKeys.value = (grants || []).map((item: any) => `${item.tenantId}:${item.areaId}`);
+    const defaultGrant = (grants || []).find((item: any) => Number(item.defaultArea) === 1) || grants?.[0];
+    defaultGrantKey.value = defaultGrant ? `${defaultGrant.tenantId}:${defaultGrant.areaId}` : selectedGrantKeys.value[0];
+    areaGrantVisible.value = true;
+  };
+
+  const saveUserAreaGrants = async () => {
+    if (!grantingUser.value) return;
+    if (!selectedGrantKeys.value.length) {
+      Modal.warning({ title: '提示', content: '请至少选择一个院区' });
+      return;
+    }
+    const items = selectedGrantKeys.value.map((key) => {
+      const [tenantId, areaId] = key.split(':').map(Number);
+      return {
+        tenantId,
+        areaId,
+        defaultArea: key === defaultGrantKey.value ? 1 : 0,
+      };
+    });
+    if (!items.some(item => item.defaultArea === 1)) {
+      items[0].defaultArea = 1;
+    }
+    await Api.systemTenant.userAreaGrantSave(grantingUser.value.id, { items });
+    areaGrantVisible.value = false;
+  };
 </script>
 
 <style></style>

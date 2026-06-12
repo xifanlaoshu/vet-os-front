@@ -574,3 +574,7 @@ export function vpetMemberDeduct(cardId: number, body: any, options?: RequestOpt
 export function vpetMemberCardLogs(cardId: number, params?: any, options?: RequestOptions) {
   return request(`/api/vpet/member/card/${cardId}/logs`, { method: 'GET', params, ...(options || {}) });
 }
+
+export function vpetAuditEvents(params?: any, options?: RequestOptions) {
+  return request('/api/vpet/audit/events', { method: 'GET', params, ...(options || {}) });
+}

@@ -5,7 +5,7 @@ import { useVpetReference } from '../shared/reference';
 
 export function createPrescriptionColumns(resolveVisitLabel?: (visitId?: number) => string) {
   const { t, prescriptionStatusColor, prescriptionStatusText } = useVpetLocale();
-  const { orphanLabel } = useVpetReference();
+  const { doctorLabel, orphanLabel } = useVpetReference();
 
   return [
     { title: t('page.prescription.fields.rxNo'), dataIndex: 'rxNo', width: 160 },
@@ -19,6 +19,18 @@ export function createPrescriptionColumns(resolveVisitLabel?: (visitId?: number)
       title: t('page.prescription.fields.diagnosisSummary'),
       dataIndex: 'diagnosisSummary',
       customRender: ({ text }: any) => text || '-',
+    },
+    {
+      title: t('page.consultation.detail.prescriber'),
+      dataIndex: 'doctorId',
+      width: 160,
+      customRender: ({ record }: any) => doctorLabel(record.doctor, record.doctorId, record.doctorSnapshot?.name),
+    },
+    {
+      title: t('page.consultation.detail.pharmacist'),
+      dataIndex: 'pharmacistId',
+      width: 160,
+      customRender: ({ record }: any) => doctorLabel(record.pharmacist, record.pharmacistId),
     },
     {
       title: t('page.billing.fields.amount'),

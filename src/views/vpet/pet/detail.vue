@@ -40,6 +40,11 @@
         </a-card>
 
         <a-card class="vpet-detail-card" :title="t('page.pet.visitHistory')" size="small">
+          <template #extra>
+            <a-button type="primary" size="small" @click="openVisitHistory">
+              {{ t('page.visitHistory.viewAll') }}
+            </a-button>
+          </template>
           <a-table :data-source="visits" :columns="visitColumns" row-key="id" size="small" :pagination="false">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
@@ -49,9 +54,14 @@
                 {{ diagnosisText(record) }}
               </template>
               <template v-else-if="column.key === 'action'">
-                <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}`)">
-                  {{ t('common.viewMedicalRecord') }}
-                </a-button>
+                <a-space>
+                  <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}`)">
+                    {{ t('common.viewMedicalRecord') }}
+                  </a-button>
+                  <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}/print`)">
+                    {{ t('page.consultation.print.printButton') }}
+                  </a-button>
+                </a-space>
               </template>
             </template>
           </a-table>
@@ -118,7 +128,7 @@ const visitColumns = [
     width: 180,
     customRender: ({ text }: any) => (text ? formatToDateTime(text) : '-'),
   },
-  { title: t('common.action'), key: 'action', width: 120 },
+  { title: t('common.action'), key: 'action', width: 190 },
 ];
 
 const petSubtitle = computed(() => [speciesText(pet.value.species), pet.value.breed].filter(Boolean).join(' / '));
@@ -144,6 +154,16 @@ function diagnosisText(record: any) {
   }
   items = Array.isArray(items) ? items : [];
   return items.map((item: any) => item.name || item.code).filter(Boolean).join(' / ') || '-';
+}
+
+function openVisitHistory() {
+  router.push({
+    path: '/vpet/visit-history',
+    query: {
+      customerId: pet.value.customerId,
+      petId: pet.value.id || route.params.id,
+    },
+  });
 }
 
 onMounted(async () => {

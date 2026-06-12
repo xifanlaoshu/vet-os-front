@@ -62,7 +62,7 @@ const customRow = (record) => {
             label: '查看',
             handler: () => {
               console.log('record', record)
-              router.push({ name: 'demos-table-lol-info', params: { id: record.heroId } })
+              router.push(`/demos/table/lol/${record.heroId}`)
             },
           },
           {

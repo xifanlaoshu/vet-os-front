@@ -7,7 +7,6 @@
             v-model:value="filters.customerId"
             allow-clear
             show-search
-            style="width: 260px"
             :filter-option="false"
             :options="customerOptions"
             :placeholder="t('page.member.placeholders.customer')"
@@ -17,7 +16,6 @@
         <a-form-item :label="t('page.member.fields.keyword')">
           <a-input
             v-model:value="filters.keyword"
-            style="width: 240px"
             :placeholder="t('page.member.placeholders.keyword')"
             @pressEnter="reloadTable"
           />
@@ -26,7 +24,6 @@
           <a-select
             v-model:value="filters.level"
             allow-clear
-            style="width: 180px"
             :options="levelOptions"
             :placeholder="t('page.member.placeholders.level')"
           />
@@ -35,7 +32,6 @@
           <a-select
             v-model:value="filters.status"
             allow-clear
-            style="width: 180px"
             :options="statusOptions"
             :placeholder="t('page.member.placeholders.status')"
           />

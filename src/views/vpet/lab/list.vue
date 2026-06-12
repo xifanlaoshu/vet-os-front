@@ -49,233 +49,265 @@
     <a-modal
       v-model:open="templateVisible"
       :title="t('page.lab.createTemplate')"
-      width="1180px"
+      width="1280px"
+      :body-style="{ padding: '18px 20px' }"
       destroy-on-close
       @ok="submitTemplate"
     >
-      <a-form layout="vertical">
-        <a-row :gutter="15">
-          <a-col :span="8">
-            <a-form-item :label="t('page.lab.fields.templateCode')">
-              <a-input v-model:value="templateForm.code" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('page.lab.fields.templateName')">
-              <a-input v-model:value="templateForm.name" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('page.lab.fields.sampleType')">
-              <a-select
-                v-model:value="templateForm.sampleType"
-                allow-clear
-                show-search
-                :options="sampleTypeOptions"
-                :filter-option="filterByLabel"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('page.lab.fields.defaultChargeAmount')">
-              <a-input-number v-model:value="templateForm.defaultChargeAmount" :min="0" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="16">
-            <a-form-item :label="t('page.lab.fields.templateDescription')">
-              <a-input v-model:value="templateForm.description" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('page.lab.fields.templateHeader')">
-              <a-textarea v-model:value="templateForm.templateHeader" :rows="3" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('page.lab.fields.templateFooter')">
-              <a-textarea v-model:value="templateForm.templateFooter" :rows="3" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <div class="vpet-section-title">{{ t('page.lab.fieldDefinitions') }}</div>
-        <div
-          v-for="(item, index) in templateForm.schemaItems"
-          :key="`schema-${index}`"
-          class="vpet-panel-card vpet-block-bottom"
-          style="padding: 15px"
-        >
-          <a-row :gutter="15">
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.metricKey')">
-                <a-input v-model:value="item.itemCode" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.itemName')">
-                <a-input v-model:value="item.itemName" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.englishAbbr')">
-                <a-input v-model:value="item.englishAbbr" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.unit')">
-                <a-input v-model:value="item.unit" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.valueType')">
-                <a-select v-model:value="item.valueType" :options="valueTypeOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.required')">
-                <a-select v-model:value="item.required" :options="yesNoOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.refMin')">
-                <a-input-number v-model:value="item.refMin" style="width: 100%" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.refMax')">
-                <a-input-number v-model:value="item.refMax" style="width: 100%" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.referenceText')">
-                <a-input v-model:value="item.referenceText" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.defaultValue')">
-                <a-input v-model:value="item.defaultValue" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('page.lab.fields.displayOrder')">
-                <a-input-number v-model:value="item.displayOrder" style="width: 100%" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="4">
-              <a-form-item :label="t('common.action')">
-                <a-button danger @click="removeSchemaRow(index)">{{ t('common.delete') }}</a-button>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('page.lab.fields.method')">
-                <a-input v-model:value="item.method" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('page.lab.fields.specimenRequirement')">
-                <a-input v-model:value="item.specimenRequirement" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('page.lab.fields.resultOptions')">
-                <a-input v-model:value="item.resultOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-item :label="t('page.lab.fields.fieldExplanation')">
-                <a-textarea v-model:value="item.explanation" :rows="2" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-item :label="t('page.lab.fields.clinicalSignificance')">
-                <a-textarea v-model:value="item.clinicalSignificance" :rows="2" />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-        <a-button @click="addSchemaRow">{{ t('page.lab.addSchemaRow') }}</a-button>
-
-        <div class="vpet-section-title vpet-section-spaced">{{ t('page.lab.printSettings') }}</div>
-        <a-row :gutter="15">
-          <a-col :span="6">
-            <a-form-item :label="t('page.lab.fields.printTitle')">
-              <a-input v-model:value="templateForm.printConfig.title" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="4">
-            <a-form-item :label="t('page.lab.fields.paperSize')">
-              <a-select v-model:value="templateForm.printConfig.paperSize" :options="paperSizeOptions" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="4">
-            <a-form-item :label="t('page.lab.fields.fontSize')">
-              <a-input-number v-model:value="templateForm.printConfig.fontSize" :min="10" :max="18" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="5">
-            <a-form-item :label="t('page.lab.fields.showReferenceRange')">
-              <a-select v-model:value="templateForm.printConfig.showReferenceRange" :options="yesNoOptions" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="5">
-            <a-form-item :label="t('page.lab.fields.showExplanation')">
-              <a-select v-model:value="templateForm.printConfig.showExplanation" :options="yesNoOptions" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-card class="vpet-block-spaced" :title="t('page.lab.printPreview')" :bordered="false">
-          <div class="vpet-lab-print-preview" :style="{ fontSize: `${templateForm.printConfig.fontSize || 12}px` }">
-            <h2>{{ templateForm.printConfig.title || templateForm.name || t('page.lab.reportTitle') }}</h2>
-            <div v-if="templateForm.templateHeader" class="vpet-pre-wrap">{{ templateForm.templateHeader }}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ t('page.lab.fields.itemName') }}</th>
-                  <th>{{ t('page.lab.fields.englishAbbr') }}</th>
-                  <th>{{ t('page.lab.fields.resultValue') }}</th>
-                  <th>{{ t('page.lab.fields.unit') }}</th>
-                  <th v-if="templateForm.printConfig.showReferenceRange">{{ t('page.lab.fields.referenceRange') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in previewSchemaItems" :key="item.itemCode || item.itemName">
-                  <td>{{ item.itemName }}</td>
-                  <td>{{ item.englishAbbr || '-' }}</td>
-                  <td>{{ item.defaultValue || '-' }}</td>
-                  <td>{{ item.unit || '-' }}</td>
-                  <td v-if="templateForm.printConfig.showReferenceRange">{{ formatReferenceRange(item) }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-if="templateForm.printConfig.showExplanation" class="vpet-block-top">
-              <div v-for="item in previewSchemaItems.filter(row => row.explanation || row.clinicalSignificance)" :key="`explain-${item.itemCode || item.itemName}`">
-                <strong>{{ item.itemName }}&#65306;</strong>
-                {{ [item.explanation, item.clinicalSignificance].filter(Boolean).join(' / ') }}
+      <div class="vpet-lab-template-manager">
+        <aside class="vpet-lab-template-sidebar">
+          <div class="vpet-lab-template-sidebar-head">
+            <div>
+              <div class="vpet-lab-template-sidebar-title">{{ t('page.lab.templateManager') }}</div>
+              <div class="vpet-muted">{{ t('page.lab.fields.keyword') }} / {{ t('page.lab.fields.sampleType') }}</div>
+            </div>
+            <a-tag color="blue">{{ filteredTemplates.length }}</a-tag>
+          </div>
+          <a-input
+            v-model:value="templateKeyword"
+            class="vpet-lab-template-search"
+            allow-clear
+            :placeholder="t('page.lab.fields.keyword')"
+          />
+          <a-button block type="primary" @click="resetTemplateForm">{{ t('page.lab.createTemplate') }}</a-button>
+          <div class="vpet-lab-template-list">
+            <div
+              v-for="record in filteredTemplates"
+              :key="record.id"
+              class="vpet-lab-template-item"
+              :class="{ 'is-active': Number(templateForm.id) === Number(record.id) }"
+              role="button"
+              tabindex="0"
+              @click="editTemplate(record)"
+              @keydown.enter="editTemplate(record)"
+            >
+              <div class="vpet-lab-template-item-main">
+                <div class="vpet-lab-template-name">{{ record.name }}</div>
+                <div class="vpet-lab-template-code">{{ record.code }}</div>
+              </div>
+              <div class="vpet-lab-template-meta">
+                <a-tag>{{ templateSampleLabel(record) }}</a-tag>
+                <a-tag color="green">{{ getTemplateFieldCount(record) }} {{ t('page.lab.fields.itemName') }}</a-tag>
+              </div>
+              <div class="vpet-lab-template-actions">
+                <a-button type="link" size="small" @click.stop="editTemplate(record)">{{ t('common.edit') }}</a-button>
+                <a-button type="link" danger size="small" @click.stop="deleteTemplate(record)">{{ t('common.delete') }}</a-button>
               </div>
             </div>
-            <div v-if="templateForm.templateFooter" class="vpet-pre-wrap vpet-block-top">{{ templateForm.templateFooter }}</div>
           </div>
-        </a-card>
+        </aside>
 
-        <a-table
-          class="vpet-block-spaced"
-          row-key="id"
-          size="small"
-          :pagination="false"
-          :columns="templateColumns"
-          :data-source="templates"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'action'">
-              <a-space>
-                <a-button type="link" size="small" @click="editTemplate(record)">{{ t('common.edit') }}</a-button>
-                <a-button type="link" danger size="small" @click="deleteTemplate(record)">{{ t('common.delete') }}</a-button>
-              </a-space>
-            </template>
-          </template>
-        </a-table>
-      </a-form>
+        <section class="vpet-lab-template-editor">
+          <a-form layout="vertical">
+            <a-card class="vpet-lab-template-editor-card" :bordered="false">
+              <a-row :gutter="15">
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.templateCode')">
+                    <a-input v-model:value="templateForm.code" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.templateName')">
+                    <a-input v-model:value="templateForm.name" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.sampleType')">
+                    <a-select
+                      v-model:value="templateForm.sampleType"
+                      allow-clear
+                      show-search
+                      :options="sampleTypeOptions"
+                      :filter-option="filterByLabel"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.defaultChargeAmount')">
+                    <a-input-number v-model:value="templateForm.defaultChargeAmount" :min="0" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="16">
+                  <a-form-item :label="t('page.lab.fields.templateDescription')">
+                    <a-input v-model:value="templateForm.description" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.lab.fields.templateHeader')">
+                    <a-textarea v-model:value="templateForm.templateHeader" :rows="3" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.lab.fields.templateFooter')">
+                    <a-textarea v-model:value="templateForm.templateFooter" :rows="3" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+            </a-card>
+
+            <div class="vpet-section-title">{{ t('page.lab.fieldDefinitions') }}</div>
+            <div
+              v-for="(item, index) in templateForm.schemaItems"
+              :key="`schema-${index}`"
+              class="vpet-panel-card vpet-block-bottom vpet-lab-schema-card"
+            >
+              <a-row :gutter="15">
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.metricKey')">
+                    <a-input v-model:value="item.itemCode" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.itemName')">
+                    <a-input v-model:value="item.itemName" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.englishAbbr')">
+                    <a-input v-model:value="item.englishAbbr" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.unit')">
+                    <a-input v-model:value="item.unit" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.valueType')">
+                    <a-select v-model:value="item.valueType" :options="valueTypeOptions" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.required')">
+                    <a-select v-model:value="item.required" :options="yesNoOptions" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.refMin')">
+                    <a-input-number v-model:value="item.refMin" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.refMax')">
+                    <a-input-number v-model:value="item.refMax" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.referenceText')">
+                    <a-input v-model:value="item.referenceText" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.defaultValue')">
+                    <a-input v-model:value="item.defaultValue" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.displayOrder')">
+                    <a-input-number v-model:value="item.displayOrder" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('common.action')">
+                    <a-button danger @click="removeSchemaRow(index)">{{ t('common.delete') }}</a-button>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.method')">
+                    <a-input v-model:value="item.method" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.specimenRequirement')">
+                    <a-input v-model:value="item.specimenRequirement" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('page.lab.fields.resultOptions')">
+                    <a-input v-model:value="item.resultOptions" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.lab.fields.fieldExplanation')">
+                    <a-textarea v-model:value="item.explanation" :rows="2" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item :label="t('page.lab.fields.clinicalSignificance')">
+                    <a-textarea v-model:value="item.clinicalSignificance" :rows="2" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+            </div>
+            <a-button @click="addSchemaRow">{{ t('page.lab.addSchemaRow') }}</a-button>
+
+            <div class="vpet-section-title vpet-section-spaced">{{ t('page.lab.printSettings') }}</div>
+            <a-card class="vpet-lab-template-editor-card" :bordered="false">
+              <a-row :gutter="15">
+                <a-col :span="6">
+                  <a-form-item :label="t('page.lab.fields.printTitle')">
+                    <a-input v-model:value="templateForm.printConfig.title" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.paperSize')">
+                    <a-select v-model:value="templateForm.printConfig.paperSize" :options="paperSizeOptions" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4">
+                  <a-form-item :label="t('page.lab.fields.fontSize')">
+                    <a-input-number v-model:value="templateForm.printConfig.fontSize" :min="10" :max="18" style="width: 100%" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="5">
+                  <a-form-item :label="t('page.lab.fields.showReferenceRange')">
+                    <a-select v-model:value="templateForm.printConfig.showReferenceRange" :options="yesNoOptions" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="5">
+                  <a-form-item :label="t('page.lab.fields.showExplanation')">
+                    <a-select v-model:value="templateForm.printConfig.showExplanation" :options="yesNoOptions" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+            </a-card>
+
+            <a-card class="vpet-block-spaced" :title="t('page.lab.printPreview')" :bordered="false">
+              <div class="vpet-lab-print-preview" :style="{ fontSize: `${templateForm.printConfig.fontSize || 12}px` }">
+                <h2>{{ templateForm.printConfig.title || templateForm.name || t('page.lab.reportTitle') }}</h2>
+                <div v-if="templateForm.templateHeader" class="vpet-pre-wrap">{{ templateForm.templateHeader }}</div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{{ t('page.lab.fields.itemName') }}</th>
+                      <th>{{ t('page.lab.fields.englishAbbr') }}</th>
+                      <th>{{ t('page.lab.fields.resultValue') }}</th>
+                      <th>{{ t('page.lab.fields.unit') }}</th>
+                      <th v-if="templateForm.printConfig.showReferenceRange">{{ t('page.lab.fields.referenceRange') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in previewSchemaItems" :key="item.itemCode || item.itemName">
+                      <td>{{ item.itemName }}</td>
+                      <td>{{ item.englishAbbr || '-' }}</td>
+                      <td>{{ item.defaultValue || '-' }}</td>
+                      <td>{{ item.unit || '-' }}</td>
+                      <td v-if="templateForm.printConfig.showReferenceRange">{{ formatReferenceRange(item) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div v-if="templateForm.printConfig.showExplanation" class="vpet-block-top">
+                  <div v-for="item in previewSchemaItems.filter(row => row.explanation || row.clinicalSignificance)" :key="`explain-${item.itemCode || item.itemName}`">
+                    <strong>{{ item.itemName }}&#65306;</strong>
+                    {{ [item.explanation, item.clinicalSignificance].filter(Boolean).join(' / ') }}
+                  </div>
+                </div>
+                <div v-if="templateForm.templateFooter" class="vpet-pre-wrap vpet-block-top">{{ templateForm.templateFooter }}</div>
+              </div>
+            </a-card>
+          </a-form>
+        </section>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -327,6 +359,7 @@ const doctorOptions = ref<any[]>([]);
 const visitOptions = ref<any[]>([]);
 const sampleTypeOptions = ref<any[]>([]);
 const templates = ref<any[]>([]);
+const templateKeyword = ref('');
 const templateForm = ref(createEmptyTemplateForm());
 
 const visitMap = computed(() => {
@@ -358,14 +391,6 @@ const columns = [
   { title: t('common.action'), key: 'action', width: 180, fixed: 'right' as const },
 ];
 
-const templateColumns = [
-  { title: t('page.lab.fields.templateCode'), dataIndex: 'code', width: 120 },
-  { title: t('page.lab.fields.templateName'), dataIndex: 'name', width: 180 },
-  { title: t('page.lab.fields.sampleType'), dataIndex: 'sampleType', width: 120 },
-  { title: t('page.lab.fields.defaultChargeAmount'), dataIndex: 'defaultChargeAmount', width: 120 },
-  { title: t('common.action'), key: 'action', width: 140, fixed: 'right' as const },
-];
-
 const valueTypeOptions = [
   { value: 'number', label: t('page.lab.valueTypes.number') },
   { value: 'text', label: t('page.lab.valueTypes.text') },
@@ -390,6 +415,16 @@ const previewSchemaItems = computed(() =>
     .slice()
     .sort((a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0)),
 );
+
+const filteredTemplates = computed(() => {
+  const keyword = templateKeyword.value.trim().toLowerCase();
+  if (!keyword) return templates.value;
+  return templates.value.filter((item: any) =>
+    [item.code, item.name, item.description, item.sampleType]
+      .filter(Boolean)
+      .some(value => String(value).toLowerCase().includes(keyword)),
+  );
+});
 
 function createEmptySchemaItem() {
   return {
@@ -566,8 +601,13 @@ async function openCreateModal() {
 
 function openTemplateModal() {
   templateForm.value = createEmptyTemplateForm();
+  templateKeyword.value = '';
   templateVisible.value = true;
   loadTemplates();
+}
+
+function resetTemplateForm() {
+  templateForm.value = createEmptyTemplateForm();
 }
 
 function addSchemaRow() {
@@ -620,6 +660,14 @@ async function submitTemplate() {
 
 async function loadTemplates() {
   templates.value = await vpetLabTemplateList() as any[];
+}
+
+function getTemplateFieldCount(record: any) {
+  return Array.isArray(record?.resultSchema?.items) ? record.resultSchema.items.length : 0;
+}
+
+function templateSampleLabel(record: any) {
+  return optionLabel(sampleTypeOptions.value, record?.sampleType, record?.sampleType || '-');
 }
 
 function editTemplate(record: any) {
@@ -695,6 +743,141 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.vpet-lab-template-manager {
+  align-items: stretch;
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  grid-template-columns: 310px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 15px;
+  height: clamp(560px, calc(100vh - 210px), 720px);
+  overflow: hidden;
+}
+
+.vpet-lab-template-manager > * {
+  min-height: 0;
+}
+
+.vpet-lab-template-sidebar {
+  background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+  border: 1px solid #e6edf5;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px;
+}
+
+.vpet-lab-template-sidebar-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.vpet-lab-template-sidebar-title {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.vpet-lab-template-search {
+  flex: 0 0 auto;
+}
+
+.vpet-lab-template-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.vpet-lab-template-item {
+  background: #fff;
+  border: 1px solid #e7edf4;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgb(31 41 55 / 5%);
+  cursor: pointer;
+  outline: none;
+  padding: 12px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.vpet-lab-template-item:hover,
+.vpet-lab-template-item:focus {
+  border-color: #8bb8ff;
+  box-shadow: 0 10px 22px rgb(36 99 235 / 12%);
+  transform: translateY(-1px);
+}
+
+.vpet-lab-template-item.is-active {
+  background: #f0f7ff;
+  border-color: #2f7de1;
+  box-shadow: 0 10px 24px rgb(47 125 225 / 16%);
+}
+
+.vpet-lab-template-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vpet-lab-template-name {
+  color: #142033;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.vpet-lab-template-code {
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+
+.vpet-lab-template-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.vpet-lab-template-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.vpet-lab-template-editor {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.vpet-lab-template-editor-card,
+.vpet-lab-schema-card {
+  background: #fff;
+  border: 1px solid #edf1f7;
+  border-radius: 12px;
+}
+
+.vpet-lab-template-editor-card :deep(.ant-card-body) {
+  padding: 15px;
+}
+
+.vpet-lab-schema-card {
+  padding: 15px;
+}
+
 .vpet-lab-print-preview {
   background: #fff;
   border: 1px solid #e8e8e8;
@@ -720,5 +903,21 @@ onMounted(async () => {
   border: 1px solid #d9d9d9;
   padding: 8px;
   text-align: left;
+}
+
+@media (max-width: 1180px) {
+  .vpet-lab-template-manager {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+
+  .vpet-lab-template-sidebar,
+  .vpet-lab-template-editor {
+    max-height: none;
+  }
+
+  .vpet-lab-template-list {
+    max-height: 320px;
+  }
 }
 </style>

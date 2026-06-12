@@ -75,17 +75,32 @@ import { onMounted, ref } from 'vue';
 import { vpetChronicSummary, vpetReportDaily } from '@/api/backend/vpet';
 import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
+import { useVpetReference, type SelectOption } from '../shared/reference';
 
 defineOptions({ name: 'VPetReportDaily' });
 
 const { t } = useVpetLocale();
+const { doctorLabel, loadDoctors } = useVpetReference();
 const dateValue = ref<Dayjs>(dayjs());
 const report = ref<any>(null);
 const chronicSummary = ref<any>(null);
+const doctorOptions = ref<SelectOption[]>([]);
 
 const doctorColumns = [
-  { title: t('page.report.fields.doctorId'), dataIndex: 'doctorId', width: 120 },
-  { title: t('page.report.fields.visitCount'), dataIndex: 'visitCount' },
+  {
+    title: t('page.report.fields.staff'),
+    dataIndex: 'doctorName',
+    width: 220,
+    customRender: ({ record }: any) => doctorLabel(
+      undefined,
+      record.doctorId,
+      record.doctorResolvedName,
+      doctorOptions.value,
+    ),
+  },
+  { title: t('page.report.fields.appointmentCount'), dataIndex: 'appointmentCount', width: 110 },
+  { title: t('page.report.fields.checkedInCount'), dataIndex: 'checkedInCount', width: 110 },
+  { title: t('page.report.fields.completedAppointmentCount'), dataIndex: 'completedAppointmentCount', width: 110 },
 ];
 
 const stockColumns = [
@@ -120,7 +135,14 @@ async function loadReport() {
   ]);
 }
 
-onMounted(loadReport);
+onMounted(async () => {
+  try {
+    doctorOptions.value = await loadDoctors();
+  } catch {
+    doctorOptions.value = [];
+  }
+  await loadReport();
+});
 </script>
 
 <style lang="less" scoped>

@@ -29,7 +29,7 @@
     if (isExt && extOpenMode !== 2) {
       window.open(item.path);
     } else {
-      router.push({ name: item.name });
+      router.push(item.path || { name: item.name });
     }
   };
 </script>

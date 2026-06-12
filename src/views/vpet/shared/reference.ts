@@ -91,7 +91,7 @@ export function useVpetReference() {
 
   function orphanLabel(value?: string | number | null) {
     if (value === undefined || value === null || value === '') return '-';
-    return `${t('common.unknown')} #${value}`;
+    return t('common.unknown');
   }
 
   function buildCustomerLabel(item: any) {

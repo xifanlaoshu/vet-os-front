@@ -2,25 +2,19 @@
   <div class="vpet-page">
     <a-card class="vpet-query-card" :title="t('page.consultation.title')" :bordered="false">
       <a-form class="vpet-query-form" layout="horizontal">
-        <a-form-item :label="t('page.consultation.fields.date')">
+        <a-form-item v-if="activeTab === 'appointments'" :label="t('page.consultation.fields.date')">
           <a-date-picker v-model:value="appointmentDate" />
         </a-form-item>
-        <a-form-item :label="t('page.consultation.fields.doctor')">
-          <a-select
-            v-model:value="filters.doctorId"
-            allow-clear
-            show-search
-            style="width: 220px"
-            :placeholder="t('page.appointment.doctorPlaceholder')"
-            :options="doctorOptions"
-            :filter-option="filterByLabel"
+        <a-form-item v-else class="vpet-query-item-wide" :label="t('page.visitHistory.fields.dateRange')">
+          <a-range-picker
+            v-model:value="visitDateRange"
+            :placeholder="[t('page.visitHistory.placeholders.startDate'), t('page.visitHistory.placeholders.endDate')]"
           />
         </a-form-item>
         <a-form-item :label="t('page.consultation.fields.status')">
           <a-select
             v-model:value="filters.status"
             allow-clear
-            style="width: 180px"
             :placeholder="t('page.appointment.statusPlaceholder')"
             :options="activeStatusOptions"
           />
@@ -121,9 +115,14 @@
                 {{ diagnosisText(record) }}
               </template>
               <template v-else-if="column.key === 'action'">
-                <a-button type="link" size="small" @click="router.push(`/vpet/consultation/visit/${record.id}`)">
-                  {{ t('common.viewMedicalRecord') }}
-                </a-button>
+                <a-space>
+                  <a-button type="link" size="small" @click="openVisit(record.id)">
+                    {{ t('common.viewMedicalRecord') }}
+                  </a-button>
+                  <a-button type="link" size="small" @click="openVisitPrint(record.id)">
+                    {{ t('page.consultation.print.printButton') }}
+                  </a-button>
+                </a-space>
               </template>
             </template>
           </a-table>
@@ -162,17 +161,17 @@ const {
 const {
   customerLabel,
   doctorLabel,
-  filterByLabel,
   loadDoctors: loadDoctorOptions,
   petLabel,
 } = useVpetReference();
 const router = useRouter();
+const currentStaffScope = 'currentStaff';
 
 const doctorOptions = ref<DoctorOption[]>([]);
 const activeTab = ref<'appointments' | 'visits'>('appointments');
 const appointmentDate = ref<Dayjs>(dayjs());
+const visitDateRange = ref<[Dayjs, Dayjs]>([dayjs(), dayjs()]);
 const filters = ref({
-  doctorId: undefined as number | undefined,
   status: undefined as number | undefined,
   keyword: '',
 });
@@ -290,7 +289,7 @@ const visitColumns = [
   {
     title: t('page.consultation.table.action'),
     key: 'action',
-    width: 120,
+    width: 170,
     fixed: 'right' as const,
   },
 ];
@@ -317,8 +316,8 @@ async function loadAppointments() {
       page: appointmentPagination.value.current,
       pageSize: appointmentPagination.value.pageSize,
       date: appointmentDate.value.format('YYYY-MM-DD'),
+      scope: currentStaffScope,
     };
-    if (filters.value.doctorId) params.doctorId = filters.value.doctorId;
     if (filters.value.status !== undefined) params.status = filters.value.status;
     if (filters.value.keyword) params.keyword = filters.value.keyword;
     const data: any = await vpetAppointmentList(params);
@@ -336,17 +335,16 @@ function sortAppointmentsByTime(items: any[]) {
 async function loadVisits() {
   visitLoading.value = true;
   try {
-    const start = appointmentDate.value.startOf('day').format('YYYY-MM-DD HH:mm:ss');
-    const end = appointmentDate.value.endOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const [startDate, endDate] = visitDateRange.value;
     const params: any = {
       page: visitPagination.value.current,
       pageSize: visitPagination.value.pageSize,
-      dateFrom: start,
-      dateTo: end,
       keyword: filters.value.keyword || undefined,
-      doctorId: filters.value.doctorId,
       status: filters.value.status,
+      scope: currentStaffScope,
     };
+    if (startDate) params.dateFrom = startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    if (endDate) params.dateTo = endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss');
     const data: any = await vpetVisitList(params);
     visits.value = data?.items || [];
     visitPagination.value.total = data?.meta?.totalItems || 0;
@@ -366,30 +364,49 @@ async function reloadActiveTab() {
 }
 
 function resetFilters() {
-  appointmentDate.value = dayjs();
+  if (activeTab.value === 'appointments') {
+    appointmentDate.value = dayjs();
+  } else {
+    visitDateRange.value = [dayjs(), dayjs()];
+  }
   filters.value = {
-    doctorId: undefined,
     status: undefined,
     keyword: '',
   };
   reloadActiveTab();
 }
 
+function openVisit(id: number) {
+  router.push({
+    path: `/vpet/consultation/visit/${id}`,
+    query: { scope: currentStaffScope },
+  });
+}
+
+function openVisitPrint(id: number) {
+  router.push(`/vpet/consultation/visit/${id}/print`);
+}
+
 async function openConsultation(record: any) {
   try {
     if (record.status === 1) {
-      const visit: any = await vpetAppointmentCheckIn(record.id);
-      router.push(`/vpet/consultation/visit/${visit.id}`);
+      const visit: any = await vpetAppointmentCheckIn(record.id, { params: { scope: currentStaffScope } });
+      openVisit(visit.id);
       return;
     }
 
-    const data: any = await vpetVisitList({ appointmentId: record.id, page: 1, pageSize: 1 });
+    const data: any = await vpetVisitList({
+      appointmentId: record.id,
+      page: 1,
+      pageSize: 1,
+      scope: currentStaffScope,
+    });
     const visit = data?.items?.[0];
     if (!visit?.id) {
       message.error(t('page.consultation.messages.visitNotFound'));
       return;
     }
-    router.push(`/vpet/consultation/visit/${visit.id}`);
+    openVisit(visit.id);
   } catch {}
 }
 

@@ -1123,6 +1123,46 @@
         "riskLevel": "风险级别"
       }
     },
+    "audit": {
+      "title": "审计中心",
+      "list": "审计事件",
+      "detail": "审计详情",
+      "fields": {
+        "source": "事件来源",
+        "bizType": "业务类型",
+        "bizId": "业务ID",
+        "action": "动作",
+        "operatorId": "操作人",
+        "occurredAt": "发生时间",
+        "reason": "原因",
+        "dateRange": "时间范围",
+        "metadata": "元数据",
+        "beforeSnapshot": "变更前快照",
+        "afterSnapshot": "变更后快照"
+      },
+      "sources": {
+        "operation": "业务操作",
+        "emr": "病历",
+        "stock": "库存"
+      },
+      "bizTypes": {
+        "billing": "收费结算",
+        "emr": "病历",
+        "inventoryStock": "库存流水"
+      },
+      "actions": {
+        "refund": "退款",
+        "lock": "锁定病历",
+        "signed": "电子签署",
+        "unlockRequested": "申请解锁",
+        "unlockApproved": "解锁通过",
+        "unlockRejected": "解锁驳回",
+        "stockIn": "入库",
+        "stockOut": "出库",
+        "stockAdjust": "库存调整",
+        "stockReturn": "退回入库"
+      }
+    },
     "visitHistory": {
       "title": "历史就诊记录",
       "list": "就诊记录列表",

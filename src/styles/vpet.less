@@ -43,6 +43,13 @@
     overflow: hidden;
   }
 
+  .ant-table-tbody > tr > td,
+  .ant-table-thead > tr > th {
+    padding: 12px 14px;
+    line-height: 1.55;
+    vertical-align: middle;
+  }
+
   .ant-table-wrapper {
     width: 100% !important;
   }
@@ -150,7 +157,7 @@
 
   .vpet-query-form .ant-form-item-row {
     display: grid;
-    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     align-items: center;
     column-gap: 12px;
   }
@@ -159,7 +166,7 @@
     padding: 0;
     text-align: right;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .vpet-query-form .ant-form-item-label > label {
@@ -203,6 +210,11 @@
     justify-content: flex-end;
     grid-column: 1 / -1;
     padding-top: 4px;
+  }
+
+  .vpet-query-actions .ant-space {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .vpet-stat-card {
@@ -284,6 +296,10 @@
     margin-top: 6px;
   }
 
+  .vpet-block-top {
+    margin-top: 15px;
+  }
+
   .vpet-block-spaced {
     margin-top: 12px;
   }
@@ -356,13 +372,23 @@
     margin-bottom: 8px;
   }
 
+  .vpet-edit-table {
+    margin-top: 8px;
+  }
+
+  .vpet-edit-table .ant-input,
+  .vpet-edit-table .ant-input-number,
+  .vpet-edit-table .ant-select {
+    width: 100%;
+  }
+
   @media (max-width: 1200px) {
     .vpet-query-form {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .vpet-query-form .ant-form-item-row {
-      grid-template-columns: 84px minmax(0, 1fr);
+      grid-template-columns: 96px minmax(0, 1fr);
     }
 
     .vpet-query-form .ant-form-item,
@@ -405,7 +431,7 @@
     }
 
     .vpet-query-form .ant-form-item-row {
-      grid-template-columns: 76px minmax(0, 1fr);
+      grid-template-columns: 88px minmax(0, 1fr);
       column-gap: 10px;
     }
 

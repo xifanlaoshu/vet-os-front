@@ -23,7 +23,7 @@
     <a-modal
       v-model:open="createVisible"
       :title="t('page.prescription.add')"
-      :width="960"
+      :width="1120"
       :confirm-loading="saving"
       destroy-on-close
       @ok="submitCreate"
@@ -82,12 +82,13 @@
         <a-divider orientation="left">{{ t('page.prescription.detailItems') }}</a-divider>
 
         <a-table
+          class="vpet-edit-table vpet-rx-edit-table"
           row-key="rowKey"
           size="small"
           :pagination="false"
           :columns="detailInputColumns"
           :data-source="form.details"
-          :scroll="{ x: 1080 }"
+          :scroll="{ x: 1400 }"
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'item'">
@@ -133,7 +134,7 @@
     <a-modal
       v-model:open="templateVisible"
       :title="t('page.prescription.templateManager')"
-      :width="980"
+      :width="1240"
       destroy-on-close
       @ok="submitTemplate"
     >
@@ -169,12 +170,13 @@
           :message="t('page.prescription.formulaHelp')"
         />
         <a-table
+          class="vpet-edit-table vpet-rx-edit-table"
           row-key="rowKey"
           size="small"
           :pagination="false"
           :columns="templateInputColumns"
           :data-source="templateForm.items"
-          :scroll="{ x: 1420 }"
+          :scroll="{ x: 1790 }"
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'item'">
@@ -757,26 +759,26 @@ const templateColumns = [
 ];
 
 const detailInputColumns = [
-  { title: t('page.prescription.fields.item'), key: 'item', width: 260 },
-  { title: t('page.prescription.fields.specification'), key: 'specification', width: 150 },
-  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 130 },
-  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 120 },
-  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 110 },
-  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 90 },
-  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 120 },
+  { title: t('page.prescription.fields.item'), key: 'item', width: 380 },
+  { title: t('page.prescription.fields.specification'), key: 'specification', width: 180 },
+  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 220 },
+  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 180 },
+  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 130 },
+  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 120 },
+  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 130 },
   { title: t('common.action'), key: 'action', width: 90, fixed: 'right' as const },
 ];
 
 const templateInputColumns = [
-  { title: t('page.prescription.fields.item'), key: 'item', width: 260 },
-  { title: t('page.prescription.fields.specification'), key: 'specification', width: 140 },
-  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 110 },
-  { title: t('page.prescription.fields.dosageFormula'), key: 'dosageFormula', width: 180 },
-  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 110 },
-  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 100 },
-  { title: t('page.prescription.fields.quantityFormula'), key: 'quantityFormula', width: 180 },
-  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 90 },
-  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 110 },
+  { title: t('page.prescription.fields.item'), key: 'item', width: 380 },
+  { title: t('page.prescription.fields.specification'), key: 'specification', width: 170 },
+  { title: t('page.prescription.fields.dosage'), key: 'dosage', width: 150 },
+  { title: t('page.prescription.fields.dosageFormula'), key: 'dosageFormula', width: 240 },
+  { title: t('page.prescription.fields.frequency'), key: 'frequency', width: 150 },
+  { title: t('page.prescription.fields.quantity'), key: 'quantity', width: 120 },
+  { title: t('page.prescription.fields.quantityFormula'), key: 'quantityFormula', width: 240 },
+  { title: t('page.prescription.fields.dosageUnit'), key: 'dosageUnit', width: 120 },
+  { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 130 },
   { title: t('common.action'), key: 'action', width: 90, fixed: 'right' as const },
 ];
 
@@ -784,3 +786,17 @@ onMounted(async () => {
   await Promise.all([loadVisits(), loadDoctors(), searchChargeableOptions(''), loadTemplates()]);
 });
 </script>
+
+<style lang="less" scoped>
+  .vpet-rx-edit-table {
+    :deep(.ant-table-cell) {
+      vertical-align: top;
+    }
+
+    :deep(.ant-input),
+    :deep(.ant-input-number),
+    :deep(.ant-select) {
+      width: 100%;
+    }
+  }
+</style>

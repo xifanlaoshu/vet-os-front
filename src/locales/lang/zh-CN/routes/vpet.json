@@ -7,6 +7,7 @@
   "petDetail": "宠物详情",
   "consultation": "门诊工作台",
   "consultationDetail": "就诊病历",
+  "consultationPrint": "病历打印",
   "appointment": "预约挂号",
   "chronic": "慢病管理",
   "lab": "化验检查",
@@ -24,5 +25,7 @@
   "store": "门店调拨",
   "ai": "AI 辅助",
   "doctor": "医护人员",
-  "queue": "叫号大屏"
+  "queue": "叫号大屏",
+  "visitHistory": "历史就诊记录",
+  "audit": "审计中心"
 }

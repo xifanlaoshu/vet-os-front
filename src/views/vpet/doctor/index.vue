@@ -306,6 +306,12 @@ function handleUserChange(userId?: number) {
   form.value.userId = userId;
 }
 
+function userNicknameText(record: any) {
+  if (!record?.userId) return '-';
+  const linkedUser = users.value.find((item: any) => Number(item.id) === Number(record.userId));
+  return record.userNickname || linkedUser?.nickname || linkedUser?.username || t('common.unknown');
+}
+
 async function submitForm() {
   if (!form.value.name) {
     message.error(t('page.doctor.messages.nameRequired'));
@@ -355,7 +361,12 @@ const columns = [
     width: 120,
     customRender: ({ text }: any) => optionLabel(departmentOptions.value, text, text || '-'),
   },
-  { title: t('page.doctor.fields.userId'), dataIndex: 'userId', width: 110, customRender: ({ text }: any) => text || '-' },
+  {
+    title: t('page.doctor.fields.userNickname'),
+    dataIndex: 'userNickname',
+    width: 140,
+    customRender: ({ record }: any) => userNicknameText(record),
+  },
   {
     title: t('page.doctor.fields.status'),
     dataIndex: 'status',
@@ -406,5 +417,6 @@ const columns = [
 onMounted(async () => {
   form.value = createEmptyForm();
   await Promise.all([loadUsers(), loadDepartmentOptions(), loadPositionOptions()]);
+  reloadTable();
 });
 </script>
