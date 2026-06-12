@@ -189,6 +189,7 @@ import {
   vpetLabList,
   vpetPrescriptionByVisit,
   vpetVisitGet,
+  vpetVisitPrintAudit,
 } from '@/api/backend/vpet';
 import { useVpetLocale } from '../shared/locale';
 import { useVpetReference } from '../shared/reference';
@@ -338,7 +339,9 @@ async function loadPrintData() {
   }
 }
 
-function printRecord() {
+async function printRecord() {
+  if (!visitId.value) return;
+  await vpetVisitPrintAudit(visitId.value);
   window.print();
 }
 

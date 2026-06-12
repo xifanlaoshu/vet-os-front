@@ -93,6 +93,10 @@ export function vpetVisitGet(id: number, options?: RequestOptions) {
   return request(`/api/vpet/visit/${id}`, { method: 'GET', ...(options || {}) });
 }
 
+export function vpetVisitPrintAudit(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/print-audit`, { method: 'POST', ...(options || {}) });
+}
+
 export function vpetVisitCareFollowups(id: number, options?: RequestOptions) {
   return request(`/api/vpet/visit/${id}/care-followups`, { method: 'GET', ...(options || {}) });
 }
