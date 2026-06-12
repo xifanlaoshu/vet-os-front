@@ -44,7 +44,12 @@
           >
             <Space>
               <svg-icon :name="parseType(record.name, record.type)" />
-              <span v-if="isSearching" v-html="hignlightSearchKey(record.name)" />
+              <span v-if="isSearching">
+                <template v-for="(part, index) in getHighlightedNameParts(record.name)" :key="index">
+                  <span v-if="part.matched" class="text-red-500">{{ part.text }}</span>
+                  <span v-else>{{ part.text }}</span>
+                </template>
+              </span>
               <span v-else>{{ record.name }}</span>
             </Space>
           </Typography.Link>
@@ -116,11 +121,16 @@
     return parseMimeTypeToIconName(fileName);
   };
 
-  const hignlightSearchKey = (name: string) => {
-    return name.replace(
-      new RegExp(`${localSearchKey.value}`, 'g'),
-      `<span style='color: red;'>${localSearchKey.value}</span>`,
-    );
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const getHighlightedNameParts = (name: string) => {
+    const keyword = localSearchKey.value;
+    if (!keyword) return [{ text: name, matched: false }];
+
+    return name.split(new RegExp(`(${escapeRegExp(keyword)})`, 'g')).map(part => ({
+      text: part,
+      matched: part === keyword,
+    }));
   };
   const updateOperateStatus = (showing: boolean) => {
     if (isOperating.value !== showing) {

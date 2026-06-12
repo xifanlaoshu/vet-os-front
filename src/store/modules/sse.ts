@@ -14,11 +14,30 @@ type Events = {
   onlineUser: number;
 };
 
+function parseSseChunk(chunk: string) {
+  return chunk
+    .split('\n\n')
+    .map((block) => {
+      const data = block
+        .split('\n')
+        .filter(line => line.startsWith('data:'))
+        .map(line => line.replace(/^data:\s?/, ''))
+        .join('\n');
+      if (!data) return null;
+      try {
+        return JSON.parse(data) as MessageEvent;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) as MessageEvent[];
+}
+
 export const useSSEStore = defineStore('sse', () => {
   const emitter = mitt<Events>();
   const userStore = useUserStore();
   const { idle } = useIdle(5 * 60 * 1000); // 5 min
-  let eventSource: EventSource | null = null;
+  let abortController: AbortController | null = null;
   const serverConnected = ref(true);
   const onlineUserCount = ref(0);
 
@@ -40,45 +59,64 @@ export const useSSEStore = defineStore('sse', () => {
 
   const closeEventSource = () => {
     serverConnected.value = false;
-    eventSource?.close();
-    eventSource = null;
+    abortController?.abort();
+    abortController = null;
   };
 
-  /** 监听来自服务端推送的消息 */
-  const initServerMsgListener = async () => {
-    if (eventSource) {
-      eventSource.close();
+  const handleMessage = (message: MessageEvent) => {
+    const { type, data } = message;
+    if (type === 'close') {
+      closeEventSource();
+    } else if (type === 'updatePermsAndMenus') {
+      userStore.fetchPermsAndMenus();
+    } else if (type === 'updateOnlineUserCount') {
+      onlineUserCount.value = ~~data;
+      emitter.emit('onlineUser', onlineUserCount.value);
     }
+  };
+
+  const initServerMsgListener = async () => {
+    closeEventSource();
     const uid = userStore.userInfo.id;
-    if (!uid) return;
-    const sseUrl = uniqueSlash(
-      `${import.meta.env.VITE_BASE_API_URL}/api/sse/${uid}?token=${userStore.token}`,
-    );
+    if (!uid || !userStore.token) return;
 
-    eventSource = new EventSource(sseUrl);
+    abortController = new AbortController();
+    const sseUrl = uniqueSlash(`${import.meta.env.VITE_BASE_API_URL}/api/sse/${uid}`);
 
-    // 处理 SSE 传递的数据
-    eventSource.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data) as MessageEvent;
-      // 服务器关闭 SSE 连接
-      if (type === 'close') {
+    try {
+      const response = await fetch(sseUrl, {
+        headers: {
+          Accept: 'text/event-stream',
+          Authorization: `Bearer ${userStore.token}`,
+          ...(userStore.areaId ? { 'X-Area-Id': String(userStore.areaId) } : {}),
+        },
+        signal: abortController.signal,
+      });
+
+      if (!response.ok || !response.body)
+        throw new Error(`SSE connection failed: ${response.status}`);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (abortController && !abortController.signal.aborted) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const boundary = buffer.lastIndexOf('\n\n');
+        if (boundary < 0) continue;
+
+        const ready = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+        parseSseChunk(ready).forEach(handleMessage);
+      }
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        console.log('eventSource err', error);
         closeEventSource();
       }
-      // 当用户的权限及菜单有变更时，重新获取权限及菜单
-      else if (type === 'updatePermsAndMenus') {
-        userStore.fetchPermsAndMenus();
-      }
-      // 在线用户数量变更时
-      else if (type === 'updateOnlineUserCount') {
-        onlineUserCount.value = ~~data;
-        emitter.emit('onlineUser', onlineUserCount.value);
-      }
-      // console.log('eventSource', event.data);
-    };
-    eventSource.onerror = (err) => {
-      console.log('eventSource err', err);
-      closeEventSource();
-    };
+    }
   };
 
   const setServerConnectStatus = (isConnect: boolean) => {
