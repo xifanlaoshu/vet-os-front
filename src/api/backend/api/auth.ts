@@ -19,6 +19,18 @@ export async function authLogin(body: API.LoginDto, options?: RequestOptions) {
   });
 }
 
+/** 刷新访问令牌 POST /api/auth/refresh */
+export async function authRefresh(body: API.RefreshTokenDto, options?: RequestOptions) {
+  return request<API.LoginToken>('/api/auth/refresh', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 注册 POST /api/auth/register */
 export async function authRegister(body: API.RegisterDto, options?: RequestOptions) {
   return request<any>('/api/auth/register', {

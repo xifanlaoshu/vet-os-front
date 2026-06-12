@@ -46,6 +46,7 @@ export const useUserStore = defineStore(
     const lockscreenStore = useLockscreenStore();
     const keepAliveStore = useKeepAliveStore();
     const token = ref<string>();
+    const refreshToken = ref<string>();
     const perms = ref<string[]>([]);
     const menus = ref<RouteRecordRaw[]>([]);
     const userInfo = ref<Partial<API.UserEntity>>({});
@@ -71,6 +72,7 @@ export const useUserStore = defineStore(
     /** 清空登录态(token、userInfo...) */
     const clearLoginStatus = () => {
       token.value = '';
+      refreshToken.value = '';
       perms.value = [];
       menus.value = [];
       userInfo.value = {};
@@ -88,6 +90,9 @@ export const useUserStore = defineStore(
     /** 登录成功保存token */
     const setToken = (_token: string) => {
       token.value = _token;
+    };
+    const setRefreshToken = (_token?: string) => {
+      refreshToken.value = _token || '';
     };
     const applyContext = (context: any = {}) => {
       tenantId.value = context.tenantId;
@@ -107,6 +112,7 @@ export const useUserStore = defineStore(
       try {
         const data = await Api.auth.authLogin(params);
         setToken(data.token);
+        setRefreshToken(data.refreshToken);
         await loadContext();
         lockscreenStore.setLock(false);
         lockscreenStore.saveLoginPwd(params.password);
@@ -162,6 +168,9 @@ export const useUserStore = defineStore(
       if (context.token) {
         setToken(context.token);
       }
+      if (context.refreshToken) {
+        setRefreshToken(context.refreshToken);
+      }
       applyContext(context);
       contextSelected.value = true;
       await fetchPermsAndMenus();
@@ -174,13 +183,25 @@ export const useUserStore = defineStore(
       if (context.token) {
         setToken(context.token);
       }
+      if (context.refreshToken) {
+        setRefreshToken(context.refreshToken);
+      }
       applyContext({ ...context, contextSelected: true });
       await fetchPermsAndMenus();
       return context;
     };
 
+    const refreshLoginToken = async () => {
+      if (!refreshToken.value) throw new Error('Missing refresh token');
+      const data = await Api.auth.authRefresh({ refreshToken: refreshToken.value });
+      setToken(data.token);
+      setRefreshToken(data.refreshToken);
+      return data.token;
+    };
+
     return {
       token,
+      refreshToken,
       perms,
       menus,
       userInfo,
@@ -194,6 +215,7 @@ export const useUserStore = defineStore(
       afterLogin,
       logout,
       clearLoginStatus,
+      refreshLoginToken,
       loadContext,
       switchArea,
       selectContext,
@@ -204,7 +226,7 @@ export const useUserStore = defineStore(
   {
     persist: {
       storage: sessionStorage,
-      pick: ['token', 'tenantId', 'tenantName', 'areaId', 'areaName', 'areaOptions', 'contextSelected'],
+      pick: ['token', 'refreshToken', 'tenantId', 'tenantName', 'areaId', 'areaName', 'areaOptions', 'contextSelected'],
     },
   },
 );

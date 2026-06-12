@@ -379,6 +379,13 @@ declare namespace API {
   type LoginToken = {
     /** JWT身份Token */
     token: string;
+    /** 刷新Token */
+    refreshToken: string;
+  };
+
+  type RefreshTokenDto = {
+    /** 刷新令牌 */
+    refreshToken: string;
   };
 
   type LogLoginLogPageParams = {

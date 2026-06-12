@@ -23,6 +23,8 @@ export interface RequestOptions extends AxiosRequestConfig {
 }
 
 const UNKNOWN_ERROR = '未知错误，请重试';
+const AUTH_REFRESH_URL = '/api/auth/refresh';
+let refreshTokenPromise: Promise<string> | null = null;
 
 function stringifyMessage(input: unknown): string {
   if (typeof input === 'string' && input.trim()) return input;
@@ -60,6 +62,32 @@ function logRequestError(error: any, messageText: string) {
   const routeText = [context.method, context.url].filter(Boolean).join(' ');
   const statusText = context.status || context.code || 'ERR';
   console.error(`[request error] ${routeText} [${statusText}] ${messageText}`, context);
+}
+
+async function refreshAccessToken() {
+  const userStore = useUserStore();
+  if (!userStore.refreshToken) {
+    throw new Error('Missing refresh token');
+  }
+  if (!refreshTokenPromise) {
+    refreshTokenPromise = userStore.refreshLoginToken().finally(() => {
+      refreshTokenPromise = null;
+    });
+  }
+  return refreshTokenPromise;
+}
+
+function redirectToLogin(messageText: string) {
+  Modal.confirm({
+    title: '警告',
+    content: messageText || '账号异常，您可以取消停留在该页上，或重新登录',
+    okText: '重新登录',
+    cancelText: '取消',
+    onOk: () => {
+      sessionStorage.removeItem(USER_PERSIST_KEY);
+      window.location.reload();
+    },
+  });
 }
 
 /** 真实请求的路径前缀 */
@@ -101,28 +129,35 @@ service.interceptors.request.use(
 );
 
 service.interceptors.response.use(
-  (response: AxiosResponse<BaseResponse>) => {
+  async (response: AxiosResponse<BaseResponse>) => {
     const res = response.data;
     const responseMessage = stringifyMessage(res.message);
 
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== ResultEnum.SUCCESS) {
+      const originalConfig = response.config as AxiosRequestConfig & { _retry?: boolean };
+      const canRefresh =
+        [1101, 1105].includes(res.code)
+        && !originalConfig._retry
+        && originalConfig.url !== AUTH_REFRESH_URL;
+      if (canRefresh) {
+        try {
+          const token = await refreshAccessToken();
+          originalConfig._retry = true;
+          originalConfig.headers = {
+            ...(originalConfig.headers || {}),
+            Authorization: `Bearer ${token}`,
+          };
+          return service.request(originalConfig);
+        } catch {
+          redirectToLogin(responseMessage);
+        }
+      }
+
       $message.error(responseMessage);
       logRequestError({ response, config: response.config, code: res.code }, responseMessage);
       // Illegal token
-      if ([1101, 1105].includes(res.code)) {
-        // to re-login
-        Modal.confirm({
-          title: '警告',
-          content: responseMessage || '账号异常，您可以取消停留在该页上，或重新登录',
-          okText: '重新登录',
-          cancelText: '取消',
-          onOk: () => {
-            sessionStorage.removeItem(USER_PERSIST_KEY);
-            window.location.reload();
-          },
-        });
-      }
+      if ([1101, 1105].includes(res.code)) redirectToLogin(responseMessage);
 
       // throw other
       const error = new Error(responseMessage || UNKNOWN_ERROR) as Error & { code: any };
@@ -134,8 +169,29 @@ service.interceptors.response.use(
       return response;
     }
   },
-  (error) => {
+  async (error) => {
     if (!(error instanceof CanceledError)) {
+      const originalConfig = error?.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+      const businessCode = error?.response?.data?.code;
+      const canRefresh =
+        [1101, 1105].includes(businessCode)
+        && originalConfig
+        && !originalConfig._retry
+        && originalConfig.url !== AUTH_REFRESH_URL;
+      if (canRefresh) {
+        try {
+          const token = await refreshAccessToken();
+          originalConfig._retry = true;
+          originalConfig.headers = {
+            ...(originalConfig.headers || {}),
+            Authorization: `Bearer ${token}`,
+          };
+          return service.request(originalConfig);
+        } catch {
+          const normalizedMessage = stringifyMessage(error?.response?.data?.message ?? UNKNOWN_ERROR);
+          redirectToLogin(normalizedMessage);
+        }
+      }
       // 处理 422 或者 500 的错误异常提示
       const errMsg = error?.response?.data?.message ?? UNKNOWN_ERROR;
       const normalizedMessage = stringifyMessage(errMsg);
