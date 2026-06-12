@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { computed, unref } from 'vue';
+  import type { PropType } from 'vue';
   import {
     DownOutlined,
     ReloadOutlined,
@@ -16,6 +17,7 @@
   import { TitleI18n } from '@/components/basic/title-i18n';
   import { isDevMode } from '@/constants/env';
   import { useTabsViewStore } from '@/store/modules/tabsView';
+  import { devWarn } from '@/utils/devLog';
 
   defineOptions({
     name: 'TabOperator',
@@ -34,25 +36,19 @@
   const tabsViewStore = useTabsViewStore();
 
   const activeKey = computed(() => tabsViewStore.getCurrentTab?.fullPath);
-
-  /** 标签页列表 */
   const tabsList = computed(() => tabsViewStore.getTabsList);
 
-  /** 目标路由是否等于当前路由 */
-  const isCurrentRoute = (route) => {
-    return router.currentRoute.value.matched.some((item) => item.name === route.name);
+  const isCurrentRoute = (routeItem: RouteLocationNormalizedLoaded) => {
+    return router.currentRoute.value.matched.some((item) => item.name === routeItem.name);
   };
 
-  /** 关闭当前页面 */
   const removeTab = () => {
     if (tabsList.value.length === 1) {
-      return message.warning('这已经是最后一页，不能再关闭了！');
+      return message.warning('This is the last tab and cannot be closed.');
     }
-    // tabsViewMutations.closeCurrentTabs(route)
     tabsViewStore.closeCurrentTab(props.tabItem);
   };
 
-  /** 刷新页面 */
   const reloadPage = () => {
     router.replace({
       name: REDIRECT_NAME,
@@ -62,60 +58,50 @@
     });
   };
 
-  /** 关闭左侧 */
   const closeLeft = () => {
-    // tabsViewMutations.closeLeftTabs(route)
     tabsViewStore.closeLeftTabs(props.tabItem);
     !isCurrentRoute(props.tabItem) && router.replace(props.tabItem.fullPath);
   };
 
-  /** 关闭右侧 */
   const closeRight = () => {
-    // tabsViewMutations.closeRightTabs(route)
     tabsViewStore.closeRightTabs(props.tabItem);
     !isCurrentRoute(props.tabItem) && router.replace(props.tabItem.fullPath);
   };
 
-  /** 关闭其他 */
   const closeOther = () => {
-    // tabsViewMutations.closeOtherTabs(route)
     tabsViewStore.closeOtherTabs(props.tabItem);
     !isCurrentRoute(props.tabItem) && router.replace(props.tabItem.fullPath);
   };
 
-  /** 关闭全部 */
   const closeAll = () => {
     tabsViewStore.closeAllTabs();
     router.replace('/');
   };
 
-  /** 打开页面所在的文件(仅在开发环境有效) */
   const openPageFile = async () => {
     if (!isDevMode) {
-      console.warn('仅在开发环境有效');
+      devWarn('Open page file is only available in development mode.');
       return;
     }
 
     const routes = router.getRoutes();
     const target = routes.find((n) => n.name === props.tabItem.name);
-    if (target) {
-      const comp = target.components?.default;
-      // @ts-ignore
-      let __file = comp?.__file as string;
-      if (isFunction(comp)) {
-        try {
-          // @ts-ignore
-          const res = await comp();
-          __file = res?.default?.__file;
-        } catch {
-          console.warn('Failed to resolve page file for editor jump.');
-        }
+    if (!target)
+      return;
+
+    const comp = target.components?.default;
+    let filePathFromComponent = (comp as any)?.__file as string | undefined;
+    if (isFunction(comp)) {
+      try {
+        const res = await comp();
+        filePathFromComponent = res?.default?.__file;
       }
-      if (__file) {
-        const filePath = `/__open-in-editor?file=${__file}`;
-        fetch(filePath);
+      catch {
+        devWarn('Failed to resolve page file for editor jump.');
       }
     }
+    if (filePathFromComponent)
+      fetch(`/__open-in-editor?file=${filePathFromComponent}`);
   };
 
   defineExpose({
@@ -163,7 +149,7 @@
           <a-menu-divider />
           <a-menu-item key="7" @click="openPageFile">
             <column-width-outlined />
-            打开页面文件
+            Open page file
           </a-menu-item>
         </template>
       </a-menu>

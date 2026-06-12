@@ -1,6 +1,8 @@
 // 默认缓存期限为7天
 // const DEFAULT_CACHE_TIME = 60 * 60 * 24 * 7;
 
+import { devError } from './devLog';
+
 /**
  * 创建本地缓存对象
  * @param {string=} prefixKey -
@@ -50,7 +52,7 @@ export const createStorage = ({ prefixKey = '', storage = localStorage } = {}) =
           }
           this.remove(this.getKey(key));
         } catch (e) {
-          console.error(e);
+          devError('Failed to parse cached storage item.', e);
           return def;
         }
       }

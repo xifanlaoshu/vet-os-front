@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import type { DataNode } from 'ant-design-vue/es/vc-tree-select/interface';
+import { devError } from './devLog';
 
 /**
  * @description 处理首字母大写 abc => Abc
@@ -52,7 +53,7 @@ export const isBase64 = (str: string): boolean => {
   try {
     return btoa(atob(str)) == str;
   } catch (err) {
-    console.error(err);
+    devError('Base64 validation failed.', err);
     return false;
   }
 };

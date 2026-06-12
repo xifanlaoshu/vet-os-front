@@ -2,6 +2,7 @@ import { createVNode, render } from 'vue';
 import contextMenuVue from './ContextMenu.vue';
 import type { CreateContextOptions, ContextMenuProps } from './typing';
 import { isClient } from '@/utils/is';
+import { devError } from '@/utils/devLog';
 
 const menuManager: {
   domList: Element[];
@@ -53,7 +54,7 @@ export const createContextMenu = function (options: CreateContextOptions) {
         try {
           dom && body.removeChild(dom);
         } catch (error) {
-          console.error(error);
+          devError('Failed to remove context menu container.', error);
         }
       });
       body.removeEventListener('click', handleClick);

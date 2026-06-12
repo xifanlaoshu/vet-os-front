@@ -24,13 +24,14 @@ const rules = [
     allowFiles: ['src\\utils\\safeOpen.ts', 'src/utils/safeOpen.ts'],
   },
   {
-    rule: 'no-console-log',
-    pattern: /\bconsole\.(?:log|debug)\s*\(/,
-    message: 'Do not ship console.log/debug in production frontend code.',
+    rule: 'no-console-in-runtime',
+    pattern: /\bconsole\.\w+\s*\(/,
+    message: 'Do not ship console.* in production frontend runtime code; use devLog for development-only diagnostics.',
     allowFilePatterns: [
       /^scripts[\\/]/,
       /^src[\\/]views[\\/]demos[\\/]/,
-      /^src[\\/]hooks[\\/]useBattery\.ts$/,
+      /^src[\\/]utils[\\/]devLog\.ts$/,
+      /^src[\\/]utils[\\/]log\.ts$/,
     ],
   },
   {

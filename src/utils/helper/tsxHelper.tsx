@@ -1,5 +1,6 @@
 import type { Slots } from 'vue';
 import { isFunction } from '@/utils/is';
+import { devError } from '@/utils/devLog';
 
 /**
  * @description:  Get slot to prevent empty error
@@ -9,7 +10,7 @@ export function getSlot(slots: Slots, slot = 'default', data?: any) {
     return null;
   }
   if (!isFunction(slots[slot])) {
-    console.error(`${slot} is not a function!`);
+    devError(`${slot} is not a function!`);
     return null;
   }
   const slotFn = slots[slot];

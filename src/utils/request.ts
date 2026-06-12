@@ -7,6 +7,7 @@ import { ResultEnum } from '@/enums/httpEnum';
 import { useLocaleStore } from '@/store/modules/locale';
 import { USER_PERSIST_KEY, useUserStore } from '@/store/modules/user';
 import { useSSEStore } from '@/store/modules/sse';
+import { devError } from '@/utils/devLog';
 
 export interface RequestOptions extends AxiosRequestConfig {
   /** 是否直接将数据从响应中提取出，例如直接返回 res.data，而忽略 res.code 等信息 */
@@ -78,7 +79,7 @@ function logRequestError(error: any, messageText: string) {
   const context = buildErrorContext(error);
   const routeText = [context.method, context.url].filter(Boolean).join(' ');
   const statusText = context.status || context.code || 'ERR';
-  console.error(`[request error] ${routeText} [${statusText}] ${messageText}`, context);
+  devError(`[request error] ${routeText} [${statusText}] ${messageText}`, context);
 }
 
 async function refreshAccessToken() {

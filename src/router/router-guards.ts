@@ -1,5 +1,5 @@
 import { NavigationFailureType, isNavigationFailure } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
+import NProgress from 'nprogress';
 import { Modal } from 'ant-design-vue';
 import { LOGIN_NAME, REDIRECT_NAME, TENANT_CONTEXT_NAME } from './constant';
 import type { WhiteNameList } from './constant';
@@ -8,8 +8,9 @@ import { useUserStore } from '@/store/modules/user';
 import { useKeepAliveStore } from '@/store/modules/keepAlive';
 import { to as _to } from '@/utils/awaitTo';
 import { transformI18n } from '@/hooks/useI18n';
+import { devError, devWarn } from '@/utils/devLog';
 
-NProgress.configure({ showSpinner: false }); // NProgress Configuration
+NProgress.configure({ showSpinner: false });
 
 function isLegacyDashboardPath(path?: string) {
   return !path || path === '/' || path.startsWith('/dashboard');
@@ -17,9 +18,9 @@ function isLegacyDashboardPath(path?: string) {
 
 export function createRouterGuards(router: Router, whiteNameList: WhiteNameList) {
   router.beforeEach(async (to, from, next) => {
-    if (!from.meta?.hideProgressBar || !to.meta?.hideProgressBar) {
-      NProgress.start(); // start progress bar
-    }
+    if (!from.meta?.hideProgressBar || !to.meta?.hideProgressBar)
+      NProgress.start();
+
     const userStore = useUserStore();
 
     if (userStore.token) {
@@ -42,7 +43,8 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
           }
         }
         next({ path: userStore.getHomePath() });
-      } else if (to.name === TENANT_CONTEXT_NAME) {
+      }
+      else if (to.name === TENANT_CONTEXT_NAME) {
         const [contextErr] = await _to(userStore.loadContext());
         if (contextErr) {
           userStore.clearLoginStatus();
@@ -50,7 +52,8 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
           return next({ name: LOGIN_NAME, query: { redirect: to.fullPath }, replace: true });
         }
         next();
-      } else {
+      }
+      else {
         if (!userStore.contextSelected) {
           const [contextErr] = await _to(userStore.loadContext());
           if (contextErr) {
@@ -61,44 +64,40 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
           return next({ name: TENANT_CONTEXT_NAME, query: { redirect: to.fullPath }, replace: true });
         }
         if (userStore.menus.length === 0) {
-          // 从后台获取菜单
           const [err] = await _to(userStore.afterLogin());
           if (err) {
             userStore.clearLoginStatus();
             Modal.destroyAll();
             return next({ name: LOGIN_NAME });
           }
-          // 解决警告：No match found for location with path "XXXXXXX"
           if (isLegacyDashboardPath(to.path)) {
             next({ path: userStore.getHomePath(), replace: true });
-          } else {
-            // Dynamic routes have just been registered. Re-enter the original
-            // target so hidden detail routes such as /vpet/.../:id can match.
+          }
+          else {
             next({ path: to.fullPath, replace: true });
           }
-        } else {
-          if (isLegacyDashboardPath(to.path))
-            next({ path: userStore.getHomePath(), replace: true });
-          else
-            next();
+        }
+        else if (isLegacyDashboardPath(to.path)) {
+          next({ path: userStore.getHomePath(), replace: true });
+        }
+        else {
+          next();
         }
       }
-    } else {
-      // not login
-      if (whiteNameList.some((n) => n === to.name)) {
-        // 在免登录名单，直接进入
-        next();
-      } else {
-        next({ name: LOGIN_NAME, query: { redirect: to.fullPath }, replace: true });
-      }
+    }
+    else if (whiteNameList.some((n) => n === to.name)) {
+      next();
+    }
+    else {
+      next({ name: LOGIN_NAME, query: { redirect: to.fullPath }, replace: true });
     }
   });
 
-  /** 获取路由对应的组件名称 */
   const getComponentName = (route: RouteLocationNormalized): string[] => {
     return route.matched
       .map((n) => {
-        if (!n.meta?.keepAlive) return;
+        if (!n.meta?.keepAlive)
+          return;
         const comp = n.components?.default;
         return comp?.name ?? (comp as any)?.type?.name;
       })
@@ -106,53 +105,42 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
   };
 
   router.afterEach((to, from, failure) => {
-    // 跳过自己手动取消路由导航时的错误
     if (isNavigationFailure(failure, NavigationFailureType.aborted)) {
       NProgress.done();
-      // console.error('failed navigation', failure);
       return;
     }
 
-    if (to.meta?.title) {
-      // 设置网页标题
+    if (to.meta?.title)
       document.title = transformI18n(to.meta.title);
-    }
 
     const keepAliveStore = useKeepAliveStore();
-
-    // 在这里设置需要缓存的组件名称
     const toCompName = getComponentName(to);
-    // 判断当前页面是否开启缓存，如果开启，则将当前页面的 componentName 信息存入 keep-alive 全局状态
+
     if (to.meta?.keepAlive) {
-      // 需要缓存的组件
       if (toCompName) {
         keepAliveStore.add(toCompName);
-      } else {
-        console.warn(
-          `${to.fullPath}页面组件的keepAlive为true但未设置组件名，会导致缓存失效，请检查`,
-        );
       }
-    } else {
-      // 不需要缓存的组件
-      if (toCompName) {
-        keepAliveStore.remove(toCompName);
+      else {
+        devWarn(`${to.fullPath} has keepAlive enabled but no component name was found.`);
       }
     }
-    // 如果进入的是 Redirect 页面，则也将离开页面的缓存清空(刷新页面的操作)
+    else if (toCompName) {
+      keepAliveStore.remove(toCompName);
+    }
+
     if (to.name === REDIRECT_NAME) {
       const fromCompName = getComponentName(from);
       fromCompName && keepAliveStore.remove(fromCompName);
     }
+
     const userStore = useUserStore();
-    // 如果用户已登出，则清空所有缓存的组件
-    if (!userStore.token) {
+    if (!userStore.token)
       keepAliveStore.clear();
-    }
-    // console.log('keepAliveStore', keepAliveStore.list);
-    NProgress.done(); // finish progress bar
+
+    NProgress.done();
   });
 
   router.onError((error) => {
-    console.error('路由错误', error);
+    devError('Router error', error);
   });
 }

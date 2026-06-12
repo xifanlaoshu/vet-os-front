@@ -9,6 +9,7 @@ import type { FormState } from './useFormState';
 import { deepMerge } from '@/utils/';
 import { isFunction, isObject, isArray, isString } from '@/utils/is';
 import { dateUtil } from '@/utils/dateUtil';
+import { devError } from '@/utils/devLog';
 
 interface UseFormMethodsPayload {
   formState: FormState;
@@ -184,7 +185,7 @@ export const useFormMethods = (payload: UseFormMethodsPayload) => {
     );
 
     if (!hasField) {
-      console.error(
+      devError(
         'All children of the form Schema array that need to be updated must contain the `field` field',
       );
       return;

@@ -29,6 +29,7 @@
   import { isFunction } from '@/utils/is';
   import { useI18n } from '@/hooks/useI18n';
   import { propTypes } from '@/utils/propTypes';
+  import { devWarn } from '@/utils/devLog';
 
   type OptionsItem = { label: string; value: string; disabled?: boolean };
 
@@ -116,7 +117,7 @@
       emitChange();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.warn(`[ApiSelect] options load failed: ${errorMessage}`, error);
+      devWarn(`[ApiSelect] options load failed: ${errorMessage}`, error);
     } finally {
       loading.value = false;
     }

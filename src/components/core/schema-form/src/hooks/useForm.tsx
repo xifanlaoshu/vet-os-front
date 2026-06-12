@@ -3,6 +3,7 @@ import { isEmpty } from 'lodash-es';
 import SchemaForm from '../schema-form.vue';
 import type { FunctionalComponent, Ref } from 'vue';
 import type { SchemaFormProps } from '../schema-form';
+import { devError } from '@/utils/devLog';
 
 type SchemaFormInstance = InstanceType<typeof SchemaForm>;
 
@@ -12,11 +13,11 @@ export function useForm(props?: Partial<SchemaFormProps>) {
   async function getFormInstance() {
     await nextTick();
     const form = unref(formRef);
-    if (isEmpty(form)) {
-      console.error('未获取表单实例!');
-    }
+    if (isEmpty(form))
+      devError('Schema form instance is not available.');
     return form;
   }
+
   watch(
     () => props,
     async () => {
@@ -35,12 +36,10 @@ export function useForm(props?: Partial<SchemaFormProps>) {
 
   const methods = new Proxy<Ref<SchemaFormInstance>>(formRef, {
     get(target, key: string) {
-      if (Reflect.has(target, key)) {
+      if (Reflect.has(target, key))
         return unref(target);
-      }
-      if (target.value && Reflect.has(target.value, key)) {
+      if (target.value && Reflect.has(target.value, key))
         return Reflect.get(target.value, key);
-      }
       return async (...rest) => {
         const form = await getFormInstance();
         return form?.[key]?.(...rest);

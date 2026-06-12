@@ -4,6 +4,7 @@ import { useIdle } from '@vueuse/core';
 import mitt from 'mitt';
 import { useUserStore } from './user';
 import { uniqueSlash } from '@/utils/urlUtils';
+import { devWarn } from '@/utils/devLog';
 
 export type MessageEvent = {
   data?: any;
@@ -113,7 +114,7 @@ export const useSSEStore = defineStore('sse', () => {
       }
     } catch (error: any) {
       if (error?.name !== 'AbortError') {
-        console.warn(`SSE connection closed unexpectedly: ${error?.message || 'unknown error'}`);
+        devWarn(`SSE connection closed unexpectedly: ${error?.message || 'unknown error'}`);
         closeEventSource();
       }
     }

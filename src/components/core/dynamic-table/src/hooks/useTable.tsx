@@ -3,6 +3,7 @@ import { isEmpty } from 'lodash-es';
 import DynamicTable from '../dynamic-table.vue';
 import type { FunctionalComponent, Ref } from 'vue';
 import type { DynamicTableProps } from '../dynamic-table';
+import { devError } from '@/utils/devLog';
 
 type DynamicTableInstance = InstanceType<typeof DynamicTable>;
 
@@ -12,9 +13,8 @@ export function useTable(props?: Partial<DynamicTableProps>) {
   async function getTableInstance() {
     await nextTick();
     const table = unref(dynamicTableRef);
-    if (isEmpty(table)) {
-      console.error('未获取表格实例!');
-    }
+    if (isEmpty(table))
+      devError('Dynamic table instance is not available.');
     return table;
   }
 
@@ -22,7 +22,6 @@ export function useTable(props?: Partial<DynamicTableProps>) {
     () => props,
     async () => {
       if (props) {
-        // console.log('table onMounted', { ...props });
         await nextTick();
         const tableInstance = await getTableInstance();
         tableInstance?.setProps?.(props);
@@ -36,12 +35,10 @@ export function useTable(props?: Partial<DynamicTableProps>) {
 
   const methods = new Proxy<Ref<DynamicTableInstance>>(dynamicTableRef, {
     get(target, key: string) {
-      if (Reflect.has(target, key)) {
+      if (Reflect.has(target, key))
         return unref(target);
-      }
-      if (target.value && Reflect.has(target.value, key)) {
+      if (target.value && Reflect.has(target.value, key))
         return Reflect.get(target.value, key);
-      }
       return async (...rest) => {
         const table = await getTableInstance();
         return table?.[key]?.(...rest);
