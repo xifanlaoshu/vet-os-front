@@ -19,7 +19,7 @@
         <div class="dynamic-table-panel" v-bind="panelAttrs">
           <ToolBar
             v-if="showToolBar"
-            :export-file-name="exportFileName"
+            :export-file-name="allowClientExport ? exportFileName : ''"
             :title="headerTitle"
             :title-tooltip="titleTooltip"
             :show-table-setting="showTableSetting"

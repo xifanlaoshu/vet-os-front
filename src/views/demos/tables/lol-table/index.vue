@@ -87,6 +87,7 @@ const customRow = (record) => {
       :columns="columns"
       auto-height
       row-key="heroid"
+      allow-client-export
       export-file-name="英雄联盟"
       :custom-row="customRow"
     >

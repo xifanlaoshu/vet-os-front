@@ -22,6 +22,10 @@ export const useExportData2Excel = (payload: UseExportData2ExcelPayload) => {
   const { getColumnKey } = tableMethods;
 
   const exportData2Excel = () => {
+    if (!props.allowClientExport) {
+      throw new Error('Client-side table export is disabled by default. Use audited backend export for business data.');
+    }
+
     const { columns, exportFormatter, exportFileName, exportBookType, exportAutoWidth } = props;
 
     const theaders = columns.filter((n) => {

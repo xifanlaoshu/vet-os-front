@@ -81,6 +81,10 @@ export const dynamicTableProps = {
   autoHeight: Boolean as PropType<boolean | string>,
   // excel导出配置
   /** 导出的文件名 */
+  allowClientExport: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
   exportFileName: {
     type: String as PropType<string>,
   },

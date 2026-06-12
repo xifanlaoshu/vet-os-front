@@ -43,6 +43,15 @@ const rules = [
     pattern: /[?&]refreshToken=|refreshToken\s*[:=]\s*[^;\n]*(?:url|query|params)/i,
     message: 'Do not place refresh tokens in URLs, query strings, or route params; send them in the request body only.',
   },
+  {
+    rule: 'no-client-side-business-export',
+    pattern: /\bexport-file-name\b|\bexportFileName\s*[:=]/,
+    message: 'Business data exports must use audited backend export, not client-side table export.',
+    allowFilePatterns: [
+      /^src[\\/]views[\\/]demos[\\/]/,
+      /^src[\\/]components[\\/]core[\\/]dynamic-table[\\/]/,
+    ],
+  },
 ];
 
 for (const file of sourceFiles) {
