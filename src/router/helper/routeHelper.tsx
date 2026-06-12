@@ -8,60 +8,76 @@ import basic from '@/router/routes/basic';
 import routeModules from '@/router/routes/modules';
 import { uniqueSlash } from '@/utils/urlUtils';
 
+const isRouteMenu = (route: RouteRecordRaw) => {
+  const { type, status } = route.meta || {};
+  return type !== 2 && status !== 0 && typeof route.path === 'string' && route.path.trim() !== '';
+};
+
+const resolveMissingComponent = (compPath: string) => {
+  warn(`Cannot find src/views/${compPath}.vue or ${compPath}.tsx, please create it.`);
+  return () => import('@/views/error/comp-not-found.vue');
+};
+
+const normalizeRoutePath = (route: RouteRecordRaw, parentRoute?: RouteRecordRaw) => {
+  if (route.meta?.isExt) {
+    return;
+  }
+  if (!route.path.startsWith('/')) {
+    route.path = parentRoute?.path
+      ? uniqueSlash(`${parentRoute.path}/${route.path}`)
+      : `/${route.path}`;
+  }
+};
+
 export const transformMenuToRoutes = (
   routeList: RouteRecordRaw[],
   parentRoute?: RouteRecordRaw,
 ) => {
-  routeList.forEach((route) => {
+  const validRoutes = routeList.filter(isRouteMenu);
+
+  validRoutes.forEach((route) => {
     route.meta ||= {} as RouteMeta;
     const { show = 1, type, isExt, extOpenMode } = route.meta;
     const compPath = route.component as unknown as string;
 
-    // 是否在菜单中隐藏
     route.meta.hideInMenu ??= !show;
-
-    if (!isExt) {
-      // 规范化路由路径
-      const isAbsolutePath = route.path.startsWith('/');
-      if (!isAbsolutePath) {
-        route.path = parentRoute?.path
-          ? uniqueSlash(`${parentRoute.path}/${route.path}`)
-          : `/${route.path}`;
-      }
-    }
-    // 以路由路径作为唯一的路由名称
+    normalizeRoutePath(route, parentRoute);
     route.name = route.path;
 
+    if (route.children?.length) {
+      route.children = transformMenuToRoutes(route.children, route);
+      if (!route.children.length) {
+        Reflect.deleteProperty(route, 'children');
+      }
+    }
+
     if (type === 0) {
-      route.component = null;
-      if (route.children?.length) {
-        const redirectChild = route.children.find((n) => !n.meta?.isExt);
-        if (!redirectChild) {
-          Reflect.deleteProperty(route, 'redirect');
-        } else {
-          route.redirect ??= uniqueSlash(`/${route.path}/${redirectChild.path}`);
-        }
+      route.component = compPath ? asyncRoutes[compPath] : null;
+      if (compPath && !route.component) {
+        route.component = resolveMissingComponent(compPath);
+      }
+
+      const redirectChild = route.children?.find((n) => !n.meta?.isExt);
+      if (redirectChild) {
+        route.redirect ??= uniqueSlash(
+          redirectChild.path.startsWith('/')
+            ? redirectChild.path
+            : `${route.path}/${redirectChild.path}`,
+        );
+      } else {
+        Reflect.deleteProperty(route, 'redirect');
       }
     } else if (type === 1) {
-      // 内嵌页面
       if (isExt && extOpenMode === 2) {
         route.component = <IFramePage src={route.path} />;
         route.path = route.path.replace(new RegExp('://'), '/');
+        route.name = route.path;
       } else if (compPath) {
-        route.component = asyncRoutes[compPath];
-        // 前端 src/views 目录下无对应路由组件
-        if (!route.component) {
-          route.component = () => import('@/views/error/comp-not-found.vue');
-          warn(`在src/views/下找不到 ${compPath}.vue 或 ${compPath}.tsx, 请自行创建!`);
-        }
+        route.component = asyncRoutes[compPath] || resolveMissingComponent(compPath);
       }
     }
-
-    if (route.children?.length) {
-      transformMenuToRoutes(route.children, route);
-    }
   });
-  return routeList;
+  return validRoutes;
 };
 
 export const generateDynamicRoutes = (menus: RouteRecordRaw[]) => {
@@ -74,11 +90,6 @@ export const generateDynamicRoutes = (menus: RouteRecordRaw[]) => {
   return routes;
 };
 
-/**
- * 主要方便于设置 a-menu 的 open-keys，即控制左侧菜单应当展开哪些菜单
- * @param {RouteRecordRaw[]} routes 需要添加 namePath 的路由
- * @param {string[]} namePath
- */
 export const genNamePathForRoutes = (routes: RouteRecordRaw[], parentNamePath: string[] = []) => {
   routes.forEach((item) => {
     if (item.meta && typeof item.name === 'string') {

@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useLockscreenStore } from './lockscreen';
 import { useSSEStore } from './sse';
+import { useKeepAliveStore } from './keepAlive';
 import type { RouteRecordRaw } from 'vue-router';
 import { store } from '@/store';
 import Api from '@/api/';
@@ -42,6 +43,7 @@ export const useUserStore = defineStore(
   () => {
     const sseStore = useSSEStore();
     const lockscreenStore = useLockscreenStore();
+    const keepAliveStore = useKeepAliveStore();
     const token = ref<string>();
     const perms = ref<string[]>([]);
     const menus = ref<RouteRecordRaw[]>([]);
@@ -136,6 +138,8 @@ export const useUserStore = defineStore(
       // const wsStore = useWsStore();
       const [menusData, permsData] = await Promise.all([accountMenu(), accountPermissions()]);
       perms.value = permsData;
+      resetRouter();
+      keepAliveStore.clear();
       const result = generateDynamicRoutes(menusData as unknown as RouteRecordRaw[]);
       menus.value = sortMenus(result);
     };

@@ -21,9 +21,13 @@ export const useTabsViewStore = defineStore(
     const layoutSettingStore = useLayoutSettingStore();
     const tabsList = ref<RouteLocationNormalizedLoaded[]>([]);
 
+    const hasRoute = (route: RouteLocationNormalizedLoaded) => {
+      return Boolean(route?.name && router.hasRoute(route.name));
+    };
+
     const getTabsList = computed(() => {
       return tabsList.value.filter((item) => {
-        return item && !isInRouteExcludes(item) && router.hasRoute(item.name!);
+        return item && !isInRouteExcludes(item) && hasRoute(item);
       });
     });
     /** 当前activity tab */
@@ -43,7 +47,7 @@ export const useTabsViewStore = defineStore(
       const keepAliveStore = useKeepAliveStore();
       const routes = router.getRoutes();
       const compNames = closedTabs.reduce<string[]>((prev, curr) => {
-        if (curr.name && router.hasRoute(curr.name)) {
+        if (hasRoute(curr)) {
           const componentName = routes.find((n) => n.name === curr.name)?.components?.default?.name;
           componentName && prev.push(componentName);
         }
