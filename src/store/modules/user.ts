@@ -8,6 +8,35 @@ import Api from '@/api/';
 import { resetRouter } from '@/router';
 import { generateDynamicRoutes } from '@/router/helper/routeHelper';
 
+const FALLBACK_HOME_PATH = '/vpet/consultation';
+
+export interface TenantAreaOption {
+  tenantId: number;
+  tenantName: string;
+  areaId: number;
+  areaName: string;
+  defaultArea?: boolean;
+}
+
+function isLegacyDashboardPath(path?: string) {
+  return !path || path === '/' || path.startsWith('/dashboard');
+}
+
+function findFirstMenuPath(routes: RouteRecordRaw[] = []): string | undefined {
+  for (const route of routes) {
+    if (route.meta?.hideInMenu) continue;
+    if (typeof route.redirect === 'string' && !isLegacyDashboardPath(route.redirect)) {
+      return route.redirect;
+    }
+    const childPath = findFirstMenuPath(route.children || []);
+    if (childPath) return childPath;
+    if (typeof route.path === 'string' && !isLegacyDashboardPath(route.path) && route.meta?.type !== 0) {
+      return route.path;
+    }
+  }
+  return undefined;
+}
+
 export const useUserStore = defineStore(
   'user',
   () => {
@@ -17,6 +46,12 @@ export const useUserStore = defineStore(
     const perms = ref<string[]>([]);
     const menus = ref<RouteRecordRaw[]>([]);
     const userInfo = ref<Partial<API.UserEntity>>({});
+    const tenantId = ref<number>();
+    const tenantName = ref<string>('');
+    const areaId = ref<number>();
+    const areaName = ref<string>('');
+    const areaOptions = ref<TenantAreaOption[]>([]);
+    const contextSelected = ref(false);
 
     const sortMenus = (menus: RouteRecordRaw[] = []) => {
       return menus
@@ -36,6 +71,12 @@ export const useUserStore = defineStore(
       perms.value = [];
       menus.value = [];
       userInfo.value = {};
+      tenantId.value = undefined;
+      tenantName.value = '';
+      areaId.value = undefined;
+      areaName.value = '';
+      areaOptions.value = [];
+      contextSelected.value = false;
       resetRouter();
       setTimeout(() => {
         localStorage.clear();
@@ -45,12 +86,25 @@ export const useUserStore = defineStore(
     const setToken = (_token: string) => {
       token.value = _token;
     };
+    const applyContext = (context: any = {}) => {
+      tenantId.value = context.tenantId;
+      tenantName.value = context.tenantName || '';
+      areaId.value = context.areaId;
+      areaName.value = context.areaName || '';
+      areaOptions.value = context.areaOptions || [];
+      contextSelected.value = Boolean(context.contextSelected);
+    };
+    const loadContext = async () => {
+      const context = await Api.account.accountContext();
+      applyContext(context);
+      return context;
+    };
     /** 登录 */
     const login = async (params: API.LoginDto) => {
       try {
         const data = await Api.auth.authLogin(params);
         setToken(data.token);
-        await afterLogin();
+        await loadContext();
         lockscreenStore.setLock(false);
         lockscreenStore.saveLoginPwd(params.password);
       } catch (error) {
@@ -65,6 +119,10 @@ export const useUserStore = defineStore(
         const userInfoData = await accountProfile();
 
         userInfo.value = userInfoData;
+        await loadContext();
+        if (!contextSelected.value) {
+          return;
+        }
         await fetchPermsAndMenus();
         sseStore.initServerMsgListener();
       } catch (error) {
@@ -81,11 +139,39 @@ export const useUserStore = defineStore(
       const result = generateDynamicRoutes(menusData as unknown as RouteRecordRaw[]);
       menus.value = sortMenus(result);
     };
+    const getHomePath = (preferredPath?: string) => {
+      if (preferredPath && !isLegacyDashboardPath(preferredPath)) {
+        return preferredPath;
+      }
+      return findFirstMenuPath(menus.value) || FALLBACK_HOME_PATH;
+    };
     /** 登出 */
     const logout = async () => {
       await Api.account.accountLogout();
       sseStore.closeEventSource();
       clearLoginStatus();
+    };
+    const switchArea = async (targetAreaId: number) => {
+      if (!targetAreaId || targetAreaId === areaId.value) return;
+      const context = await Api.account.accountSwitchArea({ areaId: targetAreaId });
+      if (context.token) {
+        setToken(context.token);
+      }
+      applyContext(context);
+      contextSelected.value = true;
+      await fetchPermsAndMenus();
+    };
+    const selectContext = async (targetTenantId: number, targetAreaId: number) => {
+      const context = await Api.account.accountSelectContext({
+        tenantId: targetTenantId,
+        areaId: targetAreaId,
+      });
+      if (context.token) {
+        setToken(context.token);
+      }
+      applyContext({ ...context, contextSelected: true });
+      await fetchPermsAndMenus();
+      return context;
     };
 
     return {
@@ -93,16 +179,26 @@ export const useUserStore = defineStore(
       perms,
       menus,
       userInfo,
+      tenantId,
+      tenantName,
+      areaId,
+      areaName,
+      areaOptions,
+      contextSelected,
       login,
       afterLogin,
       logout,
       clearLoginStatus,
+      loadContext,
+      switchArea,
+      selectContext,
       fetchPermsAndMenus,
+      getHomePath,
     };
   },
   {
     persist: {
-      pick: ['token'],
+      pick: ['token', 'tenantId', 'tenantName', 'areaId', 'areaName', 'areaOptions', 'contextSelected'],
     },
   },
 );

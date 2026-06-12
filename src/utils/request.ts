@@ -92,6 +92,9 @@ service.interceptors.request.use(
       // 请求头token信息，请根据实际情况进行修改
       headers.Authorization = `Bearer ${token}`;
     }
+    if (userStore.areaId) {
+      headers['X-Area-Id'] = String(userStore.areaId);
+    }
     config.headers = headers as any;
     return config;
   },

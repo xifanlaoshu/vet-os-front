@@ -18,6 +18,17 @@
     </div>
     <div class="header-right">
       <Space :size="20">
+        <div v-if="userStore.tenantName || userStore.areaName" class="tenant-area-switcher">
+          <span class="tenant-name">{{ userStore.tenantName || '当前医院' }}</span>
+          <Select
+            :value="userStore.areaId"
+            :options="areaSelectOptions"
+            size="small"
+            class="area-select"
+            :disabled="areaSelectOptions.length <= 1"
+            @change="handleAreaChange"
+          />
+        </div>
         <Search />
         <Tooltip :title="$t('layout.header.tooltipLock')" placement="bottom">
           <LockOutlined @click="lockscreenStore.setLock(true)" />
@@ -65,6 +76,7 @@
     Space,
     Avatar,
     Tooltip,
+    Select,
     type MenuTheme,
   } from 'ant-design-vue';
   import { Search, FullScreen, ProjectSetting, LayoutBreadcrumb } from './components/';
@@ -83,15 +95,22 @@
       type: String as PropType<MenuTheme>,
     },
   });
+
   const emit = defineEmits(['update:collapsed']);
   const userStore = useUserStore();
   const layoutSettingStore = useLayoutSettingStore();
   const lockscreenStore = useLockscreenStore();
   const keepAliveStore = useKeepAliveStore();
-
   const router = useRouter();
   const route = useRoute();
+
   const userInfo = computed(() => userStore.userInfo);
+  const areaSelectOptions = computed(() =>
+    (userStore.areaOptions || []).map((item) => ({
+      label: item.areaName,
+      value: item.areaId,
+    })),
+  );
   const headerStyle = computed<CSSProperties>(() => {
     const { navTheme, layout } = layoutSettingStore.layoutSetting;
     const isDark = navTheme === 'dark' && layout === 'topmenu';
@@ -101,16 +120,19 @@
     };
   });
 
-  // 退出登录
+  const handleAreaChange = async (value: any) => {
+    await userStore.switchArea(Number(value));
+    message.success('院区已切换');
+  };
+
   const doLogout = () => {
     Modal.confirm({
-      title: '您确定要退出登录吗？',
+      title: '确定要退出登录吗？',
       icon: <QuestionCircleOutlined />,
       centered: true,
       onOk: async () => {
         await userStore.logout();
         keepAliveStore.clear();
-        // 移除标签页
         localStorage.clear();
         message.success('成功退出登录');
         router.replace({
@@ -144,6 +166,29 @@
       flex: 1;
       align-items: center;
       min-width: 0;
+    }
+
+    .tenant-area-switcher {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: default;
+    }
+
+    .tenant-name {
+      max-width: 140px;
+      overflow: hidden;
+      color: #475569;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .area-select {
+      width: 128px;
     }
   }
 </style>

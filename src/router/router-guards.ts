@@ -1,7 +1,7 @@
 import { NavigationFailureType, isNavigationFailure } from 'vue-router';
 import NProgress from 'nprogress'; // progress bar
 import { Modal } from 'ant-design-vue';
-import { LOGIN_NAME, REDIRECT_NAME } from './constant';
+import { LOGIN_NAME, REDIRECT_NAME, TENANT_CONTEXT_NAME } from './constant';
 import type { WhiteNameList } from './constant';
 import type { Router, RouteLocationNormalized } from 'vue-router';
 import { useUserStore } from '@/store/modules/user';
@@ -24,6 +24,15 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
 
     if (userStore.token) {
       if (to.name === LOGIN_NAME) {
+        if (!userStore.contextSelected) {
+          const [contextErr] = await _to(userStore.loadContext());
+          if (contextErr) {
+            userStore.clearLoginStatus();
+            Modal.destroyAll();
+            return next({ name: LOGIN_NAME });
+          }
+          return next({ name: TENANT_CONTEXT_NAME, query: { redirect: to.query.redirect as string | undefined } });
+        }
         if (userStore.menus.length === 0) {
           const [err] = await _to(userStore.afterLogin());
           if (err) {
@@ -33,7 +42,24 @@ export function createRouterGuards(router: Router, whiteNameList: WhiteNameList)
           }
         }
         next({ path: userStore.getHomePath() });
+      } else if (to.name === TENANT_CONTEXT_NAME) {
+        const [contextErr] = await _to(userStore.loadContext());
+        if (contextErr) {
+          userStore.clearLoginStatus();
+          Modal.destroyAll();
+          return next({ name: LOGIN_NAME, query: { redirect: to.fullPath }, replace: true });
+        }
+        next();
       } else {
+        if (!userStore.contextSelected) {
+          const [contextErr] = await _to(userStore.loadContext());
+          if (contextErr) {
+            userStore.clearLoginStatus();
+            Modal.destroyAll();
+            return next({ name: LOGIN_NAME, query: { redirect: to.fullPath }, replace: true });
+          }
+          return next({ name: TENANT_CONTEXT_NAME, query: { redirect: to.fullPath }, replace: true });
+        }
         if (userStore.menus.length === 0) {
           // 从后台获取菜单
           const [err] = await _to(userStore.afterLogin());

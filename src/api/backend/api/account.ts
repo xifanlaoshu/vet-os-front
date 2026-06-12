@@ -62,3 +62,35 @@ export async function accountUpdate(body: API.AccountUpdateDto, options?: Reques
     ...(options || {}),
   });
 }
+
+/** 获取当前租户与院区上下文 GET /api/account/context */
+export async function accountContext(options?: RequestOptions) {
+  return request<any>('/api/account/context', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 切换当前院区 POST /api/account/switch-area */
+export async function accountSwitchArea(body: { areaId: number }, options?: RequestOptions) {
+  return request<any>('/api/account/switch-area', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 选择当前登录租户与院区 POST /api/account/select-context */
+export async function accountSelectContext(body: { tenantId: number; areaId: number }, options?: RequestOptions) {
+  return request<any>('/api/account/select-context', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

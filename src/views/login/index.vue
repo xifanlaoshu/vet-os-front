@@ -99,7 +99,10 @@
       updateCaptcha();
     } else {
       message.success('登录成功！');
-      setTimeout(() => router.replace((route.query.redirect as string) || '/'));
+      setTimeout(() => router.replace({
+        name: 'TenantContextSelect',
+        query: { redirect: route.query.redirect as string | undefined },
+      }));
     }
     loading.value = false;
     message.destroy();
