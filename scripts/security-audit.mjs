@@ -1,10 +1,13 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { cwd } from 'node:process';
 
 const root = cwd();
 const sourceFiles = listSourceFiles(join(root, 'src'));
 const findings = [];
+
+auditAuthSessionPersistence();
+auditTenantContextRequestHeaders();
 
 const rules = [
   {
@@ -90,6 +93,67 @@ if (findings.length) {
 }
 
 console.log('Security audit passed.');
+
+function auditAuthSessionPersistence() {
+  const userStorePath = join(root, 'src', 'store', 'modules', 'user.ts');
+  if (!existsSync(userStorePath))
+    return;
+
+  const content = readFileSync(userStorePath, 'utf8');
+  if (!/persist\s*:\s*\{[\s\S]*storage\s*:\s*sessionStorage[\s\S]*pick\s*:\s*\[[\s\S]*['"`]token['"`][\s\S]*['"`]refreshToken['"`]/.test(content)) {
+    findings.push({
+      file: 'src/store/modules/user.ts',
+      line: 1,
+      rule: 'auth-session-storage-required',
+      message: 'Auth tokens must be persisted only in sessionStorage, never long-lived localStorage.',
+    });
+  }
+
+  if (/localStorage\.(?:setItem|getItem)\([^)]*(?:token|refreshToken|ACCESS_TOKEN|USER_PERSIST_KEY)/i.test(content)) {
+    findings.push({
+      file: 'src/store/modules/user.ts',
+      line: 1,
+      rule: 'no-auth-token-local-storage',
+      message: 'Do not read or write auth tokens through localStorage.',
+    });
+  }
+}
+
+function auditTenantContextRequestHeaders() {
+  const requestPath = join(root, 'src', 'utils', 'request.ts');
+  if (!existsSync(requestPath))
+    return;
+
+  const content = readFileSync(requestPath, 'utf8');
+  const requiredPatterns = [
+    {
+      pattern: /!userStore\.contextSelected\s*&&\s*!isTenantContextBootstrapApi\(config\.url\)/,
+      rule: 'missing-client-tenant-context-block',
+      message: 'Business API requests must be blocked before tenant and area context is selected.',
+    },
+    {
+      pattern: /headers\[['"`]X-Area-Id['"`]\]\s*=\s*String\(userStore\.areaId\)/,
+      rule: 'missing-client-area-header',
+      message: 'Business API requests must carry X-Area-Id after context selection.',
+    },
+    {
+      pattern: /originalConfig\.url\s*!==\s*AUTH_REFRESH_URL/,
+      rule: 'refresh-request-loop-guard-required',
+      message: 'Access-token refresh retry logic must not recursively refresh the refresh endpoint.',
+    },
+  ];
+
+  requiredPatterns.forEach(({ pattern, rule, message }) => {
+    if (pattern.test(content))
+      return;
+    findings.push({
+      file: 'src/utils/request.ts',
+      line: 1,
+      rule,
+      message,
+    });
+  });
+}
 
 function listSourceFiles(dir) {
   const result = [];
