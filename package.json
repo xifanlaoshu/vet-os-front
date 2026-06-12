@@ -45,6 +45,7 @@
     "clean:lib": "npx rimraf node_modules packages/*/node_modules",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "security:audit": "node scripts/security-audit.mjs",
     "lint:lint-staged": "lint-staged",
     "prepare": "husky",
     "release": "git push && git push origin --tags",

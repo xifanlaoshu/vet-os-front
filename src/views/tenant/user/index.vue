@@ -191,7 +191,12 @@
     });
     formRef?.updateSchema([
       { field: 'username', componentProps: { disabled: isUpdate } },
-      { field: 'password', required: !isUpdate, defaultValue: isUpdate ? undefined : 'a123456' },
+      {
+        field: 'password',
+        required: !isUpdate,
+        defaultValue: undefined,
+        componentProps: { placeholder: '请输入12-64位且包含字母和数字的密码' },
+      },
     ]);
   };
 

@@ -162,7 +162,7 @@
         {
           field: 'password',
           required: true,
-          defaultValue: 'a123456',
+          defaultValue: undefined,
           componentProps: { placeholder: '请输入' },
         },
       ]);

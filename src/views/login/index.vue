@@ -16,7 +16,7 @@
           v-model:value="loginFormModel.password"
           size="large"
           type="password"
-          placeholder="a123456"
+          placeholder="请输入密码"
           autocomplete="new-password"
         >
           <template #prefix> <Icon icon="ant-design:lock-outlined" /></template>
@@ -65,7 +65,7 @@
   const captcha = ref('');
   const loginFormModel = ref({
     username: 'admin',
-    password: 'a123456',
+    password: '',
     verifyCode: '',
     captchaId: '',
   });
