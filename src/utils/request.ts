@@ -26,6 +26,23 @@ const UNKNOWN_ERROR = '未知错误，请重试';
 const AUTH_REFRESH_URL = '/api/auth/refresh';
 let refreshTokenPromise: Promise<string> | null = null;
 
+function normalizeApiUrl(url?: string) {
+  return (url || '').split('?')[0].replace(/^https?:\/\/[^/]+/i, '');
+}
+
+function isTenantContextBootstrapApi(url?: string) {
+  const path = normalizeApiUrl(url);
+  return [
+    '/api/account/profile',
+    '/api/account/logout',
+    '/api/account/context',
+    '/api/account/select-context',
+    '/api/account/switch-area',
+    '/api/tenants/context',
+    AUTH_REFRESH_URL,
+  ].includes(path);
+}
+
 function stringifyMessage(input: unknown): string {
   if (typeof input === 'string' && input.trim()) return input;
   if (Array.isArray(input)) {
@@ -112,12 +129,15 @@ service.interceptors.request.use(
     const localeStore = useLocaleStore();
     const token = userStore.token;
     const headers = (config.headers || {}) as Record<string, any>;
+    if (token && !userStore.contextSelected && !isTenantContextBootstrapApi(config.url)) {
+      return Promise.reject(new Error('Tenant and area context must be selected before business requests.'));
+    }
     headers['Accept-Language'] = localeStore.getLocale;
     if (token) {
       // 请求头token信息，请根据实际情况进行修改
       headers.Authorization = `Bearer ${token}`;
     }
-    if (userStore.areaId) {
+    if (userStore.contextSelected && userStore.areaId) {
       headers['X-Area-Id'] = String(userStore.areaId);
     }
     config.headers = headers as any;
