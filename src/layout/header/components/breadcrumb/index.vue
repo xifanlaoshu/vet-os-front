@@ -2,6 +2,7 @@
   import { computed } from 'vue';
   import { useRoute, useRouter, type RouteRecordRaw } from 'vue-router';
   import { useUserStore } from '@/store/modules/user';
+  import { safeOpen } from '@/utils/safeOpen';
 
   defineOptions({
     name: 'LayoutBreadcrumb',
@@ -18,7 +19,7 @@
     if (type === 0 && !menuItem.redirect) return;
 
     if (isExt && extOpenMode === 1) {
-      window.open(menuItem.path);
+      safeOpen(menuItem.path);
     } else {
       const to = typeof menuItem.redirect === 'string' ? menuItem.redirect : menuItem;
       router.push(to);

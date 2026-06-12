@@ -38,6 +38,7 @@
   import SearchResult from './components/SearchResult.vue';
   import SearchFooter from './components/SearchFooter.vue';
   import type { RouteRecordRaw } from 'vue-router';
+  import { safeOpen } from '@/utils/safeOpen';
   import { useUserStore } from '@/store/modules/user';
   import { DraggableModal } from '@/components/core/draggable-modal';
   import { transformI18n } from '@/hooks/useI18n';
@@ -130,7 +131,7 @@
     const { length } = resultOptions.value;
     if (length === 0 || activePath.value === '') return;
     if (/http(s)?:/.test(activePath.value)) {
-      window.open(activePath.value);
+      safeOpen(activePath.value);
     } else {
       router.push({ name: activePath.value });
       handleClose();

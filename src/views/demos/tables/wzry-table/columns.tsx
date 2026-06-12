@@ -1,5 +1,6 @@
 import { Tag, Image } from 'ant-design-vue';
 import type { TableColumn } from '@/components/core/dynamic-table';
+import { safeOpen } from '@/utils/safeOpen';
 
 export const columns: TableColumn[] = [
   {
@@ -58,7 +59,7 @@ export const columns: TableColumn[] = [
     actions: ({ record }) => [
       {
         label: '查看详情',
-        onClick: () => window.open(record.infourl),
+        onClick: () => safeOpen(record.infourl),
       },
     ],
   },

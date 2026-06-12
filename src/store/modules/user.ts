@@ -10,6 +10,7 @@ import { resetRouter } from '@/router';
 import { generateDynamicRoutes } from '@/router/helper/routeHelper';
 
 const FALLBACK_HOME_PATH = '/vpet/consultation';
+export const USER_PERSIST_KEY = '__persisted__user';
 
 export interface TenantAreaOption {
   tenantId: number;
@@ -81,7 +82,7 @@ export const useUserStore = defineStore(
       contextSelected.value = false;
       resetRouter();
       setTimeout(() => {
-        localStorage.clear();
+        sessionStorage.removeItem(USER_PERSIST_KEY);
       });
     };
     /** 登录成功保存token */
@@ -202,6 +203,7 @@ export const useUserStore = defineStore(
   },
   {
     persist: {
+      storage: sessionStorage,
       pick: ['token', 'tenantId', 'tenantName', 'areaId', 'areaName', 'areaOptions', 'contextSelected'],
     },
   },

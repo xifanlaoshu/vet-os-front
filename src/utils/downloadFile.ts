@@ -17,6 +17,8 @@
  * 根据文件url获取文件名
  * @param url 文件url
  */
+import { safeOpen } from './safeOpen';
+
 function getFileName(url) {
   const num = url.lastIndexOf('/') + 1;
   let fileName = url.substring(num);
@@ -61,7 +63,7 @@ export function downloadByUrl({
         url += '?download';
       }
 
-      window.open(url, target);
+      safeOpen(url, target);
       return resolve(true);
     } else {
       const canvas = document.createElement('canvas');

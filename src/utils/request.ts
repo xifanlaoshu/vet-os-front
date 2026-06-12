@@ -5,7 +5,7 @@ import { message as $message, Modal } from 'ant-design-vue';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ResultEnum } from '@/enums/httpEnum';
 import { useLocaleStore } from '@/store/modules/locale';
-import { useUserStore } from '@/store/modules/user';
+import { USER_PERSIST_KEY, useUserStore } from '@/store/modules/user';
 import { useSSEStore } from '@/store/modules/sse';
 
 export interface RequestOptions extends AxiosRequestConfig {
@@ -121,7 +121,7 @@ service.interceptors.response.use(
           okText: '重新登录',
           cancelText: '取消',
           onOk: () => {
-            localStorage.clear();
+            sessionStorage.removeItem(USER_PERSIST_KEY);
             window.location.reload();
           },
         });

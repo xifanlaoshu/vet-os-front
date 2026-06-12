@@ -10,6 +10,7 @@
   import MenuItemContent from './menu-item-content.vue';
   import type { PropType } from 'vue';
   import type { RouteRecordRaw } from 'vue-router';
+  import { safeOpen } from '@/utils/safeOpen';
 
   defineOptions({
     name: 'MyMenuItem',
@@ -27,7 +28,7 @@
   const handleMenuItemClick = (item: RouteRecordRaw) => {
     const { isExt, extOpenMode } = item.meta || {};
     if (isExt && extOpenMode !== 2) {
-      window.open(item.path);
+      safeOpen(item.path);
     } else {
       router.push(item.path || { name: item.name });
     }

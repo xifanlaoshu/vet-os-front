@@ -76,6 +76,7 @@
   import { createContextMenu } from '@/components/basic/context-menu';
   import { useTable } from '@/components/core/dynamic-table';
   import { hasPermission } from '@/permission';
+  import { safeOpen } from '@/utils/safeOpen';
 
   defineOptions({
     name: 'NetDiskManage',
@@ -231,7 +232,7 @@
         name: row.name,
       });
       // handle
-      window.open(`${data}?attname=${encodeURIComponent(row.name)}`);
+      safeOpen(`${data}?attname=${encodeURIComponent(row.name)}`);
     } finally {
       isLoading.value = false;
     }

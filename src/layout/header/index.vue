@@ -133,7 +133,6 @@
       onOk: async () => {
         await userStore.logout();
         keepAliveStore.clear();
-        localStorage.clear();
         message.success('成功退出登录');
         router.replace({
           name: LOGIN_NAME,
