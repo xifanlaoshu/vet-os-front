@@ -19,6 +19,7 @@ import * as systemOnline from './systemOnline';
 import * as systemSse from './systemSse';
 import * as systemServe from './systemServe';
 import * as systemTenant from './systemTenant';
+import * as tenantAdmin from './tenantAdmin';
 import * as toolsStorage from './toolsStorage';
 import * as systemEmail from './systemEmail';
 import * as toolsUpload from './toolsUpload';
@@ -44,6 +45,7 @@ export default {
   systemSse,
   systemServe,
   systemTenant,
+  tenantAdmin,
   toolsStorage,
   systemEmail,
   toolsUpload,
