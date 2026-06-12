@@ -128,7 +128,6 @@
   });
 
   const handleMoreOpCommand = ({ key: command }) => {
-    console.log('command', command);
     if (command === 'copy') {
       copyMode.value = true;
     } else if (command === 'cut') {

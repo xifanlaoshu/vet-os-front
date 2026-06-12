@@ -98,7 +98,6 @@
   const rowSelection = ref({
     selectedRowKeys: [] as number[],
     onChange: (selectedRowKeys: number[], selectedRows: TableListItem[]) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       rowSelection.value.selectedRowKeys = selectedRowKeys;
     },
   });
@@ -127,7 +126,6 @@
         title: `${isUpdate ? '编辑' : '新增'}用户`,
         width: 700,
         onFinish: async (values) => {
-          console.log('新增/编辑用户', values);
           values.id = record.id;
           if (record.id) {
             await userUpdate({ id: record.id }, values);

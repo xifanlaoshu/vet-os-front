@@ -23,6 +23,21 @@ const rules = [
     message: 'Use safeOpen() instead of direct window.open().',
     allowFiles: ['src\\utils\\safeOpen.ts', 'src/utils/safeOpen.ts'],
   },
+  {
+    rule: 'no-console-log',
+    pattern: /\bconsole\.(?:log|debug)\s*\(/,
+    message: 'Do not ship console.log/debug in production frontend code.',
+    allowFilePatterns: [
+      /^scripts[\\/]/,
+      /^src[\\/]views[\\/]demos[\\/]/,
+      /^src[\\/]hooks[\\/]useBattery\.ts$/,
+    ],
+  },
+  {
+    rule: 'no-raw-request-error-log',
+    pattern: /\braw\s*:\s*error\b/,
+    message: 'Do not log raw request error objects because they may contain Authorization headers.',
+  },
 ];
 
 for (const file of sourceFiles) {
@@ -34,8 +49,10 @@ for (const file of sourceFiles) {
     if (lineText.trim().startsWith('//'))
       return;
 
-    for (const { rule, pattern, message, allowFiles = [] } of rules) {
+    for (const { rule, pattern, message, allowFiles = [], allowFilePatterns = [] } of rules) {
       if (allowFiles.includes(relFile))
+        continue;
+      if (allowFilePatterns.some(filePattern => filePattern.test(relFile)))
         continue;
       if (!pattern.test(lineText))
         continue;

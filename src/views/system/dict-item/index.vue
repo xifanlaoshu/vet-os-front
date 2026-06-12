@@ -91,7 +91,6 @@
         title: `${record.id ? '编辑' : '新增'}字典项`,
         width: '50%',
         onFinish: async (values) => {
-          console.log('新增/编辑字典', values);
           if (record.id) {
             await Api.systemDictItem.dictItemUpdate({ id: record.id }, values);
           } else {

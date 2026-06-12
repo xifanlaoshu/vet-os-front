@@ -80,7 +80,6 @@
           });
           item.status = UploadResultStatus.SUCCESS;
         } catch (error) {
-          console.log(error);
           item.status = UploadResultStatus.ERROR;
         }
       }),

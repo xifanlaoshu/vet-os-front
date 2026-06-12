@@ -64,9 +64,7 @@
     dynamicTableInstance.reload();
   };
 
-  const handleChange = (...a) => {
-    console.log(...a);
-  };
+  const handleChange = () => {};
 
   const handleSearch = (params: TableListItem) => {
     const keys = Object.keys(params);

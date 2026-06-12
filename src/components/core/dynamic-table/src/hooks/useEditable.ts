@@ -75,7 +75,6 @@ export const useEditable = (payload: UseEditablePayload) => {
 
   const startEditable = (recordKey: Key, currentRow?: Recordable) => {
     editableCellKeys.value.clear();
-    console.log('startEditable editFormModel', editFormModel);
     if (editableRowKeys.value.size > 0 && props.editableType === 'single') {
       message.warn(props.onlyOneLineEditorAlertMessage || t('component.table.onlyOneLineEditor'));
       return false;

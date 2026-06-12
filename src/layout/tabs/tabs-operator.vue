@@ -107,8 +107,8 @@
           // @ts-ignore
           const res = await comp();
           __file = res?.default?.__file;
-        } catch (error) {
-          console.log(error);
+        } catch {
+          console.warn('Failed to resolve page file for editor jump.');
         }
       }
       if (__file) {

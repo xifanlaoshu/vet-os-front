@@ -59,10 +59,7 @@ function logRequestError(error: any, messageText: string) {
   const context = buildErrorContext(error);
   const routeText = [context.method, context.url].filter(Boolean).join(' ');
   const statusText = context.status || context.code || 'ERR';
-  console.error(`[request error] ${routeText} [${statusText}] ${messageText}`, {
-    ...context,
-    raw: error,
-  });
+  console.error(`[request error] ${routeText} [${statusText}] ${messageText}`, context);
 }
 
 /** 真实请求的路径前缀 */

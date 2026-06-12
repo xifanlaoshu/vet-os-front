@@ -113,7 +113,7 @@ export const useSSEStore = defineStore('sse', () => {
       }
     } catch (error: any) {
       if (error?.name !== 'AbortError') {
-        console.log('eventSource err', error);
+        console.warn(`SSE connection closed unexpectedly: ${error?.message || 'unknown error'}`);
         closeEventSource();
       }
     }

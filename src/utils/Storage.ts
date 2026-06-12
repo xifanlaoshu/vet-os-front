@@ -62,7 +62,6 @@ export const createStorage = ({ prefixKey = '', storage = localStorage } = {}) =
      * @param {string} key
      */
     remove(key: string) {
-      console.log('remove:', key);
       this.storage.removeItem(this.getKey(key));
     }
 

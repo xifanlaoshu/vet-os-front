@@ -114,7 +114,6 @@
       error: (err) => {
         onError?.(err);
         handleUploadError(err, file as File);
-        console.log('上传失败', err);
       },
       complete: (res) => {
         successSubs.value.push(sub);

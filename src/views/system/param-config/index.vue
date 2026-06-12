@@ -50,7 +50,6 @@
         title: `${record.id ? '编辑' : '新增'}字典`,
         width: '50%',
         onFinish: async (values) => {
-          console.log('新增/编辑字典', values);
           if (record.id) {
             await Api.systemParamConfig.paramConfigUpdate({ id: record.id }, values);
           } else {

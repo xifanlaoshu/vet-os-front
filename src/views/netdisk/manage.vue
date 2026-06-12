@@ -99,7 +99,6 @@
   const rowSelection = reactive<TableRowSelection<API.SFileInfo>>({
     selectedRowKeys: [],
     onChange: (selectedRowKeys: Key[], selectedRows) => {
-      console.log('selectedRowKeys changed: ', selectedRowKeys);
       rowSelection.selectedRowKeys = selectedRowKeys;
       selectedFileList.value = selectedRows.map((n) => ({ type: n.type, name: n.name }));
     },
@@ -151,7 +150,6 @@
   };
 
   const loadData = async () => {
-    console.log('loadData lock.value', lock.value);
     if (lock.value) {
       return;
     }
@@ -192,7 +190,6 @@
   };
 
   const handleJumpPath = (index) => {
-    console.log('handleJumpPath ', index);
     if (isSearching.value) {
       return;
     }
@@ -204,7 +201,6 @@
   };
 
   const handleClickFileItem = (row: API.SFileInfo) => {
-    console.log('handleClickFileItem ', row);
     if (row.type === 'dir') {
       if (isSearching.value) {
         const pathList = isEmpty(row.belongTo) ? [] : row.belongTo.split('/');
@@ -239,7 +235,6 @@
   };
 
   const handleRename = async (record: API.SFileInfo) => {
-    console.log('record', record);
 
     await showModal({
       modalProps: {

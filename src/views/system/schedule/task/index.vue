@@ -114,7 +114,6 @@
             ...values,
             id: record.id,
           };
-          console.log('新增/编辑任务', params);
           if (record.id) {
             await Api.systemTask.taskUpdate({ id: record.id }, params);
           } else {

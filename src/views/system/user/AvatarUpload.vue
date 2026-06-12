@@ -61,13 +61,11 @@
   };
 
   const handleChange: UploadProps['onChange'] = ({ file }) => {
-    console.log('onChange', file);
     file.status = 'done';
     fileList.value = [file];
   };
 
   const handleRemove: UploadProps['onRemove'] = (file) => {
-    console.log('handleRemove', file);
     modelValue.value = '';
     fileList.value = [];
   };

@@ -51,7 +51,6 @@
         title: `${record.id ? '编辑' : '新增'}部门`,
         width: '50%',
         onFinish: async (values) => {
-          console.log('新增/编辑部门', values);
           if (record.id) {
             await Api.systemDept.deptUpdate({ id: record.id }, values);
           } else {

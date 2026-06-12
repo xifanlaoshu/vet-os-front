@@ -87,7 +87,6 @@
     }
     message.loading('登录中...', 0);
     loading.value = true;
-    console.log(loginFormModel.value);
     // params.password = md5(password)
 
     const [err] = await to(userStore.login(loginFormModel.value));

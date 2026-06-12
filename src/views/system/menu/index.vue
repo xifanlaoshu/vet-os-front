@@ -51,7 +51,6 @@
         title: `${record.id ? '编辑' : '新增'}菜单`,
         width: 700,
         onFinish: async (values) => {
-          console.log('新增/编辑菜单', values);
           record.id && (values.menuId = record.id);
           if (Array.isArray(values.component)) {
             values.component = values.component.join('/');
@@ -82,7 +81,6 @@
       parentId: record.parentId ?? -1,
       component: record.component?.split('/'),
     });
-    console.log('record', record);
   };
   const delRowConfirm = async (record: TableListItem) => {
     await Api.systemMenu.menuDelete({ id: record.id });
