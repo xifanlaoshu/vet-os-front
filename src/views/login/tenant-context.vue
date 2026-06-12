@@ -17,10 +17,10 @@
       />
 
       <a-radio-group v-else v-model:value="selectedKey" class="tenant-context-list">
-        <div v-for="group in groupedOptions" :key="group.tenantId" class="tenant-group">
+        <section v-for="group in groupedOptions" :key="group.tenantId" class="tenant-group">
           <div class="tenant-title">
-            <span class="tenant-name">{{ group.tenantName }}</span>
-            <a-tag class="tenant-id">租户 #{{ group.tenantId }}</a-tag>
+            <div class="tenant-name">{{ group.tenantName }}</div>
+            <div class="tenant-hint">请选择本租户下的登录院区</div>
           </div>
           <a-radio
             v-for="area in group.areas"
@@ -31,12 +31,12 @@
             <div class="area-content">
               <div class="area-name">{{ area.areaName }}</div>
               <div class="area-meta">
-                院区 #{{ area.areaId }}
-                <a-tag v-if="area.defaultArea" color="green">默认</a-tag>
+                登录后将进入该院区的业务数据空间
+                <a-tag v-if="area.defaultArea" color="green">默认院区</a-tag>
               </div>
             </div>
           </a-radio>
-        </div>
+        </section>
       </a-radio-group>
 
       <div class="tenant-actions">
@@ -121,7 +121,7 @@ async function logout() {
 <style lang="less" scoped>
   .tenant-context-page {
     min-height: 100vh;
-    padding: 96px 20px 40px;
+    padding: 88px 20px 40px;
     background:
       radial-gradient(circle at 20% 10%, rgba(15, 118, 110, 0.18), transparent 32%),
       radial-gradient(circle at 80% 16%, rgba(14, 165, 233, 0.16), transparent 30%),
@@ -129,7 +129,7 @@ async function logout() {
   }
 
   .tenant-context-card {
-    max-width: 820px;
+    max-width: 860px;
     margin: 0 auto;
     border-radius: 24px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
@@ -162,31 +162,35 @@ async function logout() {
   }
 
   .tenant-group {
-    padding: 16px;
+    padding: 20px;
     border: 1px solid #dbe7ef;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.86);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
   }
 
   .tenant-title {
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    color: #1f2a37;
-    font-weight: 700;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 14px;
   }
 
   .tenant-name {
-    max-width: 560px;
+    max-width: 100%;
     overflow: hidden;
+    color: #102033;
+    font-size: 22px;
+    font-weight: 850;
+    line-height: 1.25;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .tenant-id {
-    flex: 0 0 auto;
+  .tenant-hint {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 400;
   }
 
   .area-option {
@@ -216,10 +220,15 @@ async function logout() {
 
   .area-name {
     color: #27364a;
+    font-size: 15px;
     font-weight: 700;
   }
 
   .area-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
     margin-top: 4px;
     color: #64748b;
     font-size: 12px;
