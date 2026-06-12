@@ -19,8 +19,8 @@
       <a-radio-group v-else v-model:value="selectedKey" class="tenant-context-list">
         <div v-for="group in groupedOptions" :key="group.tenantId" class="tenant-group">
           <div class="tenant-title">
-            <span>{{ group.tenantName }}</span>
-            <a-tag>租户 #{{ group.tenantId }}</a-tag>
+            <span class="tenant-name">{{ group.tenantName }}</span>
+            <a-tag class="tenant-id">租户 #{{ group.tenantId }}</a-tag>
           </div>
           <a-radio
             v-for="area in group.areas"
@@ -28,7 +28,7 @@
             :value="`${area.tenantId}:${area.areaId}`"
             class="area-option"
           >
-            <div>
+            <div class="area-content">
               <div class="area-name">{{ area.areaName }}</div>
               <div class="area-meta">
                 院区 #{{ area.areaId }}
@@ -121,7 +121,7 @@ async function logout() {
 <style lang="less" scoped>
   .tenant-context-page {
     min-height: 100vh;
-    padding: 120px 20px 40px;
+    padding: 96px 20px 40px;
     background:
       radial-gradient(circle at 20% 10%, rgba(15, 118, 110, 0.18), transparent 32%),
       radial-gradient(circle at 80% 16%, rgba(14, 165, 233, 0.16), transparent 30%),
@@ -129,7 +129,7 @@ async function logout() {
   }
 
   .tenant-context-card {
-    max-width: 760px;
+    max-width: 820px;
     margin: 0 auto;
     border-radius: 24px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
@@ -170,10 +170,23 @@ async function logout() {
 
   .tenant-title {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 12px;
     color: #1f2a37;
     font-weight: 700;
+  }
+
+  .tenant-name {
+    max-width: 560px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tenant-id {
+    flex: 0 0 auto;
   }
 
   .area-option {
@@ -184,10 +197,21 @@ async function logout() {
     border: 1px solid #e5edf5;
     border-radius: 14px;
     background: #f8fbfd;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .area-option:hover {
+    border-color: #14b8a6;
+    background: #f5fffc;
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.08);
   }
 
   .area-option:last-child {
     margin-bottom: 0;
+  }
+
+  .area-content {
+    min-width: 0;
   }
 
   .area-name {
