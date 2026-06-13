@@ -829,11 +829,35 @@
       destroy-on-close
     >
       <div class="vpet-media-preview">
-        <img
-          v-if="mediaPreviewFile?.fileType === 'image'"
-          :src="mediaPreviewUrl"
-          :alt="mediaPreviewFile?.originalName || mediaPreviewFile?.fileName || ''"
-        />
+        <template v-if="mediaPreviewFile?.fileType === 'image'">
+          <div class="vpet-media-preview__toolbar">
+            <a-space size="small">
+              <a-button size="small" @click="zoomMediaPreview(-0.2)">-</a-button>
+              <span class="vpet-media-preview__zoom">{{ Math.round(mediaPreviewScale * 100) }}%</span>
+              <a-button size="small" @click="zoomMediaPreview(0.2)">+</a-button>
+              <a-button size="small" @click="resetMediaPreviewTransform">
+                {{ t('common.reset') }}
+              </a-button>
+            </a-space>
+          </div>
+          <div
+            class="vpet-media-preview__canvas"
+            :class="{ 'is-dragging': mediaPreviewDragging }"
+            @wheel.prevent="handleMediaPreviewWheel"
+            @pointerdown="startMediaPreviewDrag"
+            @pointermove="moveMediaPreviewDrag"
+            @pointerup="stopMediaPreviewDrag"
+            @pointercancel="stopMediaPreviewDrag"
+            @pointerleave="stopMediaPreviewDrag"
+          >
+            <img
+              :src="mediaPreviewUrl"
+              :alt="mediaPreviewFile?.originalName || mediaPreviewFile?.fileName || ''"
+              :style="mediaPreviewImageStyle"
+              draggable="false"
+            />
+          </div>
+        </template>
         <video
           v-else-if="mediaPreviewFile?.fileType === 'video'"
           :src="mediaPreviewUrl"
@@ -981,6 +1005,13 @@ const deletingMediaFileId = ref<number | undefined>();
 const mediaDisplayUrls = ref<Record<string, string>>({});
 const mediaPreviewFile = ref<any>(null);
 const mediaPreviewUrl = ref('');
+const mediaPreviewScale = ref(1);
+const mediaPreviewOffset = ref({ x: 0, y: 0 });
+const mediaPreviewDragging = ref(false);
+const mediaPreviewDragStart = ref({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+const mediaPreviewImageStyle = computed(() => ({
+  transform: `translate(${mediaPreviewOffset.value.x}px, ${mediaPreviewOffset.value.y}px) scale(${mediaPreviewScale.value})`,
+}));
 
 const soap = ref({
   S: '',
@@ -1660,6 +1691,53 @@ function mediaDisplayUrl(url?: string) {
   return mediaDisplayUrls.value[url] || mediaFileUrl(url);
 }
 
+function clampMediaPreviewScale(value: number) {
+  return Math.min(5, Math.max(0.2, Number(value.toFixed(2))));
+}
+
+function resetMediaPreviewTransform() {
+  mediaPreviewScale.value = 1;
+  mediaPreviewOffset.value = { x: 0, y: 0 };
+  mediaPreviewDragging.value = false;
+}
+
+function zoomMediaPreview(delta: number) {
+  mediaPreviewScale.value = clampMediaPreviewScale(mediaPreviewScale.value + delta);
+  if (mediaPreviewScale.value <= 1)
+    mediaPreviewOffset.value = { x: 0, y: 0 };
+}
+
+function handleMediaPreviewWheel(event: WheelEvent) {
+  zoomMediaPreview(event.deltaY > 0 ? -0.1 : 0.1);
+}
+
+function startMediaPreviewDrag(event: PointerEvent) {
+  if (event.button !== 0) return;
+  mediaPreviewDragging.value = true;
+  mediaPreviewDragStart.value = {
+    x: event.clientX,
+    y: event.clientY,
+    offsetX: mediaPreviewOffset.value.x,
+    offsetY: mediaPreviewOffset.value.y,
+  };
+  (event.currentTarget as HTMLElement)?.setPointerCapture?.(event.pointerId);
+}
+
+function moveMediaPreviewDrag(event: PointerEvent) {
+  if (!mediaPreviewDragging.value) return;
+  const start = mediaPreviewDragStart.value;
+  mediaPreviewOffset.value = {
+    x: start.offsetX + event.clientX - start.x,
+    y: start.offsetY + event.clientY - start.y,
+  };
+}
+
+function stopMediaPreviewDrag(event?: PointerEvent) {
+  if (event)
+    (event.currentTarget as HTMLElement)?.releasePointerCapture?.(event.pointerId);
+  mediaPreviewDragging.value = false;
+}
+
 function extractStorageToken(url?: string) {
   const match = String(url || '').match(/\/api\/(?:tools\/)?storage\/file\/([^/?#]+)/);
   return match?.[1] ? decodeURIComponent(match[1]) : '';
@@ -1735,6 +1813,7 @@ async function openMediaPreview(file: any) {
   }
   mediaPreviewFile.value = file;
   mediaPreviewUrl.value = previewUrl;
+  resetMediaPreviewTransform();
   mediaPreviewVisible.value = true;
 }
 
@@ -2263,14 +2342,67 @@ onMounted(async () => {
 
 .vpet-media-preview {
   display: flex;
+  position: relative;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   min-height: 320px;
+  height: min(72vh, 680px);
   background: #f6f8fb;
   border-radius: 12px;
 }
 
-.vpet-media-preview img,
+.vpet-media-preview__toolbar {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 12px;
+  padding: 6px 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.vpet-media-preview__zoom {
+  display: inline-flex;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vpet-media-preview__canvas {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.vpet-media-preview__canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.vpet-media-preview__canvas img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  transition: transform 0.12s ease-out;
+  will-change: transform;
+  user-select: none;
+}
+
+.vpet-media-preview__canvas.is-dragging img {
+  transition: none;
+}
+
 .vpet-media-preview video {
   max-width: 100%;
   max-height: 72vh;
