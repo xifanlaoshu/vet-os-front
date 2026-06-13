@@ -402,6 +402,13 @@ const {
 const route = useRoute();
 const router = useRouter();
 
+function toSafeId(value: unknown): number | undefined {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const id = Number(raw);
+  return Number.isSafeInteger(id) && id > 0 ? id : undefined;
+}
+
 const loading = ref(false);
 const summary = ref<any>(null);
 const cases = ref<any[]>([]);
@@ -562,7 +569,7 @@ function resetCaseForm() {
   caseForm.value = {
     customerId: filters.value.customerId,
     petId: filters.value.petId,
-    visitId: route.query.visitId ? Number(route.query.visitId) : undefined,
+    visitId: toSafeId(route.query.visitId),
     diseaseName: '',
     diseaseTagsText: '',
     initialSummary: '',
@@ -637,13 +644,13 @@ async function loadCases(preferredCaseId?: number) {
       keyword: filters.value.keyword || undefined,
     }) as any[];
 
-    const nextCaseId = preferredCaseId
-      || (route.query.caseId ? Number(route.query.caseId) : undefined)
+    const nextCaseId = toSafeId(preferredCaseId)
+      || toSafeId(route.query.caseId)
       || selectedCaseId.value
       || cases.value[0]?.id;
 
     if (nextCaseId) {
-      await selectCase(Number(nextCaseId));
+      await selectCase(nextCaseId);
     } else {
       selectedCaseId.value = null;
       selectedCase.value = null;
@@ -655,10 +662,17 @@ async function loadCases(preferredCaseId?: number) {
 }
 
 async function selectCase(id: number) {
-  selectedCaseId.value = id;
+  const safeId = toSafeId(id);
+  if (!safeId) {
+    selectedCaseId.value = null;
+    selectedCase.value = null;
+    currentReport.value = null;
+    return;
+  }
+  selectedCaseId.value = safeId;
   const [detail, report] = await Promise.all([
-    vpetChronicCaseGet(id),
-    vpetChronicReportGet(id),
+    vpetChronicCaseGet(safeId),
+    vpetChronicReportGet(safeId),
   ]);
   selectedCase.value = detail;
   currentReport.value = report;
@@ -667,8 +681,8 @@ async function selectCase(id: number) {
 
 function resetFilters() {
   filters.value = {
-    customerId: route.query.customerId ? Number(route.query.customerId) : undefined,
-    petId: route.query.petId ? Number(route.query.petId) : undefined,
+    customerId: toSafeId(route.query.customerId),
+    petId: toSafeId(route.query.petId),
     keyword: '',
   };
   void syncFilterPets(filters.value.customerId);
@@ -795,14 +809,15 @@ function openLinkedVisit() {
 }
 
 watch(activeTab, async (value) => {
-  if (value === 'report' && selectedCaseId.value) {
-    currentReport.value = await vpetChronicReportGet(selectedCaseId.value);
+  const caseId = toSafeId(selectedCaseId.value);
+  if (value === 'report' && caseId) {
+    currentReport.value = await vpetChronicReportGet(caseId);
   }
 });
 
 onMounted(async () => {
-  filters.value.customerId = route.query.customerId ? Number(route.query.customerId) : undefined;
-  filters.value.petId = route.query.petId ? Number(route.query.petId) : undefined;
+  filters.value.customerId = toSafeId(route.query.customerId);
+  filters.value.petId = toSafeId(route.query.petId);
   await loadMasterData();
   await syncFilterPets(filters.value.customerId);
   await Promise.all([loadSummary(), loadCases()]);

@@ -158,13 +158,21 @@ export function vpetChronicCaseCreate(body: any, options?: RequestOptions) {
 }
 
 /** 慢病档案详情 GET /api/vpet/visit/chronic/cases/:id */
+function assertVpetId(id: number, fieldName = 'id') {
+  if (!Number.isSafeInteger(Number(id)) || Number(id) <= 0)
+    throw new Error(`${fieldName} 格式不正确`);
+  return Number(id);
+}
+
 export function vpetChronicCaseGet(id: number, options?: RequestOptions) {
-  return request(`/api/vpet/visit/chronic/cases/${id}`, { method: 'GET', ...(options || {}) });
+  const caseId = assertVpetId(id, '慢病档案ID');
+  return request(`/api/vpet/visit/chronic/cases/${caseId}`, { method: 'GET', ...(options || {}) });
 }
 
 /** 新增慢病复查 POST /api/vpet/visit/chronic/cases/:id/followups */
 export function vpetChronicFollowupCreate(id: number, body: any, options?: RequestOptions) {
-  return request(`/api/vpet/visit/chronic/cases/${id}/followups`, {
+  const caseId = assertVpetId(id, '慢病档案ID');
+  return request(`/api/vpet/visit/chronic/cases/${caseId}/followups`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: body,
@@ -174,7 +182,8 @@ export function vpetChronicFollowupCreate(id: number, body: any, options?: Reque
 
 /** 慢病追踪报告 GET /api/vpet/visit/chronic/cases/:id/report */
 export function vpetChronicReportGet(id: number, options?: RequestOptions) {
-  return request(`/api/vpet/visit/chronic/cases/${id}/report`, { method: 'GET', ...(options || {}) });
+  const caseId = assertVpetId(id, '慢病档案ID');
+  return request(`/api/vpet/visit/chronic/cases/${caseId}/report`, { method: 'GET', ...(options || {}) });
 }
 
 /** 鏇存柊灏辫瘖(淇濆瓨SOAP) PUT /api/vpet/visit/:id */
