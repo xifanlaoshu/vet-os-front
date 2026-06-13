@@ -605,6 +605,13 @@ declare namespace API {
     path: string;
   };
 
+  type NetDiskManageTokenParams = {
+    /** 文件名 */
+    name: string;
+    /** 文件所在路径 */
+    path: string;
+  };
+
   type NetDiskManageListParams = {
     /** 分页标识 */
     marker: string;
@@ -1167,6 +1174,10 @@ declare namespace API {
   type UploadToken = {
     /** 上传token */
     token: string;
+    /** 租户院区隔离后的上传路径前缀 */
+    prefix: string;
+    /** 租户院区隔离后的完整上传文件 Key */
+    key: string;
   };
 
   type UserDeleteParams = {

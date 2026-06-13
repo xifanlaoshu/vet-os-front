@@ -125,9 +125,15 @@ export async function netDiskManageRename(body: API.RenameDto, options?: Request
 }
 
 /** 获取上传Token，无Token前端无法上传 GET /api/netdisk/manage/token */
-export async function netDiskManageToken(options?: RequestOptions) {
+export async function netDiskManageToken(
+  params: API.NetDiskManageTokenParams,
+  options?: RequestOptions,
+) {
   return request<API.UploadToken>('/api/netdisk/manage/token', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

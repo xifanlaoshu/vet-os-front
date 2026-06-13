@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="file-upload-drawer-container">
     <Drawer
       :title="title"
@@ -18,7 +18,7 @@
           :custom-request="uploadFile"
         >
           <i class="el-icon-upload" />
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__text">将文件拖到此处，或 <em>点击上传</em></div>
         </Upload.Dragger>
       </Spin>
     </Drawer>
@@ -44,16 +44,12 @@
   const loading = ref(false);
   const visible = ref(false);
   const path = ref('');
-  const token = ref('');
   const subscribes = ref<any[]>([]);
-  // 成功的请求
   const successSubs = ref<any[]>([]);
   const fileList = ref<UploadFile<any>[]>([]);
 
   const title = computed(() => {
-    return `上传文件到${
-      isEmpty(path.value) ? '根' : path.value.substring(0, path.value.length - 1)
-    }目录`;
+    return `上传文件到${isEmpty(path.value) ? '根目录' : path.value.substring(0, path.value.length - 1)}`;
   });
 
   const open = (filePath: string) => {
@@ -61,24 +57,11 @@
     // showing dialog
     visible.value = true;
 
-    loading.value = true;
-    // get qiniu upload token
-    Api.netDiskManage
-      .netDiskManageToken()
-      .then((data) => {
-        token.value = data.token;
-        // hide loading
-        loading.value = false;
-      })
-      .catch(() => {
-        // close
-        visible.value = false;
-      });
   };
   const handleClose = () => {
     if (subscribes.value.length > 0 && subscribes.value.length !== successSubs.value.length) {
       Modal.confirm({
-        title: '关闭会取消未上传的文件，确认关闭吗？',
+        title: '关闭会取消未上传完成的文件，确认关闭吗？',
         icon: createVNode(ExclamationCircleOutlined),
         onOk: close,
       });
@@ -91,37 +74,44 @@
     visible.value = false;
     loading.value = false;
     path.value = '';
-    token.value = '';
     fileList.value = [];
     clear();
   };
   /**
-   * 使用qiniu-js上传
+    * 使用 qiniu-js 上传
    */
   const uploadFile: UploadProps['customRequest'] = (param) => {
     // onProgress, onError, onSuccess
     const { file, onProgress, onError, onSuccess } = param;
-    const observable = qiniu.upload(
-      file as File,
-      `${path.value}${(file as File).name}`,
-      token.value,
-    );
-    const sub = observable.subscribe({
-      next: (res) => {
-        // https://github.com/ElemeFE/element/issues/9759
-        onProgress?.({ percent: res.total.percent });
-      },
-      error: (err) => {
-        onError?.(err);
-        handleUploadError(err, file as File);
-      },
-      complete: (res) => {
-        successSubs.value.push(sub);
-        onSuccess?.(res);
-        handleUploadSuccess(file as File);
-      },
+    Api.netDiskManage.netDiskManageToken({
+      path: path.value,
+      name: (file as File).name,
+    }).then((uploadToken) => {
+      const observable = qiniu.upload(
+        file as File,
+        uploadToken.key,
+        uploadToken.token,
+      );
+      const sub = observable.subscribe({
+        next: (res) => {
+          // https://github.com/ElemeFE/element/issues/9759
+          onProgress?.({ percent: res.total.percent });
+        },
+        error: (err) => {
+          onError?.(err);
+          handleUploadError(err, file as File);
+        },
+        complete: (res) => {
+          successSubs.value.push(sub);
+          onSuccess?.(res);
+          handleUploadSuccess(file as File);
+        },
+      });
+      subscribes.value.push(sub);
+    }).catch((err) => {
+      onError?.(err);
+      handleUploadError(err, file as File);
     });
-    subscribes.value.push(sub);
   };
   const handleUploadError = (err, file: File) => {
     const failFile = fileList.value.find((n) => n.originFileObj === file);
@@ -130,7 +120,7 @@
     }
     notification.error({
       message: '上传进度提醒',
-      description: `上传${file?.name}文件失败！错误信息：${
+      description: `上传 ${file?.name} 文件失败，错误信息：${
         err.code === 614 ? '上传文件已存在' : err.message
       }`,
       duration: 0,
@@ -142,7 +132,7 @@
       successFile.status = 'success';
     }
     notification.success({
-      message: `上传${successFile?.name}成功`,
+      message: `上传 ${successFile?.name} 成功`,
     });
   };
   const clear = async () => {

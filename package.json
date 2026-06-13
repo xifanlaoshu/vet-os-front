@@ -33,7 +33,7 @@
     "bootstrap": "pnpm install",
     "serve": "npm run dev",
     "dev": "vite dev",
-    "build": "rimraf dist && cross-env NODE_ENV=production vite build",
+    "build": "pnpm --filter @admin-pkg/vite-plugin-msw build && rimraf dist && cross-env NODE_ENV=production vite build",
     "build:watch": "rimraf dist && cross-env NODE_ENV=production vite build --watch",
     "build:pkg": "pnpm -r --paralle --filter=\"./packages/*\" run build",
     "nx:build": "nx run-many -t build --exclude @admin-pkg/components",
