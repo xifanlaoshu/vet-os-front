@@ -79,6 +79,28 @@
             <a-form-item :label="t('page.consultation.detail.subjective')">
               <a-textarea v-model:value="soap.S" :rows="3" :disabled="!canEditVisit" />
             </a-form-item>
+            <a-row :gutter="[12, 0]">
+              <a-col :xs="24" :sm="12" :lg="6">
+                <a-form-item :label="t('page.consultation.detail.temperature')">
+                  <a-input-number v-model:value="soap.temperature" :min="0" :precision="1" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" :lg="6">
+                <a-form-item :label="t('page.consultation.detail.heartRate')">
+                  <a-input-number v-model:value="soap.heartRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" :lg="6">
+                <a-form-item :label="t('page.consultation.detail.respiratoryRate')">
+                  <a-input-number v-model:value="soap.respiratoryRate" :min="0" :precision="0" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" :lg="6">
+                <a-form-item :label="t('page.consultation.detail.weight')">
+                  <a-input-number v-model:value="soap.weight" :min="0" :precision="2" :disabled="!canEditVisit" style="width: 100%" />
+                </a-form-item>
+              </a-col>
+            </a-row>
             <a-form-item :label="t('page.consultation.detail.objective')">
               <a-textarea v-model:value="soap.O" :rows="4" :disabled="!canEditVisit" />
             </a-form-item>
@@ -1016,6 +1038,10 @@ const mediaPreviewImageStyle = computed(() => ({
 const soap = ref({
   S: '',
   O: '',
+  temperature: undefined as number | undefined,
+  heartRate: undefined as number | undefined,
+  respiratoryRate: undefined as number | undefined,
+  weight: undefined as number | undefined,
   diagnosisCode: undefined as string | undefined,
   diagnosisName: '',
   P: '',
@@ -1246,6 +1272,11 @@ async function loadVisit(startIfNeeded = false) {
   soap.value.S = detail?.chiefComplaint || '';
   soap.value.P = detail?.treatmentPlan || '';
   soap.value.O = detail?.physicalExam?.note || detail?.physicalExam?.summary || '';
+  const soapVitalSigns = collectDetailVitalSigns(detail);
+  soap.value.temperature = soapVitalSigns.temperature;
+  soap.value.heartRate = soapVitalSigns.heartRate;
+  soap.value.respiratoryRate = soapVitalSigns.respiratoryRate;
+  soap.value.weight = soapVitalSigns.weight;
 
   const diagnosis = parseDiagnosis(detail);
   soap.value.diagnosisCode = diagnosis.code;
@@ -1569,15 +1600,37 @@ function resetCareFollowupForm() {
   };
 }
 
-function collectVitalSigns() {
+function collectVitalSigns(source: {
+  temperature?: number;
+  heartRate?: number;
+  respiratoryRate?: number;
+  weight?: number;
+}) {
   return Object.fromEntries(
     Object.entries({
-      temperature: careFollowupForm.value.temperature,
-      heartRate: careFollowupForm.value.heartRate,
-      respiratoryRate: careFollowupForm.value.respiratoryRate,
-      weight: careFollowupForm.value.weight,
+      temperature: source.temperature,
+      heartRate: source.heartRate,
+      respiratoryRate: source.respiratoryRate,
+      weight: source.weight,
     }).filter(([, value]) => value !== undefined && value !== null && value !== ''),
   );
+}
+
+function collectCareFollowupVitalSigns() {
+  return collectVitalSigns(careFollowupForm.value);
+}
+
+function collectSoapVitalSigns() {
+  return collectVitalSigns(soap.value);
+}
+
+function collectDetailVitalSigns(detail: any) {
+  return collectVitalSigns({
+    temperature: detail?.temperature ?? detail?.physicalExam?.temperature,
+    heartRate: detail?.heartRate ?? detail?.physicalExam?.heartRate,
+    respiratoryRate: detail?.respiratoryRate ?? detail?.physicalExam?.respiratoryRate,
+    weight: detail?.weight ?? detail?.physicalExam?.weight,
+  });
 }
 
 function vitalSignText(vitalSigns?: Record<string, any> | null) {
@@ -1947,7 +2000,7 @@ async function uploadMediaFile(batch: any, file: File) {
 
 async function submitCareFollowup() {
   if (!currentVisit.value?.id || !canEditVisit.value) return;
-  const vitalSigns = collectVitalSigns();
+  const vitalSigns = collectCareFollowupVitalSigns();
   const hasContent = [
     careFollowupForm.value.symptomSummary,
     careFollowupForm.value.statusSummary,
@@ -1972,6 +2025,10 @@ async function submitCareFollowup() {
       symptomSummary: careFollowupForm.value.symptomSummary || undefined,
       statusSummary: careFollowupForm.value.statusSummary || undefined,
       vitalSigns: Object.keys(vitalSigns).length ? JSON.stringify(vitalSigns) : undefined,
+      temperature: careFollowupForm.value.temperature,
+      heartRate: careFollowupForm.value.heartRate,
+      respiratoryRate: careFollowupForm.value.respiratoryRate,
+      weight: careFollowupForm.value.weight,
       objectiveNote: careFollowupForm.value.objectiveNote || undefined,
       assessmentText: careFollowupForm.value.assessmentText || undefined,
       planAdjustment: careFollowupForm.value.planAdjustment || undefined,
@@ -1995,6 +2052,11 @@ async function saveSoap() {
         type: 'confirmed',
       }]
     : undefined;
+  const vitalSigns = collectSoapVitalSigns();
+  const physicalExam = {
+    ...(soap.value.O ? { note: soap.value.O } : {}),
+    ...vitalSigns,
+  };
 
   await vpetVisitUpdate(
     currentVisit.value.id,
@@ -2002,7 +2064,11 @@ async function saveSoap() {
       chiefComplaint: soap.value.S,
       treatmentPlan: soap.value.P,
       symptomSummary: soap.value.S,
-      physicalExam: soap.value.O ? JSON.stringify({ note: soap.value.O }) : undefined,
+      physicalExam: Object.keys(physicalExam).length ? JSON.stringify(physicalExam) : undefined,
+      temperature: soap.value.temperature,
+      heartRate: soap.value.heartRate,
+      respiratoryRate: soap.value.respiratoryRate,
+      weight: soap.value.weight,
       diagnosis: diagnosisPayload ? JSON.stringify(diagnosisPayload) : undefined,
     },
     visitScopeOptions.value,

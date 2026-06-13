@@ -250,16 +250,24 @@ const diagnosisSummary = computed(() => {
 
 const physicalExamText = computed(() => {
   const exam = visit.value?.physicalExam;
-  if (!exam) return '-';
+  const vitalSigns = vitalSignText({
+    temperature: visit.value?.temperature ?? exam?.temperature,
+    heartRate: visit.value?.heartRate ?? exam?.heartRate,
+    respiratoryRate: visit.value?.respiratoryRate ?? exam?.respiratoryRate,
+    weight: visit.value?.weight ?? exam?.weight,
+  });
+  if (!exam) return vitalSigns || '-';
   if (typeof exam === 'string') {
     try {
       const parsed = JSON.parse(exam);
-      return parsed.note || parsed.summary || JSON.stringify(parsed);
+      const parsedVitals = vitalSigns || vitalSignText(parsed);
+      return [parsedVitals, parsed.note || parsed.summary || JSON.stringify(parsed)].filter(Boolean).join('\n');
     } catch {
-      return exam;
+      return [vitalSigns, exam].filter(Boolean).join('\n');
     }
   }
-  return exam.note || exam.summary || JSON.stringify(exam);
+  const note = exam.note || exam.summary;
+  return [vitalSigns, note || JSON.stringify(exam)].filter(Boolean).join('\n');
 });
 
 function parseDiagnosisList(detail: any) {
