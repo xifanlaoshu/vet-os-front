@@ -276,16 +276,6 @@
                   </a-button>
                 </a-upload>
               </div>
-              <a-space-compact class="vpet-media-oss">
-                <a-input
-                  v-model:value="ossMediaForm[batch.id]"
-                  :disabled="!canEditVisit"
-                  :placeholder="t('page.consultation.detail.ossUrlPlaceholder')"
-                />
-                <a-button :disabled="!canEditVisit || !ossMediaForm[batch.id]" @click="addOssMediaFile(batch)">
-                  {{ t('page.consultation.detail.addOssUrl') }}
-                </a-button>
-              </a-space-compact>
               <div v-if="(batch.files || []).length" class="vpet-media-files">
                 <div v-for="file in batch.files || []" :key="file.id" class="vpet-media-file">
                   <button class="vpet-media-file__preview" type="button" @click="openMediaPreview(file)">
@@ -972,7 +962,6 @@ const paying = ref(false);
 const payingBill = ref<any>(null);
 const uploadingMediaBatchId = ref<number | undefined>();
 const downloadingMediaFileId = ref<number | undefined>();
-const ossMediaForm = ref<Record<number, string>>({});
 const mediaDisplayUrls = ref<Record<string, string>>({});
 const mediaPreviewFile = ref<any>(null);
 const mediaPreviewUrl = ref('');
@@ -1783,24 +1772,6 @@ async function uploadMediaFile(batch: any, file: File) {
   return false;
 }
 
-async function addOssMediaFile(batch: any) {
-  const url = (ossMediaForm.value[batch.id] || '').trim();
-  if (!currentVisit.value?.id || !batch?.id || !url) return;
-  mediaBatches.value = ensureArray(await vpetVisitMediaFileCreate(
-    currentVisit.value.id,
-    Number(batch.id),
-    {
-      fileType: inferMediaFileType({ url }),
-      storageType: 'oss',
-      originalName: url.split('/').pop() || url,
-      url,
-    },
-    visitScopeOptions.value,
-  ));
-  ossMediaForm.value[batch.id] = '';
-  message.success(t('page.consultation.messages.mediaFileUploaded'));
-}
-
 async function submitCareFollowup() {
   if (!currentVisit.value?.id || !canEditVisit.value) return;
   const vitalSigns = collectVitalSigns();
@@ -2141,11 +2112,6 @@ onMounted(async () => {
   gap: 15px;
   align-items: flex-start;
   justify-content: space-between;
-}
-
-.vpet-media-oss {
-  width: 100%;
-  margin-top: 12px;
 }
 
 .vpet-media-files {
