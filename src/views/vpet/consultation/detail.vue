@@ -2258,8 +2258,16 @@ onMounted(async () => {
 
 <style scoped>
 .vpet-start-time-card :deep(.ant-statistic-content) {
-  font-size: 22px;
-  line-height: 1.25;
+  display: flex;
+  align-items: center;
+}
+
+.vpet-start-time-card :deep(.ant-statistic-content-value) {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 24px;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
