@@ -442,6 +442,8 @@
         "emptyMediaBatches": "No media batches",
         "emptyMediaFiles": "No media files",
         "uploadMedia": "Upload image/video",
+        "previewMedia": "Preview",
+        "downloadMedia": "Download",
         "captureTime": "Capture time",
         "relationType": "Linked section",
         "relationSoap": "Initial SOAP",
@@ -520,7 +522,10 @@
         "careFollowupCreated": "Continuous care follow-up saved",
         "mediaCareFollowupRequired": "Please select a continuous care follow-up batch",
         "mediaBatchCreated": "Media capture batch created",
-        "mediaFileUploaded": "Media file saved"
+        "mediaFileUploaded": "Media file saved",
+        "mediaUploadMissingUrl": "Upload succeeded but no media URL was returned. Please try again.",
+        "mediaPreviewUnavailable": "Media preview URL is unavailable.",
+        "mediaDownloadFailed": "Failed to download media. Please try again later."
       }
     },
     "billing": {

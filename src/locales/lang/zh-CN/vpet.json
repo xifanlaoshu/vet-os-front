@@ -442,6 +442,8 @@
         "emptyMediaBatches": "暂无影像采集批次",
         "emptyMediaFiles": "暂无影像文件",
         "uploadMedia": "上传图片/视频",
+        "previewMedia": "预览",
+        "downloadMedia": "下载",
         "captureTime": "采集时间",
         "relationType": "关联位置",
         "relationSoap": "初诊 SOAP",
@@ -520,7 +522,10 @@
         "careFollowupCreated": "持续诊疗跟进已保存",
         "mediaCareFollowupRequired": "请选择要关联的持续诊疗跟进批次",
         "mediaBatchCreated": "影像采集批次已创建",
-        "mediaFileUploaded": "影像文件已保存"
+        "mediaFileUploaded": "影像文件已保存",
+        "mediaUploadMissingUrl": "上传成功但未返回影像访问地址，请重试",
+        "mediaPreviewUnavailable": "影像预览地址不可用",
+        "mediaDownloadFailed": "影像下载失败，请稍后重试"
       }
     },
     "billing": {

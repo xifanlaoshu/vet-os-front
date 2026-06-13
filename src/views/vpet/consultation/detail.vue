@@ -288,17 +288,34 @@
               </a-space-compact>
               <div v-if="(batch.files || []).length" class="vpet-media-files">
                 <div v-for="file in batch.files || []" :key="file.id" class="vpet-media-file">
-                  <img
-                    v-if="file.fileType === 'image'"
-                    :src="mediaDisplayUrl(file.url)"
-                    :alt="file.originalName || file.fileName || batch.batchNo"
-                    @error="refreshMediaDisplayUrl(file.url)"
-                  />
-                  <video v-else-if="file.fileType === 'video'" :src="mediaDisplayUrl(file.url)" controls />
-                  <a v-else :href="mediaDisplayUrl(file.url)" target="_blank">{{ file.originalName || file.fileName || file.url }}</a>
+                  <button class="vpet-media-file__preview" type="button" @click="openMediaPreview(file)">
+                    <img
+                      v-if="file.fileType === 'image'"
+                      :src="mediaDisplayUrl(file.url)"
+                      :alt="file.originalName || file.fileName || batch.batchNo"
+                      @error="refreshMediaDisplayUrl(file.url, true)"
+                    />
+                    <video v-else-if="file.fileType === 'video'" :src="mediaDisplayUrl(file.url)" muted preload="metadata" />
+                    <div v-else class="vpet-media-file__placeholder">
+                      {{ file.originalName || file.fileName || file.url }}
+                    </div>
+                  </button>
                   <div class="vpet-media-file__meta">
                     <span>{{ file.originalName || file.fileName || '-' }}</span>
                     <span>{{ file.storageType?.toUpperCase?.() || '-' }} / {{ fileSizeText(file.fileSize) }}</span>
+                    <a-space size="small">
+                      <a-button type="link" size="small" @click="openMediaPreview(file)">
+                        {{ t('page.consultation.detail.previewMedia') }}
+                      </a-button>
+                      <a-button
+                        type="link"
+                        size="small"
+                        :loading="downloadingMediaFileId === file.id"
+                        @click="downloadMediaFile(file)"
+                      >
+                        {{ t('page.consultation.detail.downloadMedia') }}
+                      </a-button>
+                    </a-space>
                   </div>
                 </div>
               </div>
@@ -799,6 +816,31 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:open="mediaPreviewVisible"
+      :title="mediaPreviewFile?.originalName || mediaPreviewFile?.fileName || t('page.consultation.detail.previewMedia')"
+      width="860px"
+      :footer="null"
+      destroy-on-close
+    >
+      <div class="vpet-media-preview">
+        <img
+          v-if="mediaPreviewFile?.fileType === 'image'"
+          :src="mediaPreviewUrl"
+          :alt="mediaPreviewFile?.originalName || mediaPreviewFile?.fileName || ''"
+        />
+        <video
+          v-else-if="mediaPreviewFile?.fileType === 'video'"
+          :src="mediaPreviewUrl"
+          controls
+          autoplay
+        />
+        <a v-else :href="mediaPreviewUrl" target="_blank">
+          {{ mediaPreviewFile?.originalName || mediaPreviewFile?.fileName || mediaPreviewUrl }}
+        </a>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -925,11 +967,15 @@ const selectedPrescriptionTemplateId = ref<number[]>([]);
 const payVisible = ref(false);
 const labCreateVisible = ref(false);
 const mediaBatchVisible = ref(false);
+const mediaPreviewVisible = ref(false);
 const paying = ref(false);
 const payingBill = ref<any>(null);
 const uploadingMediaBatchId = ref<number | undefined>();
+const downloadingMediaFileId = ref<number | undefined>();
 const ossMediaForm = ref<Record<number, string>>({});
 const mediaDisplayUrls = ref<Record<string, string>>({});
+const mediaPreviewFile = ref<any>(null);
+const mediaPreviewUrl = ref('');
 
 const soap = ref({
   S: '',
@@ -1558,10 +1604,15 @@ function inferMediaFileType(file: any): 'image' | 'video' {
   return 'image';
 }
 
+function normalizeMediaStoragePath(url?: string) {
+  if (!url) return '';
+  return url.replace(/^\/api\/storage\/file\//, '/api/tools/storage/file/');
+}
+
 function mediaFileUrl(url?: string) {
   if (!url) return '';
   if (/^https?:\/\//i.test(url)) return url;
-  return `${baseApiUrl || ''}${url}`;
+  return `${baseApiUrl || ''}${normalizeMediaStoragePath(url)}`;
 }
 
 function mediaDisplayUrl(url?: string) {
@@ -1570,13 +1621,13 @@ function mediaDisplayUrl(url?: string) {
 }
 
 function extractStorageToken(url?: string) {
-  const match = String(url || '').match(/\/api\/storage\/file\/([^/?#]+)/);
+  const match = String(url || '').match(/\/api\/(?:tools\/)?storage\/file\/([^/?#]+)/);
   return match?.[1] ? decodeURIComponent(match[1]) : '';
 }
 
-async function refreshMediaDisplayUrl(url?: string) {
+async function refreshMediaDisplayUrl(url?: string, force = false) {
   const token = extractStorageToken(url);
-  if (!token || !url || mediaDisplayUrls.value[url]) return;
+  if (!token || !url || (!force && mediaDisplayUrls.value[url])) return;
   try {
     const result = await storageRefreshFileToken(token, { errorMsg: false });
     if (result?.path) {
@@ -1587,6 +1638,60 @@ async function refreshMediaDisplayUrl(url?: string) {
     }
   } catch {
     // Keep the original media URL visible; authorization errors are handled by the preview request itself.
+  }
+}
+
+async function resolveMediaDisplayUrl(file: any) {
+  const url = file?.url;
+  if (!url) return '';
+  if (file?.storageType === 'local') {
+    await refreshMediaDisplayUrl(url);
+  }
+  return mediaDisplayUrl(url);
+}
+
+async function openMediaPreview(file: any) {
+  const previewUrl = await resolveMediaDisplayUrl(file);
+  if (!previewUrl) {
+    message.error(t('page.consultation.messages.mediaPreviewUnavailable'));
+    return;
+  }
+  mediaPreviewFile.value = file;
+  mediaPreviewUrl.value = previewUrl;
+  mediaPreviewVisible.value = true;
+}
+
+function triggerDownload(url: string, filename: string) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename || 'media-file';
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+async function downloadMediaFile(file: any) {
+  const rawUrl = file?.url;
+  if (!rawUrl) return;
+  downloadingMediaFileId.value = Number(file.id);
+  try {
+    const url = await resolveMediaDisplayUrl(file);
+    const filename = file.originalName || file.fileName || rawUrl.split('/').pop() || 'media-file';
+    try {
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      triggerDownload(objectUrl, filename);
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch {
+      triggerDownload(url, filename);
+    }
+  } catch {
+    message.error(t('page.consultation.messages.mediaDownloadFailed'));
+  } finally {
+    downloadingMediaFileId.value = undefined;
   }
 }
 
@@ -1629,15 +1734,20 @@ async function uploadMediaFile(batch: any, file: File) {
   uploadingMediaBatchId.value = Number(batch.id);
   try {
     const result = await uploadUpload({}, file);
+    const uploadedUrl = result?.path || result?.filename;
+    if (!uploadedUrl) {
+      message.error(t('page.consultation.messages.mediaUploadMissingUrl'));
+      return false;
+    }
     mediaBatches.value = ensureArray(await vpetVisitMediaFileCreate(
       currentVisit.value.id,
       Number(batch.id),
       {
         fileType: inferMediaFileType(file),
         storageType: 'local',
-        fileName: result?.filename?.split('/').pop(),
+        fileName: uploadedUrl?.split('/').pop(),
         originalName: file.name,
-        url: result?.filename,
+        url: uploadedUrl,
         mimeType: file.type || undefined,
         fileSize: file.size,
       },
@@ -2029,12 +2139,33 @@ onMounted(async () => {
   background: #fafcff;
 }
 
+.vpet-media-file__preview {
+  display: block;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+}
+
 .vpet-media-file img,
 .vpet-media-file video {
   display: block;
   width: 100%;
   height: 130px;
   object-fit: cover;
+  background: #eef2f6;
+}
+
+.vpet-media-file__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 130px;
+  padding: 12px;
+  color: #5f6b7a;
+  text-align: center;
+  word-break: break-all;
   background: #eef2f6;
 }
 
@@ -2045,6 +2176,22 @@ onMounted(async () => {
   padding: 8px 10px;
   color: #5f6b7a;
   font-size: 12px;
+}
+
+.vpet-media-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  background: #f6f8fb;
+  border-radius: 12px;
+}
+
+.vpet-media-preview img,
+.vpet-media-preview video {
+  max-width: 100%;
+  max-height: 72vh;
+  border-radius: 8px;
 }
 
 @media (max-width: 768px) {
