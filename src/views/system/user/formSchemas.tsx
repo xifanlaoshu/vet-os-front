@@ -22,6 +22,13 @@ export const userSchemas: FormSchema<API.UserDto>[] = [
     rules: [{ required: true, type: 'number' }],
   },
   {
+    field: 'tenantId',
+    component: 'InputNumber',
+    label: '绉熸埛ID',
+    show: false,
+    rules: [{ required: true, type: 'number' }],
+  },
+  {
     field: 'roleIds',
     component: 'Select',
     label: '所属角色',

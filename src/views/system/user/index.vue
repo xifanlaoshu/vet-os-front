@@ -79,6 +79,7 @@
   import Api from '@/api/';
   import { useFormModal } from '@/hooks/useModal/';
   import { findPath } from '@/utils/common';
+  import { useUserStore } from '@/store/modules/user';
 
   defineOptions({
     name: 'SystemUser',
@@ -86,6 +87,7 @@
 
   const [DynamicTable, dynamicTableInstance] = useTable({ formProps: { autoSubmitOnEnter: true } });
   const [showModal] = useFormModal();
+  const userStore = useUserStore();
 
   const selectedDeptId = ref<number>();
   const deptTree = ref<any[]>([]);
@@ -127,6 +129,7 @@
         width: 700,
         onFinish: async (values) => {
           values.id = record.id;
+          values.tenantId = Number(values.tenantId || record.tenantId || userStore.tenantId);
           if (record.id) {
             await userUpdate({ id: record.id }, values);
           } else {
@@ -146,6 +149,7 @@
       const { roles, dept } = await Api.systemUser.userRead({ id: record.id });
       formRef?.setFieldsValue({
         ...record,
+        tenantId: record.tenantId || userStore.tenantId,
         deptId: dept?.id,
         roleIds: (roles || []).map((item) => item.id),
       });
@@ -155,6 +159,9 @@
         { field: 'password', required: false },
       ]);
     } else {
+      formRef?.setFieldsValue({
+        tenantId: userStore.tenantId,
+      });
       formRef?.updateSchema([
         { field: 'username', componentProps: { disabled: false } },
         {

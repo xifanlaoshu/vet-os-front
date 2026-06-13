@@ -1182,6 +1182,8 @@ declare namespace API {
     password: string;
     /** 归属角色 */
     roleIds: number[];
+    /** Tenant ID */
+    tenantId: number;
     /** 归属大区 */
     deptId?: number;
     /** 呢称 */
@@ -1230,6 +1232,8 @@ declare namespace API {
     password?: string;
     /** 归属角色 */
     roleIds?: number[];
+    /** Tenant ID */
+    tenantId?: number;
     /** 归属大区 */
     deptId?: number;
     /** 呢称 */
