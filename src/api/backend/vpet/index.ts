@@ -133,6 +133,13 @@ export function vpetVisitMediaFileCreate(id: number, batchId: number, body: any,
   });
 }
 
+export function vpetVisitMediaFileDelete(id: number, batchId: number, fileId: number, options?: RequestOptions) {
+  return request(`/api/vpet/visit/${id}/media-batches/${batchId}/files/${fileId}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
 export function vpetChronicCaseList(
   params?: { petId?: number; customerId?: number; status?: number; keyword?: string },
   options?: RequestOptions,

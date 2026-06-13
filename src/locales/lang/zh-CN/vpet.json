@@ -521,6 +521,8 @@
         "mediaCareFollowupRequired": "请选择要关联的持续诊疗跟进批次",
         "mediaBatchCreated": "影像采集批次已创建",
         "mediaFileUploaded": "影像文件已保存",
+        "mediaFileDeleted": "影像文件已删除",
+        "mediaDeleteConfirm": "确定删除该影像文件吗？删除后将无法在病历中查看。",
         "mediaUnsupportedType": "仅支持 JPG、JPEG、PNG、WebP、GIF 图片和 MP4/MOV 视频上传。",
         "mediaUploadMissingUrl": "上传成功但未返回影像访问地址，请重试",
         "mediaPreviewUnavailable": "影像预览地址不可用",

@@ -305,6 +305,20 @@
                       >
                         {{ t('page.consultation.detail.downloadMedia') }}
                       </a-button>
+                      <a-popconfirm
+                        :title="t('page.consultation.messages.mediaDeleteConfirm')"
+                        @confirm="deleteMediaFile(batch, file)"
+                      >
+                        <a-button
+                          type="link"
+                          danger
+                          size="small"
+                          :disabled="!canEditVisit"
+                          :loading="deletingMediaFileId === file.id"
+                        >
+                          {{ t('common.delete') }}
+                        </a-button>
+                      </a-popconfirm>
                     </a-space>
                   </div>
                 </div>
@@ -867,6 +881,7 @@ import {
   vpetVisitMediaBatchCreate,
   vpetVisitMediaBatches,
   vpetVisitMediaFileCreate,
+  vpetVisitMediaFileDelete,
   vpetVisitRequestUnlock,
   vpetVisitSignEmr,
   vpetVisitSignatures,
@@ -962,6 +977,7 @@ const paying = ref(false);
 const payingBill = ref<any>(null);
 const uploadingMediaBatchId = ref<number | undefined>();
 const downloadingMediaFileId = ref<number | undefined>();
+const deletingMediaFileId = ref<number | undefined>();
 const mediaDisplayUrls = ref<Record<string, string>>({});
 const mediaPreviewFile = ref<any>(null);
 const mediaPreviewUrl = ref('');
@@ -1753,6 +1769,27 @@ async function downloadMediaFile(file: any) {
     message.error(t('page.consultation.messages.mediaDownloadFailed'));
   } finally {
     downloadingMediaFileId.value = undefined;
+  }
+}
+
+async function deleteMediaFile(batch: any, file: any) {
+  if (!currentVisit.value?.id || !batch?.id || !file?.id || !canEditVisit.value) return;
+  deletingMediaFileId.value = Number(file.id);
+  try {
+    mediaBatches.value = ensureArray(await vpetVisitMediaFileDelete(
+      currentVisit.value.id,
+      Number(batch.id),
+      Number(file.id),
+      visitScopeOptions.value,
+    ));
+    if (mediaPreviewFile.value?.id === file.id) {
+      mediaPreviewVisible.value = false;
+      mediaPreviewFile.value = undefined;
+      mediaPreviewUrl.value = '';
+    }
+    message.success(t('page.consultation.messages.mediaFileDeleted'));
+  } finally {
+    deletingMediaFileId.value = undefined;
   }
 }
 
