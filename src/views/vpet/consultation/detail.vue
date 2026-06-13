@@ -281,9 +281,9 @@
                   <button class="vpet-media-file__preview" type="button" @click="openMediaPreview(file)">
                     <img
                       v-if="file.fileType === 'image'"
-                      :src="mediaDisplayUrl(file.url)"
+                      :src="mediaThumbnailDisplayUrl(file)"
                       :alt="file.originalName || file.fileName || batch.batchNo"
-                      @error="refreshMediaFileDisplayUrl(file, true)"
+                      @error="refreshMediaFileThumbnailDisplayUrl(file, true)"
                     />
                     <video v-else-if="file.fileType === 'video'" :src="mediaDisplayUrl(file.url)" muted preload="metadata" />
                     <div v-else class="vpet-media-file__placeholder">
@@ -1631,15 +1631,24 @@ async function refreshMediaDisplayUrl(url?: string, force = false) {
 }
 
 async function refreshMediaFileDisplayUrl(file: any, force = false) {
-  const url = file?.url;
+  return refreshMediaFileUrl(file, 'url', 'storageId', force);
+}
+
+async function refreshMediaFileThumbnailDisplayUrl(file: any, force = false) {
+  return refreshMediaFileUrl(file, 'thumbnailUrl', 'thumbnailStorageId', force);
+}
+
+async function refreshMediaFileUrl(file: any, urlField: string, storageIdField: string, force = false) {
+  const url = file?.[urlField];
   if (!url || file?.storageType !== 'local') return;
   if (!force && mediaDisplayUrls.value[url]) return;
 
   try {
     const token = extractStorageToken(url);
-    if (!file?.storageId && !token) return;
-    const result = file?.storageId
-      ? await storageRefreshFileTokenById(Number(file.storageId), { errorMsg: false })
+    const storageId = file?.[storageIdField];
+    if (!storageId && !token) return;
+    const result = storageId
+      ? await storageRefreshFileTokenById(Number(storageId), { errorMsg: false })
       : await storageRefreshFileToken(token, { errorMsg: false });
     if (result?.path) {
       mediaDisplayUrls.value = {
@@ -1650,6 +1659,12 @@ async function refreshMediaFileDisplayUrl(file: any, force = false) {
   } catch {
     // Keep the original media URL visible; authorization errors are handled by the preview request itself.
   }
+}
+
+function mediaThumbnailDisplayUrl(file: any) {
+  const thumbnailUrl = file?.thumbnailUrl;
+  if (!thumbnailUrl) return mediaDisplayUrl(file?.url);
+  return mediaDisplayUrl(thumbnailUrl);
 }
 
 async function resolveMediaDisplayUrl(file: any) {
@@ -1746,6 +1761,7 @@ async function uploadMediaFile(batch: any, file: File) {
   try {
     const result = await uploadUpload({}, file);
     const uploadedUrl = result?.path || result?.filename;
+    const thumbnailUrl = result?.thumbnail?.path;
     if (!uploadedUrl) {
       message.error(t('page.consultation.messages.mediaUploadMissingUrl'));
       return false;
@@ -1757,9 +1773,11 @@ async function uploadMediaFile(batch: any, file: File) {
         fileType: inferMediaFileType(file),
         storageType: 'local',
         storageId: result.id,
+        thumbnailStorageId: result.thumbnail?.id,
         fileName: uploadedUrl?.split('/').pop(),
         originalName: file.name,
         url: uploadedUrl,
+        thumbnailUrl,
         mimeType: file.type || undefined,
         fileSize: file.size,
       },
