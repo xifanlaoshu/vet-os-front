@@ -39,20 +39,20 @@
     </a-page-header>
 
     <a-row :gutter="[16, 16]" class="vpet-grid-row">
-      <a-col :span="6">
+      <a-col :xs="24" :sm="12" :lg="5">
         <a-card class="vpet-stat-card">
           <a-statistic :title="t('page.consultation.detail.queueNumber')" :value="currentVisit?.queueNumber || '-'" />
         </a-card>
       </a-col>
-      <a-col :span="6">
-        <a-card class="vpet-stat-card">
+      <a-col :xs="24" :sm="12" :lg="7">
+        <a-card class="vpet-stat-card vpet-start-time-card">
           <a-statistic
             :title="t('page.consultation.detail.startTime')"
             :value="currentVisit?.startTime ? formatToDateTime(currentVisit.startTime) : '-'"
           />
         </a-card>
       </a-col>
-      <a-col :span="6">
+      <a-col :xs="24" :sm="12" :lg="6">
         <a-card class="vpet-stat-card">
           <a-statistic
             :title="t('page.consultation.detail.receivable')"
@@ -61,7 +61,7 @@
           />
         </a-card>
       </a-col>
-      <a-col :span="6">
+      <a-col :xs="24" :sm="12" :lg="6">
         <a-card class="vpet-stat-card">
           <a-statistic
             :title="t('page.consultation.detail.due')"
@@ -2257,6 +2257,12 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.vpet-start-time-card :deep(.ant-statistic-content) {
+  font-size: 22px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
 .vpet-rx-edit-table :deep(.ant-table-cell) {
   vertical-align: top;
 }
