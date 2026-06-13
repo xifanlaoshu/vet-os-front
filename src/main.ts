@@ -25,7 +25,11 @@ async function setupApp() {
   if (import.meta.env.VITE_MOCK_IN_PROD === 'true') {
     const { setupMock } = await import('../mocks/');
     // 启用 mock
-    await setupMock();
+    try {
+      await setupMock();
+    } catch (error) {
+      console.warn('[mock] Failed to start MSW, continue without mock service worker.', error);
+    }
   }
 
   // 挂载vuex状态管理
