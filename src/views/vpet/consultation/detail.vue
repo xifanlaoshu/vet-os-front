@@ -293,7 +293,7 @@
                       v-if="file.fileType === 'image'"
                       :src="mediaDisplayUrl(file.url)"
                       :alt="file.originalName || file.fileName || batch.batchNo"
-                      @error="refreshMediaDisplayUrl(file.url, true)"
+                      @error="refreshMediaFileDisplayUrl(file, true)"
                     />
                     <video v-else-if="file.fileType === 'video'" :src="mediaDisplayUrl(file.url)" muted preload="metadata" />
                     <div v-else class="vpet-media-file__placeholder">
@@ -852,7 +852,7 @@ import { formatToDateTime } from '@/utils/dateUtil';
 import { baseApiUrl } from '@/utils/request';
 import { useFormModal } from '@/hooks/useModal';
 import { uploadUpload } from '@/api/backend/api/toolsUpload';
-import { storageRefreshFileToken } from '@/api/backend/api/toolsStorage';
+import { storageRefreshFileToken, storageRefreshFileTokenById } from '@/api/backend/api/toolsStorage';
 import {
   vpetBillingByVisit,
   vpetBillingPay,
@@ -1606,7 +1606,7 @@ function inferMediaFileType(file: any): 'image' | 'video' {
 
 function normalizeMediaStoragePath(url?: string) {
   if (!url) return '';
-  return url.replace(/^\/api\/storage\/file\//, '/api/tools/storage/file/');
+  return url;
 }
 
 function mediaFileUrl(url?: string) {
@@ -1641,11 +1641,33 @@ async function refreshMediaDisplayUrl(url?: string, force = false) {
   }
 }
 
+async function refreshMediaFileDisplayUrl(file: any, force = false) {
+  const url = file?.url;
+  if (!url || file?.storageType !== 'local') return;
+  if (!force && mediaDisplayUrls.value[url]) return;
+
+  try {
+    const token = extractStorageToken(url);
+    if (!file?.storageId && !token) return;
+    const result = file?.storageId
+      ? await storageRefreshFileTokenById(Number(file.storageId), { errorMsg: false })
+      : await storageRefreshFileToken(token, { errorMsg: false });
+    if (result?.path) {
+      mediaDisplayUrls.value = {
+        ...mediaDisplayUrls.value,
+        [url]: mediaFileUrl(result.path),
+      };
+    }
+  } catch {
+    // Keep the original media URL visible; authorization errors are handled by the preview request itself.
+  }
+}
+
 async function resolveMediaDisplayUrl(file: any) {
   const url = file?.url;
   if (!url) return '';
   if (file?.storageType === 'local') {
-    await refreshMediaDisplayUrl(url);
+    await refreshMediaFileDisplayUrl(file);
   }
   return mediaDisplayUrl(url);
 }
@@ -1745,6 +1767,7 @@ async function uploadMediaFile(batch: any, file: File) {
       {
         fileType: inferMediaFileType(file),
         storageType: 'local',
+        storageId: result.id,
         fileName: uploadedUrl?.split('/').pop(),
         originalName: file.name,
         url: uploadedUrl,

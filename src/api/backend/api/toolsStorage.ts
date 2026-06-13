@@ -54,3 +54,15 @@ export async function storageRefreshFileToken(token: string, options?: RequestOp
     ...(options || {}),
   });
 }
+
+/** 缁鍙楁帶鏂囦欢棰勮鐭摼 POST /api/tools/storage/file/id/${id}/refresh */
+export async function storageRefreshFileTokenById(id: number, options?: RequestOptions) {
+  return request<{
+    id?: number;
+    path?: string;
+    tokenExpiresAt?: string;
+  }>(`/api/tools/storage/file/id/${id}/refresh`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
