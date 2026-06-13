@@ -521,6 +521,7 @@
         "mediaCareFollowupRequired": "Please select a continuous care follow-up batch",
         "mediaBatchCreated": "Media capture batch created",
         "mediaFileUploaded": "Media file saved",
+        "mediaUnsupportedType": "Only JPG, JPEG, PNG, WebP, GIF images and MP4/MOV videos are supported.",
         "mediaUploadMissingUrl": "Upload succeeded but no media URL was returned. Please try again.",
         "mediaPreviewUnavailable": "Media preview URL is unavailable.",
         "mediaDownloadFailed": "Failed to download media. Please try again later."

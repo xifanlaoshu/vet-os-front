@@ -266,7 +266,7 @@
                 </div>
                 <a-upload
                   multiple
-                  accept="image/*,video/*"
+                  :accept="mediaUploadAccept"
                   :show-upload-list="false"
                   :disabled="!canEditVisit || uploadingMediaBatchId === batch.id"
                   :before-upload="(file: any) => uploadMediaFile(batch, file)"
@@ -1586,10 +1586,45 @@ function mediaRelationText(batch: any) {
   return t('page.consultation.detail.relationSoap');
 }
 
+const supportedImageMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const supportedImageExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif']);
+const supportedVideoMimeTypes = new Set(['video/mp4', 'video/quicktime']);
+const supportedVideoExtensions = new Set(['mp4', 'mov']);
+const mediaUploadAccept = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'video/mp4',
+  'video/quicktime',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.gif',
+  '.mp4',
+  '.mov',
+].join(',');
+
+function getFileExtension(file: any) {
+  const name = String(file?.name || file?.originalName || file?.url || '');
+  return name.includes('.') ? name.split('.').pop()?.toLowerCase() || '' : '';
+}
+
+function isSupportedMediaUpload(file: File) {
+  const mimeType = String(file?.type || '').toLowerCase();
+  const extension = getFileExtension(file);
+  if (mimeType.startsWith('image/'))
+    return supportedImageMimeTypes.has(mimeType) && supportedImageExtensions.has(extension);
+  if (mimeType.startsWith('video/'))
+    return supportedVideoMimeTypes.has(mimeType) && supportedVideoExtensions.has(extension);
+  return supportedImageExtensions.has(extension) || supportedVideoExtensions.has(extension);
+}
+
 function inferMediaFileType(file: any): 'image' | 'video' {
   const mimeType = String(file?.type || file?.mimeType || '').toLowerCase();
-  const name = String(file?.name || file?.originalName || file?.url || '').toLowerCase();
-  if (mimeType.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm|m4v)$/.test(name)) return 'video';
+  const extension = getFileExtension(file);
+  if (supportedVideoMimeTypes.has(mimeType) || supportedVideoExtensions.has(extension)) return 'video';
   return 'image';
 }
 
@@ -1757,6 +1792,10 @@ async function submitMediaBatch() {
 
 async function uploadMediaFile(batch: any, file: File) {
   if (!currentVisit.value?.id || !batch?.id || !canEditVisit.value) return false;
+  if (!isSupportedMediaUpload(file)) {
+    message.error(t('page.consultation.messages.mediaUnsupportedType'));
+    return false;
+  }
   uploadingMediaBatchId.value = Number(batch.id);
   try {
     const result = await uploadUpload({}, file);
