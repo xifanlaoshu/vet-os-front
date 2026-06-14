@@ -312,6 +312,7 @@
     "appointment": {
       "title": "预约挂号",
       "list": "预约列表",
+      "detail": "预约详情",
       "create": "新增预约",
       "edit": "编辑预约",
       "addInSlot": "在该时间段新增预约",
@@ -884,6 +885,7 @@
     "hospitalization": {
       "title": "住院管理",
       "create": "新建住院",
+      "detail": "住院详情",
       "nursing": "护理执行",
       "nursingTitle": "护理执行",
       "addPlan": "新增护理计划",
@@ -913,7 +915,8 @@
         "latestExecutionAt": "最新执行",
         "executorName": "执行人",
         "resultNote": "执行备注",
-        "dischargeSummary": "出院小结"
+        "dischargeSummary": "出院小结",
+        "remark": "备注"
       },
       "messages": {
         "created": "住院记录已创建",
@@ -925,6 +928,7 @@
     "reminder": {
       "title": "提醒随访",
       "create": "新建提醒",
+      "detail": "提醒详情",
       "complete": "完成",
       "cancel": "取消",
       "fields": {
@@ -935,6 +939,8 @@
         "type": "类型",
         "channel": "触达渠道",
         "dueDate": "到期日",
+        "lastRemindedAt": "最近提醒时间",
+        "completedAt": "完成时间",
         "status": "状态",
         "keyword": "关键词",
         "remark": "备注"
@@ -1091,6 +1097,7 @@
     "insurance": {
       "title": "保险理赔",
       "create": "新建理赔",
+      "detail": "理赔详情",
       "submit": "提交",
       "settle": "结算",
       "fields": {
@@ -1102,6 +1109,8 @@
         "policyNo": "保单号",
         "claimAmount": "申请金额",
         "approvedAmount": "核定金额",
+        "submittedAt": "提交时间",
+        "settledAt": "结算时间",
         "status": "状态",
         "keyword": "关键词",
         "remark": "备注"
@@ -1117,6 +1126,8 @@
       "stores": "门店主数据",
       "stock": "门店库存",
       "transfer": "调拨单",
+      "transferDetail": "调拨单详情",
+      "transferItems": "调拨明细",
       "createStore": "新建门店",
       "setStock": "设置库存",
       "createTransfer": "新建调拨",
@@ -1134,7 +1145,10 @@
         "sourceStore": "调出门店",
         "targetStore": "调入门店",
         "status": "状态",
-        "reason": "原因"
+        "reason": "原因",
+        "requestedAt": "申请时间",
+        "approvedAt": "审批时间",
+        "completedAt": "完成时间"
       },
       "messages": {
         "storeCreated": "门店已创建",

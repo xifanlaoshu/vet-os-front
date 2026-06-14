@@ -30,6 +30,7 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
+              <a-button type="link" size="small" @click="openDetail(record)">{{ t('common.detail') }}</a-button>
               <a-button type="link" size="small" @click="markComplete(record)">{{ t('page.reminder.complete') }}</a-button>
               <a-button type="link" size="small" danger @click="cancelReminder(record)">{{ t('page.reminder.cancel') }}</a-button>
             </a-space>
@@ -37,6 +38,24 @@
         </template>
       </a-table>
     </a-card>
+
+    <a-drawer v-model:open="detailVisible" :title="t('page.reminder.detail')" width="680" destroy-on-close>
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.reminder.fields.reminderName')">{{ detailRecord?.reminderName || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.status')">
+          <a-tag :color="reminderStatusColor(detailRecord?.status)">{{ reminderStatusText(detailRecord?.status) }}</a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.customer')">{{ customerLabel(detailRecord?.customer, detailRecord?.customerSnapshot, detailRecord?.customerId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.pet')">{{ petLabel(detailRecord?.pet, detailRecord?.petSnapshot, detailRecord?.petId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.visit')">{{ detailRecord?.visit?.visitNo || detailRecord?.visitId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.type')">{{ optionLabel(reminderTypeOptions, detailRecord?.type, detailRecord?.type || '-') }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.channel')">{{ optionLabel(reminderChannelOptions, detailRecord?.channel, detailRecord?.channel || '-') }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.dueDate')">{{ detailRecord?.dueDate ? formatToDateTime(detailRecord.dueDate) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.lastRemindedAt')">{{ detailRecord?.lastRemindedAt ? formatToDateTime(detailRecord.lastRemindedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.completedAt')">{{ detailRecord?.completedAt ? formatToDateTime(detailRecord.completedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.reminder.fields.remark')" :span="2">{{ detailRecord?.remark || '-' }}</a-descriptions-item>
+      </a-descriptions>
+    </a-drawer>
   </div>
 </template>
 
@@ -44,7 +63,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { useFormModal } from '@/hooks/useModal';
-import { vpetReminderCancel, vpetReminderComplete, vpetReminderCreate, vpetReminderList } from '@/api/backend/vpet';
+import { vpetReminderCancel, vpetReminderComplete, vpetReminderCreate, vpetReminderGet, vpetReminderList } from '@/api/backend/vpet';
 import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
 import { useVpetReference } from '../shared/reference';
@@ -65,6 +84,8 @@ const {
 const [showModal] = useFormModal();
 const loading = ref(false);
 const records = ref<any[]>([]);
+const detailVisible = ref(false);
+const detailRecord = ref<any>(null);
 const pagination = ref({ current: 1, pageSize: 10, total: 0 });
 const filters = ref({ status: undefined as number | undefined, keyword: '' });
 const customerOptions = ref<any[]>([]);
@@ -98,7 +119,7 @@ const columns = [
   },
   { title: t('page.reminder.fields.dueDate'), dataIndex: 'dueDate', width: 160, customRender: ({ text }: any) => (text ? formatToDateTime(text) : '-') },
   { title: t('page.reminder.fields.status'), key: 'status', width: 120 },
-  { title: t('common.action'), key: 'action', width: 160 },
+  { title: t('common.action'), key: 'action', width: 210 },
 ];
 
 async function loadMasterData() {
@@ -136,6 +157,11 @@ function resetFilters() {
   filters.value = { status: undefined, keyword: '' };
   pagination.value.current = 1;
   loadData();
+}
+
+async function openDetail(record: any) {
+  detailRecord.value = await vpetReminderGet(record.id);
+  detailVisible.value = true;
 }
 
 async function openCreateModal() {

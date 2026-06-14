@@ -30,6 +30,7 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
+              <a-button type="link" size="small" @click="openDetail(record)">{{ t('common.detail') }}</a-button>
               <a-button type="link" size="small" @click="submitClaim(record)">{{ t('page.insurance.submit') }}</a-button>
               <a-button type="link" size="small" @click="openSettleModal(record)">{{ t('page.insurance.settle') }}</a-button>
             </a-space>
@@ -37,6 +38,26 @@
         </template>
       </a-table>
     </a-card>
+
+    <a-drawer v-model:open="detailVisible" :title="t('page.insurance.detail')" width="680" destroy-on-close>
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.insurance.fields.claimNo')">{{ detailRecord?.claimNo || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.status')">
+          <a-tag :color="insuranceStatusColor(detailRecord?.status)">{{ insuranceStatusText(detailRecord?.status) }}</a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.providerName')">{{ detailRecord?.providerName || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.policyNo')">{{ detailRecord?.policyNo || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.customer')">{{ customerLabel(detailRecord?.customer, detailRecord?.customerSnapshot, detailRecord?.customerId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.pet')">{{ petLabel(detailRecord?.pet, detailRecord?.petSnapshot, detailRecord?.petId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.visit')">{{ detailRecord?.visit?.visitNo || detailRecord?.visitId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.billing.fields.billNo')">{{ detailRecord?.billing?.billNo || detailRecord?.billingId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.claimAmount')">{{ Number(detailRecord?.claimAmount || 0).toFixed(2) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.approvedAmount')">{{ Number(detailRecord?.approvedAmount || 0).toFixed(2) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.submittedAt')">{{ detailRecord?.submittedAt ? formatToDateTime(detailRecord.submittedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.settledAt')">{{ detailRecord?.settledAt ? formatToDateTime(detailRecord.settledAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.remark')" :span="2">{{ detailRecord?.remark || '-' }}</a-descriptions-item>
+      </a-descriptions>
+    </a-drawer>
   </div>
 </template>
 
@@ -46,10 +67,12 @@ import { message } from 'ant-design-vue';
 import { useFormModal } from '@/hooks/useModal';
 import {
   vpetInsuranceCreate,
+  vpetInsuranceGet,
   vpetInsuranceList,
   vpetInsuranceSettle,
   vpetInsuranceSubmit,
 } from '@/api/backend/vpet';
+import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
 import { useVpetReference } from '../shared/reference';
 
@@ -60,6 +83,8 @@ const { customerLabel, loadCustomers, loadPets, loadVisits, getVisitRelation, pe
 const [showModal] = useFormModal();
 const loading = ref(false);
 const records = ref<any[]>([]);
+const detailVisible = ref(false);
+const detailRecord = ref<any>(null);
 const pagination = ref({ current: 1, pageSize: 10, total: 0 });
 const filters = ref({ status: undefined as number | undefined, keyword: '' });
 const customerOptions = ref<any[]>([]);
@@ -80,7 +105,7 @@ const columns = [
   { title: t('page.insurance.fields.claimAmount'), dataIndex: 'claimAmount', width: 120 },
   { title: t('page.insurance.fields.approvedAmount'), dataIndex: 'approvedAmount', width: 120 },
   { title: t('page.insurance.fields.status'), key: 'status', width: 120 },
-  { title: t('common.action'), key: 'action', width: 180 },
+  { title: t('common.action'), key: 'action', width: 220 },
 ];
 
 async function loadMasterData() {
@@ -116,6 +141,11 @@ function resetFilters() {
   filters.value = { status: undefined, keyword: '' };
   pagination.value.current = 1;
   loadData();
+}
+
+async function openDetail(record: any) {
+  detailRecord.value = await vpetInsuranceGet(record.id);
+  detailVisible.value = true;
 }
 
 async function openCreateModal() {

@@ -123,6 +123,7 @@
                     <div class="appointment-card__customer">{{ customerLabel(record.customer, record.customerSnapshot, record.customerId) }}</div>
                     <div class="appointment-card__reason">{{ record.reason || '-' }}</div>
                     <a-space size="small" class="appointment-card__actions">
+                      <a-button size="small" type="link" @click="openDetail(record)">{{ t('common.detail') }}</a-button>
                       <a-button size="small" type="link" @click="openVisit(record)">{{ t('page.appointment.table.openRecord') }}</a-button>
                       <a-button v-if="record.status === 1" size="small" type="link" @click="checkIn(record)">{{ t('page.appointment.table.checkIn') }}</a-button>
                       <a-button v-if="record.status === 1" size="small" type="link" @click="openCreateModal(record)">{{ t('common.edit') }}</a-button>
@@ -158,6 +159,21 @@
       :columns="columns"
       :search="false"
     />
+
+    <a-drawer v-model:open="detailVisible" :title="t('page.appointment.detail')" width="680" destroy-on-close>
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.appointment.fields.appointmentTime')">{{ detailRecord?.appointmentTime ? formatToDateTime(detailRecord.appointmentTime) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.status')">
+          <a-tag :color="appointmentStatusColor(detailRecord?.status)">{{ appointmentStatusText(detailRecord?.status) }}</a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.customer')">{{ customerLabel(detailRecord?.customer, detailRecord?.customerSnapshot, detailRecord?.customerId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.pet')">{{ petLabel(detailRecord?.pet, detailRecord?.petSnapshot, detailRecord?.petId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.doctor')">{{ doctorText(detailRecord || {}) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.visitType')">{{ optionLabel(visitTypeOptions, detailRecord?.visitType, detailRecord?.visitType || '-') }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.reason')" :span="2">{{ detailRecord?.reason || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.appointment.fields.remark')" :span="2">{{ detailRecord?.remark || '-' }}</a-descriptions-item>
+      </a-descriptions>
+    </a-drawer>
   </div>
 </template>
 
@@ -173,6 +189,7 @@ import {
   vpetAppointmentCancel,
   vpetAppointmentCheckIn,
   vpetAppointmentCreate,
+  vpetAppointmentGet,
   vpetAppointmentList,
   vpetAppointmentUpdate,
   vpetScheduleMonth,
@@ -219,6 +236,7 @@ const {
   loadDoctors,
   loadPets,
   loadDictOptions,
+  optionLabel,
   petLabel,
 } = useVpetReference();
 const router = useRouter();
@@ -228,6 +246,8 @@ const [showModal] = useFormModal();
 const viewMode = ref<AppointmentViewMode>('grid');
 const scheduleLoading = ref(false);
 const scheduleAppointments = ref<any[]>([]);
+const detailVisible = ref(false);
+const detailRecord = ref<any>(null);
 const scheduleScrollRef = ref<HTMLElement>();
 const scheduleScrollLeft = ref(0);
 const scheduleMonthKey = ref('');
@@ -245,6 +265,7 @@ const filters = ref({
 const customerOptions = ref<SelectOption[]>([]);
 const petOptions = ref<SelectOption[]>([]);
 const doctorOptions = ref<SelectOption[]>([]);
+const visitTypeOptions = ref<any[]>([]);
 
 const visibleDoctorOptions = computed(() => {
   if (!filters.value.doctorId) return doctorOptions.value;
@@ -517,7 +538,7 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
   const isUpdate = Boolean(record.id);
   if (!customerOptions.value.length) customerOptions.value = await loadCustomers();
   if (!doctorOptions.value.length) doctorOptions.value = await loadDoctors({ bookableOnly: true });
-  const visitTypeOptions = await loadDictOptions('pet_visit_type');
+  if (!visitTypeOptions.value.length) visitTypeOptions.value = await loadDictOptions('pet_visit_type');
   const initialAppointmentTime = isUpdate
     ? (record.appointmentTime ? dayjs(record.appointmentTime) : filters.value.date.hour(9).minute(0).second(0))
     : (preset.appointmentTime || filters.value.date.hour(9).minute(0).second(0));
@@ -611,7 +632,7 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
       component: 'Select',
       colProps: { span: 12 },
       componentProps: {
-        options: visitTypeOptions,
+        options: visitTypeOptions.value,
         placeholder: t('page.appointment.placeholders.visitType'),
         style: { width: '100%' },
       },
@@ -684,6 +705,12 @@ async function openCreateModal(record: any = {}, preset: { doctorId?: number; ap
       appointmentTime: preset.appointmentTime || filters.value.date.hour(9).minute(0).second(0),
     });
   }
+}
+
+async function openDetail(record: any) {
+  if (!visitTypeOptions.value.length) visitTypeOptions.value = await loadDictOptions('pet_visit_type');
+  detailRecord.value = await vpetAppointmentGet(record.id);
+  detailVisible.value = true;
 }
 
 async function checkIn(record: any) {
@@ -760,10 +787,15 @@ const columns = [
   },
   {
     title: t('page.appointment.table.action'),
-    width: 220,
+    width: 250,
     dataIndex: 'ACTION',
     fixed: 'right' as const,
     actions: ({ record }: any) => [
+      {
+        icon: 'ant-design:eye-outlined' as const,
+        tooltip: t('common.detail'),
+        onClick: () => openDetail(record),
+      },
       {
         icon: 'ant-design:file-search-outlined' as const,
         tooltip: t('page.appointment.table.openRecord'),
@@ -793,7 +825,11 @@ const columns = [
 ];
 
 onMounted(async () => {
-  [customerOptions.value, doctorOptions.value] = await Promise.all([loadCustomers(), loadDoctors({ bookableOnly: true })]);
+  [customerOptions.value, doctorOptions.value, visitTypeOptions.value] = await Promise.all([
+    loadCustomers(),
+    loadDoctors({ bookableOnly: true }),
+    loadDictOptions('pet_visit_type'),
+  ]);
   await loadScheduleAppointments();
 });
 

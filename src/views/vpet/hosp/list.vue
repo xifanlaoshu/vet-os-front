@@ -32,11 +32,44 @@
             <a-tag :color="hospitalizationStatusColor(record.status)">{{ hospitalizationStatusText(record.status) }}</a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
-            <a-button type="link" size="small" @click="router.push(`/vpet/hosp/nursing/${record.id}`)">{{ t('page.hospitalization.nursing') }}</a-button>
+            <a-space>
+              <a-button type="link" size="small" @click="openDetail(record)">{{ t('common.detail') }}</a-button>
+              <a-button type="link" size="small" @click="router.push(`/vpet/hosp/nursing/${record.id}`)">{{ t('page.hospitalization.nursing') }}</a-button>
+            </a-space>
           </template>
         </template>
       </a-table>
     </a-card>
+
+    <a-drawer v-model:open="detailVisible" :title="t('page.hospitalization.detail')" width="760" destroy-on-close>
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.hospitalization.fields.hospNo')">{{ detailRecord?.hospNo || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.status')">
+          <a-tag :color="hospitalizationStatusColor(detailRecord?.status)">{{ hospitalizationStatusText(detailRecord?.status) }}</a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.customer')">{{ customerLabel(detailRecord?.customer, detailRecord?.customerSnapshot, detailRecord?.customerId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.pet')">{{ petLabel(detailRecord?.pet, detailRecord?.petSnapshot, detailRecord?.petId) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.doctor')">{{ detailRecord?.doctor?.name || detailRecord?.doctorSnapshot?.name || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.cageCode')">{{ detailRecord?.cageCode || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.nursingLevel')">{{ optionLabel(nursingLevelOptions, detailRecord?.nursingLevel, detailRecord?.nursingLevel || '-') }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.dailyFee')">{{ Number(detailRecord?.dailyFee || 0).toFixed(2) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.depositAmount')">{{ Number(detailRecord?.depositAmount || 0).toFixed(2) }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.admissionAt')">{{ detailRecord?.admissionAt ? formatToDateTime(detailRecord.admissionAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.admissionDiagnosis')" :span="2">{{ detailRecord?.admissionDiagnosis || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.hospitalization.fields.remark')" :span="2">{{ detailRecord?.remark || '-' }}</a-descriptions-item>
+      </a-descriptions>
+
+      <a-divider>{{ t('page.hospitalization.nursing') }}</a-divider>
+      <a-empty v-if="!(detailRecord?.nursingPlans || []).length" />
+      <a-table
+        v-else
+        row-key="id"
+        size="small"
+        :pagination="false"
+        :columns="nursingPlanColumns"
+        :data-source="detailRecord?.nursingPlans || []"
+      />
+    </a-drawer>
   </div>
 </template>
 
@@ -45,7 +78,7 @@ import { computed, onMounted, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useFormModal } from '@/hooks/useModal';
-import { vpetHospitalizationCreate, vpetHospitalizationList } from '@/api/backend/vpet';
+import { vpetHospitalizationCreate, vpetHospitalizationGet, vpetHospitalizationList } from '@/api/backend/vpet';
 import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
 import { useVpetReference } from '../shared/reference';
@@ -68,6 +101,8 @@ const router = useRouter();
 const [showModal] = useFormModal();
 const loading = ref(false);
 const records = ref<any[]>([]);
+const detailVisible = ref(false);
+const detailRecord = ref<any>(null);
 const pagination = ref({ current: 1, pageSize: 10, total: 0 });
 const filters = ref({ status: undefined as number | undefined, doctorId: undefined as number | undefined, keyword: '' });
 const customerOptions = ref<any[]>([]);
@@ -97,7 +132,14 @@ const columns = [
   { title: t('page.hospitalization.fields.dailyFee'), dataIndex: 'dailyFee', width: 120 },
   { title: t('page.hospitalization.fields.admissionAt'), dataIndex: 'admissionAt', width: 180, customRender: ({ text }: any) => (text ? formatToDateTime(text) : '-') },
   { title: t('page.hospitalization.fields.status'), key: 'status', width: 120 },
-  { title: t('common.action'), key: 'action', width: 120 },
+  { title: t('common.action'), key: 'action', width: 170 },
+];
+
+const nursingPlanColumns = [
+  { title: t('page.hospitalization.fields.planName'), dataIndex: 'planName', width: 180 },
+  { title: t('page.hospitalization.fields.frequency'), dataIndex: 'frequency', width: 120 },
+  { title: t('page.hospitalization.fields.scheduledTime'), dataIndex: 'scheduledTime', width: 160 },
+  { title: t('page.hospitalization.fields.instruction'), dataIndex: 'instruction' },
 ];
 
 async function loadMasterData() {
@@ -136,6 +178,11 @@ function resetFilters() {
   filters.value = { status: undefined, doctorId: undefined, keyword: '' };
   pagination.value.current = 1;
   loadData();
+}
+
+async function openDetail(record: any) {
+  detailRecord.value = await vpetHospitalizationGet(record.id);
+  detailVisible.value = true;
 }
 
 async function openCreateModal() {

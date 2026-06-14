@@ -28,6 +28,7 @@
               </template>
               <template v-else-if="column.key === 'action'">
                 <a-space>
+                  <a-button type="link" size="small" @click="openTransferDetail(record)">{{ t('common.detail') }}</a-button>
                   <a-button type="link" size="small" @click="approveTransfer(record)">{{ t('page.store.approve') }}</a-button>
                   <a-button type="link" size="small" @click="completeTransfer(record)">{{ t('page.store.complete') }}</a-button>
                 </a-space>
@@ -37,6 +38,30 @@
         </a-tab-pane>
       </a-tabs>
     </a-card>
+
+    <a-drawer v-model:open="transferDetailVisible" :title="t('page.store.transferDetail')" width="760" destroy-on-close>
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.store.fields.transferNo')">{{ transferDetail?.transferNo || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.status')">
+          <a-tag :color="transferStatusColor(transferDetail?.status)">{{ transferStatusText(transferDetail?.status) }}</a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.sourceStore')">{{ transferDetail?.sourceStore?.storeName || transferDetail?.sourceStoreId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.targetStore')">{{ transferDetail?.targetStore?.storeName || transferDetail?.targetStoreId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.requestedAt')">{{ transferDetail?.requestedAt ? formatToDateTime(transferDetail.requestedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.approvedAt')">{{ transferDetail?.approvedAt ? formatToDateTime(transferDetail.approvedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.completedAt')">{{ transferDetail?.completedAt ? formatToDateTime(transferDetail.completedAt) : '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.store.fields.reason')">{{ transferDetail?.reason || '-' }}</a-descriptions-item>
+      </a-descriptions>
+
+      <a-divider>{{ t('page.store.transferItems') }}</a-divider>
+      <a-table
+        row-key="id"
+        size="small"
+        :pagination="false"
+        :columns="transferItemColumns"
+        :data-source="transferDetail?.items || []"
+      />
+    </a-drawer>
   </div>
 </template>
 
@@ -53,8 +78,10 @@ import {
   vpetStoreTransferApprove,
   vpetStoreTransferComplete,
   vpetStoreTransferCreate,
+  vpetStoreTransferGet,
   vpetStoreTransferList,
 } from '@/api/backend/vpet';
+import { formatToDateTime } from '@/utils/dateUtil';
 import { useVpetLocale } from '../shared/locale';
 
 defineOptions({ name: 'VPetStore' });
@@ -65,6 +92,8 @@ const activeTab = ref('stores');
 const stores = ref<any[]>([]);
 const stockList = ref<any[]>([]);
 const transfers = ref<any[]>([]);
+const transferDetailVisible = ref(false);
+const transferDetail = ref<any>(null);
 const activeStoreId = ref<number>();
 const drugOptions = ref<any[]>([]);
 
@@ -85,7 +114,14 @@ const transferColumns = [
   { title: t('page.store.fields.sourceStore'), dataIndex: ['sourceStore', 'storeName'], width: 180 },
   { title: t('page.store.fields.targetStore'), dataIndex: ['targetStore', 'storeName'], width: 180 },
   { title: t('page.store.fields.status'), key: 'status', width: 120 },
-  { title: t('common.action'), key: 'action', width: 160 },
+  { title: t('common.action'), key: 'action', width: 210 },
+];
+
+const transferItemColumns = [
+  { title: t('page.store.fields.drugName'), dataIndex: 'drugName', width: 220 },
+  { title: t('page.prescription.fields.specification'), dataIndex: 'specification', width: 160 },
+  { title: t('page.store.fields.quantity'), dataIndex: 'quantity', width: 120 },
+  { title: t('page.prescription.fields.dosageUnit'), dataIndex: 'unit', width: 120 },
 ];
 
 async function loadDrugOptions() {
@@ -188,6 +224,11 @@ async function openCreateTransferModal() {
       ],
     },
   });
+}
+
+async function openTransferDetail(record: any) {
+  transferDetail.value = await vpetStoreTransferGet(record.id);
+  transferDetailVisible.value = true;
 }
 
 async function approveTransfer(record: any) {

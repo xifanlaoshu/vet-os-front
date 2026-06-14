@@ -54,6 +54,10 @@ export function vpetAppointmentList(params?: any, options?: RequestOptions) {
   return request('/api/vpet/appointment', { method: 'GET', params, ...(options || {}) });
 }
 
+export function vpetAppointmentGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/appointment/detail/${id}`, { method: 'GET', ...(options || {}) });
+}
+
 export function vpetAppointmentCreate(body: any, options?: RequestOptions) {
   return request('/api/vpet/appointment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
 }
@@ -452,6 +456,10 @@ export function vpetStoreTransferList(params?: any, options?: RequestOptions) {
   return request('/api/vpet/store/transfer/list', { method: 'GET', params, ...(options || {}) });
 }
 
+export function vpetStoreTransferGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/store/transfer/${id}`, { method: 'GET', ...(options || {}) });
+}
+
 export function vpetStoreTransferCreate(body: any, options?: RequestOptions) {
   return request('/api/vpet/store/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
 }
@@ -496,6 +504,10 @@ export function vpetInsuranceList(params?: any, options?: RequestOptions) {
   return request('/api/vpet/insurance', { method: 'GET', params, ...(options || {}) });
 }
 
+export function vpetInsuranceGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/insurance/${id}`, { method: 'GET', ...(options || {}) });
+}
+
 export function vpetInsuranceCreate(body: any, options?: RequestOptions) {
   return request('/api/vpet/insurance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
 }
@@ -510,6 +522,10 @@ export function vpetInsuranceSettle(id: number, body: any, options?: RequestOpti
 
 export function vpetReminderList(params?: any, options?: RequestOptions) {
   return request('/api/vpet/reminder', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetReminderGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/reminder/${id}`, { method: 'GET', ...(options || {}) });
 }
 
 export function vpetReminderCreate(body: any, options?: RequestOptions) {

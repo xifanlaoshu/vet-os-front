@@ -312,6 +312,7 @@
     "appointment": {
       "title": "Appointments",
       "list": "Appointment List",
+      "detail": "Appointment detail",
       "create": "New appointment",
       "edit": "Edit appointment",
       "addInSlot": "Add appointment in this slot",
@@ -884,6 +885,7 @@
     "hospitalization": {
       "title": "Hospitalization",
       "create": "Create hospitalization",
+      "detail": "Hospitalization detail",
       "nursing": "Nursing",
       "nursingTitle": "Nursing execution",
       "addPlan": "Add plan",
@@ -913,7 +915,8 @@
         "latestExecutionAt": "Latest execution",
         "executorName": "Executor",
         "resultNote": "Execution note",
-        "dischargeSummary": "Discharge summary"
+        "dischargeSummary": "Discharge summary",
+        "remark": "Remark"
       },
       "messages": {
         "created": "Hospitalization created",
@@ -925,6 +928,7 @@
     "reminder": {
       "title": "Reminder",
       "create": "Create reminder",
+      "detail": "Reminder detail",
       "complete": "Complete",
       "cancel": "Cancel",
       "fields": {
@@ -935,6 +939,8 @@
         "type": "Type",
         "channel": "Channel",
         "dueDate": "Due date",
+        "lastRemindedAt": "Last reminded at",
+        "completedAt": "Completed at",
         "status": "Status",
         "keyword": "Keyword",
         "remark": "Remark"
@@ -1091,6 +1097,7 @@
     "insurance": {
       "title": "Insurance Claims",
       "create": "Create claim",
+      "detail": "Claim detail",
       "submit": "Submit",
       "settle": "Settle",
       "fields": {
@@ -1102,6 +1109,8 @@
         "policyNo": "Policy No.",
         "claimAmount": "Claim amount",
         "approvedAmount": "Approved amount",
+        "submittedAt": "Submitted at",
+        "settledAt": "Settled at",
         "status": "Status",
         "keyword": "Keyword",
         "remark": "Remark"
@@ -1117,6 +1126,8 @@
       "stores": "Stores",
       "stock": "Store stock",
       "transfer": "Transfers",
+      "transferDetail": "Transfer detail",
+      "transferItems": "Transfer items",
       "createStore": "Create store",
       "setStock": "Set stock",
       "createTransfer": "Create transfer",
@@ -1134,7 +1145,10 @@
         "sourceStore": "Source store",
         "targetStore": "Target store",
         "status": "Status",
-        "reason": "Reason"
+        "reason": "Reason",
+        "requestedAt": "Requested at",
+        "approvedAt": "Approved at",
+        "completedAt": "Completed at"
       },
       "messages": {
         "storeCreated": "Store created",
