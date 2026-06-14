@@ -226,7 +226,35 @@
           / {{ formatToDateTime(payment.paidAt) }}
         </a-timeline-item>
       </a-timeline>
+
+      <a-space class="vpet-block-top">
+        <a-button type="primary" @click="openReceiptPrint(detailBill, 'billing_receipt')">
+          {{ t('page.billing.printReceipt') }}
+        </a-button>
+        <a-button v-if="billRefundable(detailBill) > 0" @click="openReceiptPrint(detailBill, 'billing_refund')">
+          {{ t('page.billing.printRefundReceipt') }}
+        </a-button>
+      </a-space>
     </a-drawer>
+
+    <a-modal
+      v-model:open="printVisible"
+      :title="printTemplateTypeText(activePrintType)"
+      width="760px"
+      :footer="null"
+      destroy-on-close
+    >
+      <a-space class="vpet-block-bottom">
+        <a-select
+          v-model:value="selectedPrintTemplateId"
+          style="width: 260px"
+          :options="receiptPrintTemplateOptions"
+          :placeholder="t('page.printTemplate.selectTemplate')"
+        />
+        <a-button type="primary" @click="printCurrentReceipt">{{ t('common.print') }}</a-button>
+      </a-space>
+      <div id="vpet-billing-print-area" class="vpet-receipt-paper" v-html="receiptPrintHtml" />
+    </a-modal>
   </div>
 </template>
 
@@ -243,6 +271,7 @@ import {
   vpetBillingGet,
   vpetBillingPay,
   vpetBillingRefund,
+  vpetPrintTemplateActive,
   vpetMemberBalance,
 } from '@/api/backend/vpet';
 import { useVpetLocale } from '../shared/locale';
@@ -259,6 +288,7 @@ const {
   paymentStatusColor,
   paymentStatusOptions,
   paymentStatusText,
+  printTemplateTypeText,
 } = useVpetLocale();
 const {
   customerLabel,
@@ -286,6 +316,11 @@ const payingBill = ref<any>(null);
 const refundingBill = ref<any>(null);
 const detailBill = ref<any>(null);
 const memberBalance = ref<any>(null);
+const printVisible = ref(false);
+const printBill = ref<any>(null);
+const receiptPrintTemplates = ref<any[]>([]);
+const selectedPrintTemplateId = ref<number | undefined>();
+const activePrintType = ref('billing_receipt');
 
 const createForm = ref({
   visitId: undefined as number | undefined,
@@ -431,6 +466,26 @@ async function submitCreate() {
 async function openDetail(record: any) {
   detailBill.value = await vpetBillingGet(record.id);
   detailVisible.value = true;
+}
+
+async function loadReceiptPrintTemplates(templateType: string) {
+  const data: any = await vpetPrintTemplateActive({ templateType });
+  receiptPrintTemplates.value = Array.isArray(data) ? data : [];
+  selectedPrintTemplateId.value = receiptPrintTemplates.value.find(item => Number(item.defaultTemplate) === 1)?.id
+    ?? receiptPrintTemplates.value[0]?.id;
+}
+
+async function openReceiptPrint(record: any, templateType = 'billing_receipt') {
+  if (!record?.id) return;
+  activePrintType.value = templateType;
+  printBill.value = record.details ? record : await vpetBillingGet(record.id);
+  await loadReceiptPrintTemplates(templateType);
+  printVisible.value = true;
+}
+
+async function printCurrentReceipt() {
+  await nextTick();
+  window.print();
 }
 
 async function openPayModal(record: any) {
@@ -639,11 +694,175 @@ const columns = [
         tooltip: t('page.billing.refund'),
         onClick: () => openRefundModal(record),
       },
+      {
+        icon: 'ant-design:printer-outlined',
+        tooltip: t('page.billing.printReceipt'),
+        onClick: () => openReceiptPrint(record, 'billing_receipt'),
+      },
     ],
   },
 ];
+
+const receiptPrintTemplateOptions = computed(() =>
+  receiptPrintTemplates.value.map(item => ({
+    value: item.id,
+    label: `${item.name} / ${item.paperType || '80mm'}`,
+  })),
+);
+
+const receiptPrintHtml = computed(() => {
+  const bill = printBill.value || {};
+  const template = receiptPrintTemplates.value.find(item => Number(item.id) === Number(selectedPrintTemplateId.value));
+  const model = buildBillingPrintModel(bill);
+  const fallback = [
+    '<h1>宠物医院收款小票</h1>',
+    '<p>账单号：{{billNo}}</p>',
+    '<p>宠主：{{customerName}}　宠物：{{petName}}</p>',
+    '{{itemsTable}}',
+    '<p>应收：{{receivableAmount}}　优惠：{{discountAmount}}　实收：{{paidAmount}}</p>',
+    '<p>支付方式：{{paymentMethod}}　打印时间：{{printedAt}}</p>',
+  ].join('');
+  const content = template
+    ? [template.templateHeader, template.templateBody, template.templateFooter].filter(Boolean).join('\n')
+    : fallback;
+  return renderPrintTemplate(content, model);
+});
+
+function buildBillingPrintModel(bill: any) {
+  return {
+    billNo: bill.billNo || '-',
+    customerName: customerLabel(null, bill.customerSnapshot, bill.customerId),
+    petName: petLabel(null, bill.petSnapshot, bill.petId),
+    receivableAmount: billReceivable(bill).toFixed(2),
+    discount: Number(bill.discount || 0).toFixed(2),
+    discountAmount: Number(bill.discount || 0).toFixed(2),
+    paidAmount: Number(bill.paidAmount || 0).toFixed(2),
+    dueAmount: billDue(bill).toFixed(2),
+    refundAmount: calculateRefundAmount(bill.payments || []).toFixed(2),
+    refundReason: resolveRefundReason(bill.payments || []),
+    paymentMethod: paymentMethodText(bill.paymentMethod),
+    paymentStatus: paymentStatusText(bill.paymentStatus),
+    paidAt: bill.paidAt ? formatToDateTime(bill.paidAt) : '-',
+    refundedAt: resolveRefundedAt(bill.payments || []),
+    operatorName: '-',
+    printedAt: new Date().toLocaleString(),
+    itemsTable: buildBillingItemsTable(bill.details || []),
+    paymentsTable: buildBillingPaymentsTable(bill.payments || []),
+  };
+}
+
+function calculateRefundAmount(payments: any[]) {
+  return payments
+    .filter(item => Number(item.direction) === 2)
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+}
+
+function resolveRefundReason(payments: any[]) {
+  return payments.filter(item => Number(item.direction) === 2).at(-1)?.remark || '-';
+}
+
+function resolveRefundedAt(payments: any[]) {
+  const refundedAt = payments.filter(item => Number(item.direction) === 2).at(-1)?.paidAt;
+  return refundedAt ? formatToDateTime(refundedAt) : '-';
+}
+
+function buildBillingItemsTable(details: any[]) {
+  const rows = details.map((item, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(item.itemName || '-')}</td>
+      <td>${Number(item.quantity || 1).toFixed(2)}</td>
+      <td>${Number(item.unitPrice || 0).toFixed(2)}</td>
+      <td>${Number(item.amount || 0).toFixed(2)}</td>
+    </tr>
+  `).join('');
+  return `<table class="vpet-print-table"><thead><tr><th>#</th><th>项目</th><th>数量</th><th>单价</th><th>金额</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function buildBillingPaymentsTable(payments: any[]) {
+  const rows = payments.map((item, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(paymentDirectionText(item.direction))}</td>
+      <td>${escapeHtml(paymentMethodText(item.paymentMethod))}</td>
+      <td>${Number(item.amount || 0).toFixed(2)}</td>
+      <td>${escapeHtml(item.paidAt ? formatToDateTime(item.paidAt) : '-')}</td>
+    </tr>
+  `).join('');
+  return `<table class="vpet-print-table"><thead><tr><th>#</th><th>方向</th><th>方式</th><th>金额</th><th>时间</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderPrintTemplate(template: string, model: Record<string, any>) {
+  const html = template.replace(/\n/g, '<br />');
+  return html.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
+    if (key === 'itemsTable' || key === 'paymentsTable') return model[key] || '';
+    return escapeHtml(model[key] ?? '');
+  });
+}
+
+function escapeHtml(value: any) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 onMounted(async () => {
   await loadVisits();
 });
 </script>
+
+<style lang="less" scoped>
+  .vpet-receipt-paper {
+    max-width: 520px;
+    padding: 22px;
+    margin: 0 auto;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    line-height: 1.8;
+
+    :deep(h1) {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    :deep(.vpet-print-table) {
+      width: 100%;
+      margin: 12px 0;
+      border-collapse: collapse;
+    }
+
+    :deep(.vpet-print-table th),
+    :deep(.vpet-print-table td) {
+      padding: 6px 8px;
+      border-bottom: 1px dashed #d1d5db;
+      text-align: left;
+    }
+  }
+
+  @media print {
+    :global(body *) {
+      visibility: hidden;
+    }
+
+    :global(#vpet-billing-print-area),
+    :global(#vpet-billing-print-area *) {
+      visibility: visible;
+    }
+
+    :global(#vpet-billing-print-area) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      max-width: none;
+      border: 0 !important;
+    }
+  }
+</style>

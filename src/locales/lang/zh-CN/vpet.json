@@ -13,6 +13,13 @@
     "save": "保存",
     "clear": "清空",
     "delete": "删除",
+    "add": "新增",
+    "keyword": "关键字",
+    "print": "打印",
+    "yes": "是",
+    "no": "否",
+    "enabled": "启用",
+    "disabled": "停用",
     "confirmDelete": "确认删除？",
     "action": "操作",
     "queryText": "查询",
@@ -536,6 +543,8 @@
       "confirmPayment": "确认收款",
       "refund": "退款",
       "detail": "账单明细",
+      "printReceipt": "打印收款小票",
+      "printRefundReceipt": "打印退款小票",
       "chargeItems": "收费项目",
       "paymentRecords": "支付记录",
       "memberNotOpened": "未开卡",
@@ -707,6 +716,8 @@
       "title": "处方管理",
       "add": "新增处方",
       "detail": "处方明细",
+      "detailTitle": "处方详情",
+      "print": "打印处方单",
       "detailItems": "处方明细",
       "addDrug": "添加收费项目",
       "templateManager": "处方模板",
@@ -730,6 +741,7 @@
         "templateCategory": "模板分类",
         "templateDescription": "模板说明",
         "diagnosisSummary": "临床诊断",
+        "type": "处方类别",
         "item": "项目",
         "specification": "规格",
         "dosage": "剂量",
@@ -750,6 +762,28 @@
         "templateDeleted": "处方模板已删除"
       },
       "formulaHelp": "公式支持变量 weight（宠物体重kg）和四则运算，如 weight*0.2；也支持范围规则，如 1-2=1;2-5=2;>5=3。套用模板时会按当前就诊宠物体重自动计算建议剂量和数量，处方单上仍可手工调整。"
+    },
+    "printTemplate": {
+      "title": "票据模板",
+      "selectTemplate": "选择票据模板",
+      "fields": {
+        "code": "模板编码",
+        "name": "模板名称",
+        "templateType": "票据类型",
+        "paperType": "纸张类型",
+        "defaultTemplate": "默认模板",
+        "status": "状态",
+        "templateHeader": "模板头",
+        "templateBody": "模板正文",
+        "templateFooter": "模板尾",
+        "remark": "备注"
+      },
+      "messages": {
+        "required": "请填写模板编码、名称、类型和正文",
+        "created": "票据模板已创建",
+        "updated": "票据模板已更新",
+        "deleted": "票据模板已停用"
+      }
     },
     "queue": {
       "title": "门诊叫号屏",

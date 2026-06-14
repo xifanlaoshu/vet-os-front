@@ -4,11 +4,19 @@ import { useVpetLocale } from '../shared/locale';
 import { useVpetReference } from '../shared/reference';
 
 export function createPrescriptionColumns(resolveVisitLabel?: (visitId?: number) => string) {
-  const { t, prescriptionStatusColor, prescriptionStatusText } = useVpetLocale();
+  const { t, prescriptionStatusColor, prescriptionStatusText, prescriptionTypeColor, prescriptionTypeText } = useVpetLocale();
   const { doctorLabel, orphanLabel } = useVpetReference();
 
   return [
     { title: t('page.prescription.fields.rxNo'), dataIndex: 'rxNo', width: 160 },
+    {
+      title: t('page.prescription.fields.type'),
+      dataIndex: 'type',
+      width: 140,
+      customRender: ({ record }: any) => (
+        <Tag color={prescriptionTypeColor(record.type)}>{prescriptionTypeText(record.type)}</Tag>
+      ),
+    },
     {
       title: t('page.prescription.fields.visit'),
       dataIndex: 'visitId',

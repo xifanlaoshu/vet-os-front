@@ -145,6 +145,21 @@ export function useVpetLocale() {
     { value: 5, label: 'Voided' },
   ]);
 
+  const prescriptionTypeOptions = buildDictOptions('vpet_prescription_type', () => [
+    { value: 1, label: '院内诊疗处方' },
+    { value: 2, label: '手术/麻醉处方' },
+    { value: 3, label: '家长外带处方' },
+  ]);
+
+  const printTemplateTypeOptions = buildDictOptions('vpet_print_template_type', () => [
+    { value: 'prescription', label: '处方单' },
+    { value: 'billing_receipt', label: '收款小票' },
+    { value: 'billing_refund', label: '退款小票' },
+    { value: 'dispense_note', label: '发药单' },
+    { value: 'lab_report', label: '化验报告' },
+    { value: 'visit_summary', label: '病历摘要' },
+  ], 'string');
+
   const doctorStatusOptions = buildDictOptions('vpet_doctor_status', () => [
     { value: 0, label: 'Inactive' },
     { value: 1, label: 'Active' },
@@ -322,6 +337,18 @@ export function useVpetLocale() {
     return { 1: 'default', 2: 'blue', 3: 'orange', 4: 'green', 5: 'red' }[status || 0] || 'default';
   }
 
+  function prescriptionTypeText(type?: number) {
+    return buildOptionText(prescriptionTypeOptions.value, type, t('common.unknown'));
+  }
+
+  function prescriptionTypeColor(type?: number) {
+    return { 1: 'blue', 2: 'volcano', 3: 'green' }[type || 0] || 'default';
+  }
+
+  function printTemplateTypeText(type?: string) {
+    return buildOptionText(printTemplateTypeOptions.value, type, t('common.unknown'));
+  }
+
   function doctorStatusText(status?: number) {
     return buildOptionText(doctorStatusOptions.value, status, t('common.unknown'));
   }
@@ -456,6 +483,8 @@ export function useVpetLocale() {
     paymentStatusOptions,
     paymentDirectionOptions,
     prescriptionStatusOptions,
+    prescriptionTypeOptions,
+    printTemplateTypeOptions,
     doctorStatusOptions,
     petStatusOptions,
     pharmacyStatusOptions,
@@ -486,6 +515,9 @@ export function useVpetLocale() {
     paymentDirectionText,
     prescriptionStatusText,
     prescriptionStatusColor,
+    prescriptionTypeText,
+    prescriptionTypeColor,
+    printTemplateTypeText,
     doctorStatusText,
     labStatusText,
     labStatusColor,

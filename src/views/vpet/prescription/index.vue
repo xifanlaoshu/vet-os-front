@@ -62,22 +62,32 @@
           </a-col>
         </a-row>
 
-        <a-form-item :label="t('page.prescription.fields.template')">
-          <a-select
-            v-model:value="selectedTemplateId"
-            allow-clear
-            mode="multiple"
-            show-search
-            :filter-option="filterByLabel"
-            :options="templateOptions"
-            :placeholder="t('page.prescription.placeholders.template')"
-            @change="applyTemplate"
-          />
-        </a-form-item>
-
-        <a-form-item :label="t('page.prescription.fields.diagnosisSummary')">
-          <a-input v-model:value="form.diagnosisSummary" :placeholder="t('page.prescription.placeholders.diagnosisSummary')" />
-        </a-form-item>
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item :label="t('page.prescription.fields.type')" required>
+              <a-select v-model:value="form.type" :options="prescriptionTypeOptions" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item :label="t('page.prescription.fields.template')">
+              <a-select
+                v-model:value="selectedTemplateId"
+                allow-clear
+                mode="multiple"
+                show-search
+                :filter-option="filterByLabel"
+                :options="templateOptions"
+                :placeholder="t('page.prescription.placeholders.template')"
+                @change="applyTemplate"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('page.prescription.fields.diagnosisSummary')">
+              <a-input v-model:value="form.diagnosisSummary" :placeholder="t('page.prescription.placeholders.diagnosisSummary')" />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
         <a-divider orientation="left">{{ t('page.prescription.detailItems') }}</a-divider>
 
@@ -244,21 +254,89 @@
         </a-table>
       </a-form>
     </a-modal>
+
+    <a-drawer
+      v-model:open="detailVisible"
+      :title="t('page.prescription.detailTitle')"
+      width="760"
+      destroy-on-close
+    >
+      <a-descriptions :column="2" size="small" bordered>
+        <a-descriptions-item :label="t('page.prescription.fields.rxNo')">
+          {{ detailPrescription?.rxNo || '-' }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.type')">
+          <a-tag :color="prescriptionTypeColor(detailPrescription?.type)">
+            {{ prescriptionTypeText(detailPrescription?.type) }}
+          </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.visit')">
+          {{ visitLabelById(detailPrescription?.visitId) }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.doctor')">
+          {{ doctorLabel(detailPrescription?.doctor, detailPrescription?.doctorId, detailPrescription?.doctorSnapshot?.name) }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.customer')">
+          {{ customerLabel(null, detailPrescription?.customerSnapshot, detailPrescription?.customerId) }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.pet')">
+          {{ petLabel(null, detailPrescription?.petSnapshot, detailPrescription?.petId) }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="t('page.prescription.fields.diagnosisSummary')" :span="2">
+          {{ detailPrescription?.diagnosisSummary || '-' }}
+        </a-descriptions-item>
+      </a-descriptions>
+
+      <a-divider>{{ t('page.prescription.detailItems') }}</a-divider>
+      <a-table
+        row-key="id"
+        size="small"
+        :pagination="false"
+        :columns="detailViewColumns"
+        :data-source="detailPrescription?.details || []"
+      />
+      <a-space class="vpet-block-top">
+        <a-button type="primary" @click="openPrescriptionPrint(detailPrescription)">
+          {{ t('page.prescription.print') }}
+        </a-button>
+      </a-space>
+    </a-drawer>
+
+    <a-modal
+      v-model:open="printVisible"
+      :title="t('page.prescription.print')"
+      width="900px"
+      :footer="null"
+      destroy-on-close
+    >
+      <a-space class="vpet-block-bottom">
+        <a-select
+          v-model:value="selectedPrintTemplateId"
+          style="width: 260px"
+          :options="prescriptionPrintTemplateOptions"
+          :placeholder="t('page.printTemplate.selectTemplate')"
+        />
+        <a-button type="primary" @click="printCurrentPrescription">{{ t('common.print') }}</a-button>
+      </a-space>
+      <div id="vpet-prescription-print-area" class="vpet-print-paper" v-html="prescriptionPrintHtml" />
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { useTable } from '@/components/core/dynamic-table';
 import Icon from '@/components/basic/icon/Icon.vue';
 import { createPrescriptionColumns } from './columns';
 import {
   vpetPrescriptionCreate,
+  vpetPrescriptionGet,
   vpetPrescriptionList,
   vpetPrescriptionTemplateCreate,
   vpetPrescriptionTemplateDelete,
   vpetPrescriptionTemplateList,
+  vpetPrintTemplateActive,
 } from '@/api/backend/vpet';
 import { vpetPharmacyChargeableSearch } from '@/api/backend/vpet/pharmacy';
 import { useVpetLocale } from '../shared/locale';
@@ -292,7 +370,12 @@ type PrescriptionDetailForm = {
   unitPrice: number;
 };
 
-const { t } = useVpetLocale();
+const {
+  t,
+  prescriptionTypeColor,
+  prescriptionTypeOptions,
+  prescriptionTypeText,
+} = useVpetLocale();
 const {
   customerLabel,
   doctorLabel,
@@ -351,9 +434,15 @@ const doctorMap = ref<Record<number, string>>({});
 const chargeableOptions = ref<ChargeableOption[]>([]);
 const templates = ref<any[]>([]);
 const selectedTemplateId = ref<number[]>([]);
+const detailVisible = ref(false);
+const printVisible = ref(false);
+const detailPrescription = ref<any>(null);
+const prescriptionPrintTemplates = ref<any[]>([]);
+const selectedPrintTemplateId = ref<number | undefined>();
 const form = ref({
   visitId: undefined as number | undefined,
   doctorId: undefined as number | undefined,
+  type: 1,
   diagnosisSummary: '',
   details: [] as PrescriptionDetailForm[],
 });
@@ -580,6 +669,7 @@ function resetForm() {
   form.value = {
     visitId: undefined,
     doctorId: undefined,
+    type: 1,
     diagnosisSummary: '',
     details: [createEmptyDetail()],
   };
@@ -655,6 +745,30 @@ async function deleteTemplate(record: any) {
   await loadTemplates();
 }
 
+async function openDetail(record: any) {
+  detailPrescription.value = await vpetPrescriptionGet(record.id);
+  detailVisible.value = true;
+}
+
+async function loadPrescriptionPrintTemplates() {
+  const data: any = await vpetPrintTemplateActive({ templateType: 'prescription' });
+  prescriptionPrintTemplates.value = Array.isArray(data) ? data : [];
+  selectedPrintTemplateId.value = prescriptionPrintTemplates.value.find(item => Number(item.defaultTemplate) === 1)?.id
+    ?? prescriptionPrintTemplates.value[0]?.id;
+}
+
+async function openPrescriptionPrint(record: any) {
+  if (!record?.id) return;
+  detailPrescription.value = record.details ? record : await vpetPrescriptionGet(record.id);
+  if (!prescriptionPrintTemplates.value.length) await loadPrescriptionPrintTemplates();
+  printVisible.value = true;
+}
+
+async function printCurrentPrescription() {
+  await nextTick();
+  window.print();
+}
+
 async function submitCreate() {
   if (!form.value.visitId) {
     message.error(t('page.prescription.messages.selectVisit'));
@@ -692,6 +806,7 @@ async function submitCreate() {
     await vpetPrescriptionCreate({
       visitId: form.value.visitId,
       doctorId: form.value.doctorId,
+      type: form.value.type,
       diagnosisSummary: form.value.diagnosisSummary,
       details,
     });
@@ -743,10 +858,21 @@ const columns = [
   ...createPrescriptionColumns(visitLabelById),
   {
     title: t('common.action'),
-    width: 80,
+    width: 130,
     dataIndex: 'ACTION',
     fixed: 'right' as const,
-    actions: () => [],
+    actions: ({ record }: any) => [
+      {
+        icon: 'ant-design:eye-outlined',
+        tooltip: t('common.detail'),
+        onClick: () => openDetail(record),
+      },
+      {
+        icon: 'ant-design:printer-outlined',
+        tooltip: t('page.prescription.print'),
+        onClick: () => openPrescriptionPrint(record),
+      },
+    ],
   },
 ];
 
@@ -768,6 +894,102 @@ const detailInputColumns = [
   { title: t('page.prescription.fields.unitPrice'), key: 'unitPrice', width: 130 },
   { title: t('common.action'), key: 'action', width: 90, fixed: 'right' as const },
 ];
+
+const detailViewColumns = [
+  { title: t('page.prescription.fields.item'), dataIndex: 'itemName', width: 180 },
+  { title: t('page.prescription.fields.specification'), dataIndex: 'specification', width: 140 },
+  { title: t('page.prescription.fields.dosage'), dataIndex: 'dosage', width: 120 },
+  { title: t('page.prescription.fields.frequency'), dataIndex: 'frequency', width: 100 },
+  { title: t('page.prescription.fields.quantity'), dataIndex: 'quantity', width: 90 },
+  { title: t('page.prescription.fields.dosageUnit'), dataIndex: 'dosageUnit', width: 100 },
+  {
+    title: t('page.prescription.fields.unitPrice'),
+    dataIndex: 'unitPrice',
+    width: 100,
+    customRender: ({ text }: any) => Number(text || 0).toFixed(2),
+  },
+  {
+    title: t('page.billing.fields.amount'),
+    dataIndex: 'amount',
+    width: 100,
+    customRender: ({ text }: any) => Number(text || 0).toFixed(2),
+  },
+];
+
+const prescriptionPrintTemplateOptions = computed(() =>
+  prescriptionPrintTemplates.value.map(item => ({
+    value: item.id,
+    label: `${item.name} / ${item.paperType || 'A4'}`,
+  })),
+);
+
+const prescriptionPrintHtml = computed(() => {
+  const rx = detailPrescription.value || {};
+  const template = prescriptionPrintTemplates.value.find(item => Number(item.id) === Number(selectedPrintTemplateId.value));
+  const model = buildPrescriptionPrintModel(rx);
+  const fallback = [
+    '<h1>宠物医院处方单</h1>',
+    '<p>处方号：{{rxNo}}　类别：{{prescriptionType}}　打印时间：{{printedAt}}</p>',
+    '<p>宠主：{{customerName}}　宠物：{{petName}}　医生：{{doctorName}}</p>',
+    '<p>诊断：{{diagnosisSummary}}</p>',
+    '{{itemsTable}}',
+    '<p class="vpet-print-sign">医生签名：____________</p>',
+  ].join('');
+  const content = template
+    ? [template.templateHeader, template.templateBody, template.templateFooter].filter(Boolean).join('\n')
+    : fallback;
+  return renderPrintTemplate(content, model);
+});
+
+function buildPrescriptionPrintModel(rx: any) {
+  const details = rx.details || [];
+  const totalAmount = details.reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
+  return {
+    rxNo: rx.rxNo || '-',
+    prescriptionType: prescriptionTypeText(rx.type),
+    customerName: customerLabel(null, rx.customerSnapshot, rx.customerId),
+    petName: petLabel(null, rx.petSnapshot, rx.petId),
+    doctorName: doctorLabel(rx.doctor, rx.doctorId, rx.doctorSnapshot?.name),
+    diagnosisSummary: rx.diagnosisSummary || '-',
+    totalAmount: totalAmount.toFixed(2),
+    createdAt: rx.createdAt ? new Date(rx.createdAt).toLocaleString() : '-',
+    printedAt: new Date().toLocaleString(),
+    itemsTable: buildPrescriptionItemsTable(details),
+  };
+}
+
+function buildPrescriptionItemsTable(details: any[]) {
+  const rows = details.map((item, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(item.itemName || item.drugName || '-')}</td>
+      <td>${escapeHtml(item.specification || '-')}</td>
+      <td>${escapeHtml(item.dosage || '-')}</td>
+      <td>${escapeHtml(item.frequency || '-')}</td>
+      <td>${Number(item.quantity || 0).toFixed(2)} ${escapeHtml(item.dosageUnit || '')}</td>
+      <td>${Number(item.unitPrice || 0).toFixed(2)}</td>
+      <td>${Number(item.amount || 0).toFixed(2)}</td>
+    </tr>
+  `).join('');
+  return `<table class="vpet-print-table"><thead><tr><th>#</th><th>项目</th><th>规格</th><th>剂量</th><th>频次</th><th>数量</th><th>单价</th><th>金额</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderPrintTemplate(template: string, model: Record<string, any>) {
+  const html = template.replace(/\n/g, '<br />');
+  return html.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
+    if (key === 'itemsTable') return model.itemsTable || '';
+    return escapeHtml(model[key] ?? '');
+  });
+}
+
+function escapeHtml(value: any) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 const templateInputColumns = [
   { title: t('page.prescription.fields.item'), key: 'item', width: 380 },
@@ -797,6 +1019,59 @@ onMounted(async () => {
     :deep(.ant-input-number),
     :deep(.ant-select) {
       width: 100%;
+    }
+  }
+
+  .vpet-print-paper {
+    padding: 24px;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    line-height: 1.8;
+
+    :deep(h1) {
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    :deep(.vpet-print-table) {
+      width: 100%;
+      margin: 12px 0;
+      border-collapse: collapse;
+    }
+
+    :deep(.vpet-print-table th),
+    :deep(.vpet-print-table td) {
+      padding: 6px 8px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+    }
+
+    :deep(.vpet-print-sign) {
+      margin-top: 28px;
+      text-align: right;
+    }
+  }
+
+  @media print {
+    :global(body *) {
+      visibility: hidden;
+    }
+
+    :global(#vpet-prescription-print-area),
+    :global(#vpet-prescription-print-area *) {
+      visibility: visible;
+    }
+
+    :global(#vpet-prescription-print-area) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      border: 0 !important;
     }
   }
 </style>

@@ -373,12 +373,22 @@
             style="width: 100%"
             @change="applyPrescriptionTemplate"
           />
-          <a-input
-            v-model:value="rxForm.diagnosisSummary"
-            :disabled="!canEditVisit"
-            :placeholder="t('page.consultation.detail.diagnosisSummaryPlaceholder')"
-            class="vpet-block-bottom"
-          />
+          <a-row :gutter="[12, 0]" class="vpet-block-bottom">
+            <a-col :span="8">
+              <a-select
+                v-model:value="rxForm.type"
+                :disabled="!canEditVisit"
+                :options="prescriptionTypeOptions"
+              />
+            </a-col>
+            <a-col :span="16">
+              <a-input
+                v-model:value="rxForm.diagnosisSummary"
+                :disabled="!canEditVisit"
+                :placeholder="t('page.consultation.detail.diagnosisSummaryPlaceholder')"
+              />
+            </a-col>
+          </a-row>
 
           <a-table
             class="vpet-rx-edit-table"
@@ -464,10 +474,13 @@
             <a-collapse-panel
               v-for="item in prescriptions"
               :key="item.id"
-              :header="`${item.rxNo}${item.batchNo ? ` / ${item.batchNo}` : ''} / ${Number(item.totalAmount || 0).toFixed(2)} ${t('common.amountUnit')}`"
+              :header="`${item.rxNo}${item.batchNo ? ` / ${item.batchNo}` : ''} / ${prescriptionTypeText(item.type)} / ${Number(item.totalAmount || 0).toFixed(2)} ${t('common.amountUnit')}`"
             >
               <template #extra>
                 <a-space>
+                  <a-tag :color="prescriptionTypeColor(item.type)">
+                    {{ prescriptionTypeText(item.type) }}
+                  </a-tag>
                   <a-tag :color="prescriptionStatusColor(item.status)">
                     {{ prescriptionStatusText(item.status) }}
                   </a-tag>
@@ -496,6 +509,9 @@
               <a-descriptions :column="2" size="small" class="vpet-block-spaced">
                 <a-descriptions-item :label="t('page.consultation.detail.prescriber')">
                   {{ staffLabel(item.doctor, item.doctorId, item.doctorSnapshot?.name) }}
+                </a-descriptions-item>
+                <a-descriptions-item :label="t('page.prescription.fields.type')">
+                  {{ prescriptionTypeText(item.type) }}
                 </a-descriptions-item>
                 <a-descriptions-item :label="t('page.consultation.detail.pharmacist')">
                   {{ staffLabel(item.pharmacist, item.pharmacistId) }}
@@ -985,6 +1001,9 @@ const {
   paymentStatusText,
   prescriptionStatusColor,
   prescriptionStatusText,
+  prescriptionTypeColor,
+  prescriptionTypeOptions,
+  prescriptionTypeText,
   queueEventText,
   visitStatusColor,
   visitStatusText,
@@ -1065,6 +1084,7 @@ const careFollowupForm = ref({
 const rxForm = ref({
   visitId: undefined as number | undefined,
   doctorId: undefined as number | undefined,
+  type: 1,
   diagnosisSummary: '',
   details: [] as RxDetailForm[],
 });
@@ -2181,11 +2201,13 @@ async function submitRx() {
   await vpetPrescriptionCreate({
     visitId: rxForm.value.visitId,
     doctorId: rxForm.value.doctorId,
+    type: rxForm.value.type,
     diagnosisSummary: rxForm.value.diagnosisSummary || soap.value.diagnosisName || soap.value.diagnosisCode || '',
     details,
   });
 
   message.success(t('page.prescription.messages.created'));
+  rxForm.value.type = 1;
   rxForm.value.details = [createEmptyRxDetail()];
   selectedPrescriptionTemplateId.value = [];
   await syncBilling(false);

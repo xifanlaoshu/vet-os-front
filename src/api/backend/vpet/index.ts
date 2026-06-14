@@ -244,6 +244,10 @@ export function vpetPrescriptionStockTxns(id: number, options?: RequestOptions) 
   return request(`/api/vpet/prescription/${id}/stock-txns`, { method: 'GET', ...(options || {}) });
 }
 
+export function vpetPrescriptionGet(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/prescription/${id}`, { method: 'GET', ...(options || {}) });
+}
+
 export function vpetPrescriptionTemplateList(params?: any, options?: RequestOptions) {
   return request('/api/vpet/prescription/templates', { method: 'GET', params, ...(options || {}) });
 }
@@ -308,6 +312,26 @@ export function vpetBillingRefund(id: number, body: any, options?: RequestOption
 
 export function vpetBillingGet(id: number, options?: RequestOptions) {
   return request(`/api/vpet/billing/${id}`, { method: 'GET', ...(options || {}) });
+}
+
+export function vpetPrintTemplateList(params?: any, options?: RequestOptions) {
+  return request('/api/vpet/print-templates', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetPrintTemplateActive(params?: { templateType?: string }, options?: RequestOptions) {
+  return request('/api/vpet/print-templates/active', { method: 'GET', params, ...(options || {}) });
+}
+
+export function vpetPrintTemplateCreate(body: any, options?: RequestOptions) {
+  return request('/api/vpet/print-templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetPrintTemplateUpdate(id: number, body: any, options?: RequestOptions) {
+  return request(`/api/vpet/print-templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, data: body, ...(options || {}) });
+}
+
+export function vpetPrintTemplateDelete(id: number, options?: RequestOptions) {
+  return request(`/api/vpet/print-templates/${id}`, { method: 'DELETE', ...(options || {}) });
 }
 
 /** 鏀惰垂鍒楄〃 GET /api/vpet/billing */

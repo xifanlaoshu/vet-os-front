@@ -13,6 +13,13 @@
     "save": "Save",
     "clear": "Clear",
     "delete": "Delete",
+    "add": "Add",
+    "keyword": "Keyword",
+    "print": "Print",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
     "confirmDelete": "Confirm deletion?",
     "action": "Action",
     "queryText": "Search",
@@ -536,6 +543,8 @@
       "confirmPayment": "Confirm payment",
       "refund": "Refund",
       "detail": "Bill detail",
+      "printReceipt": "Print receipt",
+      "printRefundReceipt": "Print refund receipt",
       "chargeItems": "Charge items",
       "paymentRecords": "Payment records",
       "memberNotOpened": "No member card",
@@ -707,6 +716,8 @@
       "title": "Prescriptions",
       "add": "New prescription",
       "detail": "Prescription details",
+      "detailTitle": "Prescription detail",
+      "print": "Print prescription",
       "detailItems": "Prescription items",
       "addDrug": "Add charge item",
       "templateManager": "Prescription templates",
@@ -730,6 +741,7 @@
         "templateCategory": "Template category",
         "templateDescription": "Template description",
         "diagnosisSummary": "Clinical diagnosis",
+        "type": "Prescription type",
         "item": "Item",
         "specification": "Specification",
         "dosage": "Dosage",
@@ -750,6 +762,28 @@
         "templateDeleted": "Prescription template deleted"
       },
       "formulaHelp": "Formulas support the variable weight (pet weight in kg) and arithmetic, such as weight*0.2. Range rules are also supported, such as 1-2=1;2-5=2;>5=3. When applying a template, the system calculates suggested dosage and quantity from the current visit pet weight, and the prescription can still be adjusted manually."
+    },
+    "printTemplate": {
+      "title": "Print templates",
+      "selectTemplate": "Select print template",
+      "fields": {
+        "code": "Template code",
+        "name": "Template name",
+        "templateType": "Template type",
+        "paperType": "Paper type",
+        "defaultTemplate": "Default",
+        "status": "Status",
+        "templateHeader": "Template header",
+        "templateBody": "Template body",
+        "templateFooter": "Template footer",
+        "remark": "Remark"
+      },
+      "messages": {
+        "required": "Please fill code, name, type and body",
+        "created": "Print template created",
+        "updated": "Print template updated",
+        "deleted": "Print template disabled"
+      }
     },
     "queue": {
       "title": "Queue Board",
