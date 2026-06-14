@@ -50,7 +50,7 @@
         <a-descriptions-item :label="t('page.insurance.fields.customer')">{{ customerLabel(detailRecord?.customer, detailRecord?.customerSnapshot, detailRecord?.customerId) }}</a-descriptions-item>
         <a-descriptions-item :label="t('page.insurance.fields.pet')">{{ petLabel(detailRecord?.pet, detailRecord?.petSnapshot, detailRecord?.petId) }}</a-descriptions-item>
         <a-descriptions-item :label="t('page.insurance.fields.visit')">{{ detailRecord?.visit?.visitNo || detailRecord?.visitId || '-' }}</a-descriptions-item>
-        <a-descriptions-item :label="t('page.billing.fields.billNo')">{{ detailRecord?.billing?.billNo || detailRecord?.billingId || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="t('page.insurance.fields.billing')">{{ detailRecord?.billing?.billNo || detailRecord?.billingId || '-' }}</a-descriptions-item>
         <a-descriptions-item :label="t('page.insurance.fields.claimAmount')">{{ Number(detailRecord?.claimAmount || 0).toFixed(2) }}</a-descriptions-item>
         <a-descriptions-item :label="t('page.insurance.fields.approvedAmount')">{{ Number(detailRecord?.approvedAmount || 0).toFixed(2) }}</a-descriptions-item>
         <a-descriptions-item :label="t('page.insurance.fields.submittedAt')">{{ detailRecord?.submittedAt ? formatToDateTime(detailRecord.submittedAt) : '-' }}</a-descriptions-item>

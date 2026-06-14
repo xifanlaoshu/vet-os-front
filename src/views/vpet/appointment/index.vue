@@ -514,7 +514,7 @@ function availableDoctorOptionsAt(dateTime?: Dayjs | string, keepDoctorId?: numb
   return [
     {
       ...current,
-      label: `${current.label}（排班冲突）`,
+      label: `${current.label}${t('page.appointment.scheduleConflictSuffix')}`,
       disabled: true,
     },
     ...options,

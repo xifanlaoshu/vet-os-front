@@ -119,9 +119,9 @@ const transferColumns = [
 
 const transferItemColumns = [
   { title: t('page.store.fields.drugName'), dataIndex: 'drugName', width: 220 },
-  { title: t('page.prescription.fields.specification'), dataIndex: 'specification', width: 160 },
+  { title: t('page.store.fields.specification'), dataIndex: 'specification', width: 160 },
   { title: t('page.store.fields.quantity'), dataIndex: 'quantity', width: 120 },
-  { title: t('page.prescription.fields.dosageUnit'), dataIndex: 'unit', width: 120 },
+  { title: t('page.store.fields.unit'), dataIndex: 'unit', width: 120 },
 ];
 
 async function loadDrugOptions() {
